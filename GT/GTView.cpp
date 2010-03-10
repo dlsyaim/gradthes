@@ -12,6 +12,9 @@
 
 #include "GTDoc.h"
 #include "GTView.h"
+#include "ModelChoosingDialog.h"
+#include "CommunicationTestDialog.h"
+#include "SteeringGearTestDialog.h"
 
 
 #ifdef _DEBUG
@@ -48,6 +51,9 @@ BEGIN_MESSAGE_MAP(CGTView, CView)
 	//ON_COMMAND(ID_AHRS_STOP, &CGTView::OnAHRSStop)
 	ON_MESSAGE(WM_COMM_RXCHAR, &CGTView::OnCommunication)
 	ON_WM_RBUTTONDOWN()
+	ON_COMMAND(ID_32771, &CGTView::OnNewModel)
+	ON_COMMAND(ID_32774, &CGTView::OnCommunicationTest)
+	ON_COMMAND(ID_32775, &CGTView::OnSteeringGearTest)
 END_MESSAGE_MAP()
 
 // CGTView construction/destruction
@@ -528,4 +534,24 @@ BOOL CGTView::cBuildFont(void)
 	// Delete the new font.
 	DeleteObject(newFont);	
 	return TRUE;
+}
+void CGTView::OnNewModel()
+{
+	// TODO: 
+	CModelChoosingDialog mcd;
+	mcd.DoModal();
+}
+
+void CGTView::OnCommunicationTest()
+{
+	// TODO:
+	CCommunicationTestDialog ctd;
+	ctd.DoModal();
+}
+
+void CGTView::OnSteeringGearTest()
+{
+	// TODO: 
+	CSteeringGearTestDialog sgtd;
+	sgtd.DoModal();
 }
