@@ -213,6 +213,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CommunicationTestDialog.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ControlPositionIndicator.cpp"
 				>
 			</File>
@@ -254,6 +258,10 @@
 			</File>
 			<File
 				RelativePath=".\MainFrm.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ModelChoosingDialog.cpp"
 				>
 			</File>
 			<File
@@ -299,6 +307,10 @@
 						UsePrecompiledHeader="1"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\SteeringGearTestDialog.cpp"
+				>
 			</File>
 			<File
 				RelativePath=".\Terrain.cpp"
@@ -367,6 +379,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CommunicationTestDialog.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ControlPositionIndicator.h"
 				>
 			</File>
@@ -415,6 +431,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ModelChoosingDialog.h"
+				>
+			</File>
+			<File
 				RelativePath=".\NetSvrUdp.h"
 				>
 			</File>
@@ -444,6 +464,10 @@
 			</File>
 			<File
 				RelativePath=".\stdafx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SteeringGearTestDialog.h"
 				>
 			</File>
 			<File
@@ -543,5 +567,9 @@
 		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="RESOURCE_FILE"
+			Value="GT.rc"
+		/>
 	</Globals>
 </VisualStudioProject>
