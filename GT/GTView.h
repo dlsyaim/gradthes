@@ -102,6 +102,8 @@ public:
 	afx_msg void OnNewModel();
 	afx_msg void OnCommunicationTest();
 	afx_msg void OnSteeringGearTest();
+	afx_msg void OnGyroTest();
+	afx_msg void OnGPSTest();
 };
 
 #ifndef _DEBUG  // debug version in GTView.cpp

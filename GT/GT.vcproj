@@ -217,6 +217,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ControlParameter.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ControlPositionIndicator.cpp"
 				>
 			</File>
@@ -229,7 +233,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FlightModel.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\FuelKnob.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GPSTestDialog.cpp"
 				>
 			</File>
 			<File
@@ -242,6 +254,14 @@
 			</File>
 			<File
 				RelativePath=".\GTView.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Gyro.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GyroTestDialog.cpp"
 				>
 			</File>
 			<File
@@ -266,6 +286,10 @@
 			</File>
 			<File
 				RelativePath=".\NetSvrUdp.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Node.cpp"
 				>
 			</File>
 			<File
@@ -307,6 +331,14 @@
 						UsePrecompiledHeader="1"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\SteeringGear.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SteeringGearLim.cpp"
+				>
 			</File>
 			<File
 				RelativePath=".\SteeringGearTestDialog.cpp"
@@ -383,6 +415,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ControlParameter.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ControlPositionIndicator.h"
 				>
 			</File>
@@ -395,11 +431,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FlightModel.h"
+				>
+			</File>
+			<File
 				RelativePath=".\FuelKnob.h"
 				>
 			</File>
 			<File
 				RelativePath=".\Globals.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GPSTestDialog.h"
 				>
 			</File>
 			<File
@@ -412,6 +456,14 @@
 			</File>
 			<File
 				RelativePath=".\GTView.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Gyro.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GyroTestDialog.h"
 				>
 			</File>
 			<File
@@ -436,6 +488,10 @@
 			</File>
 			<File
 				RelativePath=".\NetSvrUdp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Node.h"
 				>
 			</File>
 			<File
@@ -464,6 +520,14 @@
 			</File>
 			<File
 				RelativePath=".\stdafx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SteeringGear.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SteeringGearLim.h"
 				>
 			</File>
 			<File
