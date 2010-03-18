@@ -4,6 +4,7 @@
 //
 #define IDD_ABOUTBOX                    100
 #define IDP_OLE_INIT_FAILED             100
+#define IDD_FORMVIEW                    101
 #define IDR_POPUP_EDIT                  119
 #define ID_STATUSBAR_PANE1              120
 #define ID_STATUSBAR_PANE2              121
@@ -30,7 +31,8 @@
 #define IDD_MODELCHOOSING_DIALOG        310
 #define IDD_COMMUNICATIONTEST_DIALOG    311
 #define IDD_STEERINGGEARTEST_DIALOG1    312
-#define IDD_DIALOG1                     313
+#define IDD_GYROTEST_DIALOG             313
+#define IDD_GPSTEST_DIALOG              314
 #define IDC_AIRCRAFTNAME_EDIT           1000
 #define IDC_AIRCRAFTMASS_EDIT           1001
 #define IDC_MAINBLADELENGHT_EDIT        1002
@@ -57,11 +59,20 @@
 #define IDC_HEADINGANGLE_EDIT           1030
 #define IDC_ROLLANGLEVEL_EDIT           1031
 #define IDC_PITCHANGLEVEL_EDIT          1034
-#define IDC_EDIT9                       1036
 #define IDC_HEADINGANGLEVEL_EDIT        1036
 #define IDC_BUTTON1                     1037
 #define IDC_BUTTON2                     1038
 #define IDC_BUTTON3                     1039
+#define IDC_XVALUE_EDIT                 1040
+#define IDC_YVALUE_EDIT                 1041
+#define IDC_ZVALUE_EDIT                 1042
+#define IDC_COMMUNICATIONPORT_EDIT      1043
+#define IDC_COMMUNICATIONVEL_EDIT       1044
+#define IDC_SATELLITECOUNT_EDIT         1046
+#define IDC_GPSTESTSTART_BUTTON         1047
+#define IDC_GPSTESTFAILURE_BUTTON       1048
+#define IDC_GPSTESTPASS_BUTTON          1049
+#define IDC_EDIT1                       1050
 #define ID_32771                        32771
 #define ID_32772                        32772
 #define ID_32773                        32773
@@ -83,9 +94,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        314
+#define _APS_NEXT_RESOURCE_VALUE        317
 #define _APS_NEXT_COMMAND_VALUE         32787
-#define _APS_NEXT_CONTROL_VALUE         1040
+#define _APS_NEXT_CONTROL_VALUE         1051
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif
