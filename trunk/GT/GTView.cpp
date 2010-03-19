@@ -4,6 +4,7 @@
 
 #include "stdafx.h"
 #include "GT.h"
+#include "MainFrm.h"
 
 #include <GL/glut.h>
 #include <GL/glaux.h>
@@ -52,7 +53,7 @@ BEGIN_MESSAGE_MAP(CGTView, CView)
 	//ON_COMMAND(ID_AHRS_STOP, &CGTView::OnAHRSStop)
 	ON_MESSAGE(WM_COMM_RXCHAR, &CGTView::OnCommunication)
 	ON_WM_RBUTTONDOWN()
-	ON_COMMAND(ID_32771, &CGTView::OnNewModel)
+	
 	ON_COMMAND(ID_32774, &CGTView::OnCommunicationTest)
 	ON_COMMAND(ID_32775, &CGTView::OnSteeringGearTest)
 	ON_COMMAND(ID_32776, &CGTView::OnGyroTest)
@@ -537,12 +538,6 @@ BOOL CGTView::cBuildFont(void)
 	// Delete the new font.
 	DeleteObject(newFont);	
 	return TRUE;
-}
-void CGTView::OnNewModel()
-{
-	// TODO: 
-	CModelChoosingDialog mcd;
-	mcd.DoModal();
 }
 
 void CGTView::OnCommunicationTest()

@@ -53,11 +53,11 @@ BEGIN
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)\r\n"
     "LANGUAGE 4, 2\r\n"
     "#pragma code_page(936)\r\n"
-    "#include ""res\\GT.rc2""  // ·? Microsoft Visual C++ ±à?-μ?×ê?′\r\n"
-    "#include ""l.CHS\\afxres.rc""          // ±ê×?×é?t\r\n"
-    "#include ""l.CHS\\afxprint.rc""        // ′òó?/′òó??¤àà×ê?′\r\n"
+    "#include ""res\\GT.rc2""  // 非 Microsoft Visual C++ 编辑的资源\r\n"
+    "#include ""l.CHS\\afxres.rc""          // 标准组件\r\n"
+    "#include ""l.CHS\\afxprint.rc""        // 打印/打印预览资源\r\n"
     "#if !defined(_AFXDLL)\r\n"
-    "#include ""l.CHS\\afxribbon.rc""               // MFC 1|?ü??oí???tì?×ê?′\r\n"
+    "#include ""l.CHS\\afxribbon.rc""               // MFC 功能区和控件条资源\r\n"
     "#endif\r\n"
     "#endif\r\n"
     "\0"
@@ -174,8 +174,8 @@ BEGIN
     POPUP "机型选择"
     BEGIN
         MENUITEM "新建",                          ID_32771
-        MENUITEM "油动",                          ID_32772
-        MENUITEM "电动",                          ID_32773
+        MENUITEM SEPARATOR
+        MENUITEM "最近的模型",                       65535
     END
     POPUP "系统测试"
     BEGIN
@@ -275,17 +275,18 @@ BEGIN
     DEFPUSHBUTTON   "确定",IDOK,205,251,50,14
     PUSHBUTTON      "取消",IDCANCEL,293,251,50,14
     LTEXT           "飞机名称",IDC_STATIC,29,19,33,8
-    LTEXT           "飞机质量",IDC_STATIC,30,34,33,8
-    LTEXT           "主桨长度",IDC_STATIC,29,48,33,8
-    EDITTEXT        IDC_AIRCRAFTNAME_EDIT,75,18,84,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_AIRCRAFTMASS_EDIT,75,30,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_MAINBLADELENGHT_EDIT,75,43,40,14,ES_AUTOHSCROLL
-    LTEXT           "飞机长度",IDC_STATIC,172,34,33,8
-    LTEXT           "主桨转速",IDC_STATIC,172,46,33,8
-    EDITTEXT        IDC_AIRCRAFTLENGHT_EDIT,215,30,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_MAINBLADERPM_EDIT,215,45,40,14,ES_AUTOHSCROLL
-    LTEXT           "X惯量",IDC_STATIC,33,161,21,8
-    EDITTEXT        IDC_XINERTIA_EDIT,76,157,40,14,ES_AUTOHSCROLL
+    LTEXT           "飞机质量",IDC_STATIC,30,33,33,8
+    LTEXT           "主桨长度",IDC_STATIC,29,47,33,8
+    EDITTEXT        IDC_AIRCRAFTNAME_EDIT,75,19,84,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_AIRCRAFTMASS_EDIT,75,33,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_MAINBLADELENGHT_EDIT,75,47,40,14,ES_AUTOHSCROLL
+    LTEXT           "飞机长度",IDC_STATIC,172,33,33,8
+    LTEXT           "主桨转速",IDC_STATIC,172,47,33,8
+    EDITTEXT        IDC_AIRCRAFTLENGHT_EDIT,215,33,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_MAINBLADERPM_EDIT,215,47,40,14,ES_AUTOHSCROLL
+    LTEXT           "X惯量",IDC_STATIC,29,161,21,8
+    EDITTEXT        IDC_XINERTIA_EDIT,75,157,40,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME,216,150,126,96
 END
 
 IDD_COMMUNICATIONTEST_DIALOG DIALOGEX 0, 0, 312, 270

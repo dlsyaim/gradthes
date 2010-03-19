@@ -8,25 +8,25 @@
 //};
 
 // 控制参数
-typedef _ControlParameter {
+typedef struct _ControlParameter {
 	char controlAlgorithm[50];
 	char description[200];
 	bool bol[100];
 	long log[100];
 	double dbl[100];
-} Parameter;
+} ControlParameter;
 
 // 飞机模型
-typedef _FlightModel {
+typedef struct _HelicopterModel {
 	char model[50];
 	char description[50];
 	bool bol[100];
 	long log[100];
 	double dbl[100];
-} FlightModel;
+} HelicopterModel, *PHelicopterModel;
 
 // 飞机状态
-typedef _FlightData {
+typedef struct _FlightData {
 	//时间序号
 	
 	// 总距
@@ -52,7 +52,7 @@ typedef _FlightData {
 } FlightData;
 
 // 飞行路径中的点
-typedef _Node {
+typedef struct _Node {
 	int id;
 	double x;
 	double y;
