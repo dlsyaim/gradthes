@@ -6,6 +6,9 @@
 #include "GT.h"
 
 #include "MainFrm.h"
+#include "ModelChoosingDialog.h"
+
+#define ID_HELICOPTER_BEGIN 48000
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -23,6 +26,12 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_CREATE()
 	ON_COMMAND(ID_VIEW_CUSTOMIZE, &CMainFrame::OnViewCustomize)
 	ON_REGISTERED_MESSAGE(AFX_WM_CREATETOOLBAR, &CMainFrame::OnToolbarCreateNew)
+	ON_COMMAND(ID_32771, &CMainFrame::OnNewModel)
+	ON_COMMAND(ID_HELICOPTER_BEGIN + 0, OnZeroModel)
+	ON_COMMAND(ID_HELICOPTER_BEGIN + 1, OnFirstModel)
+	ON_COMMAND(ID_HELICOPTER_BEGIN + 2, OnSecondModel)
+	ON_COMMAND(ID_HELICOPTER_BEGIN + 3, OnThirdModel)
+	ON_COMMAND(ID_HELICOPTER_BEGIN + 4, OnForthModel)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -38,6 +47,9 @@ static UINT indicators[] =
 CMainFrame::CMainFrame()
 {
 	// TODO: add member initialization code here
+	numberOfMenu = 0;
+
+	isNew = FALSE;
 }
 
 CMainFrame::~CMainFrame()
@@ -224,3 +236,152 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 	return TRUE;
 }
 
+
+void CMainFrame::OnNewModel()
+{
+	// TODO: 在此添加命令处理程序代码
+	CModelChoosingDialog *mcd = new CModelChoosingDialog(this);
+	mcd->DoModal();
+
+	// First add name
+	AddName(mcd->aircraftName);
+	UpdateMenu();
+}
+
+void CMainFrame::AddMenu(CString message)
+{
+	CMenu* mainMenu = CMenu::FromHandle(m_wndMenuBar.GetDefaultMenu());
+	if (mainMenu != NULL) {
+		CMenu *subMenu = NULL, *popUpMenu = NULL;
+
+		// Iterate the main menu
+		int menuCount = mainMenu->GetMenuItemCount();
+		int i;
+		for (i = 0; i < menuCount; i++) {
+			CString menuName;
+			if (mainMenu->GetMenuString(i, menuName, MF_BYPOSITION) && menuName == "机型选择") {
+				subMenu = mainMenu->GetSubMenu(i);
+				break;
+			}
+		}
+
+		for (i = 0; i < (int)subMenu->GetMenuItemCount(); i++) {
+			CString menuName;
+			if (subMenu->GetMenuString(i, menuName, MF_BYPOSITION) && menuName == "最近模型") {
+				popUpMenu = subMenu->GetSubMenu(i);
+				break;
+			}
+		}
+		if (popUpMenu != NULL) {
+			if (popUpMenu->AppendMenu(MF_STRING,  ID_HELICOPTER_BEGIN, message) ){
+				m_wndMenuBar.CreateFromMenu(mainMenu->GetSafeHmenu(), TRUE, TRUE);
+			}
+		}
+	}		
+}
+
+void CMainFrame::UpdateMenu(void)
+{
+	CMenu* mainMenu = CMenu::FromHandle(m_wndMenuBar.GetDefaultMenu());
+	if (mainMenu != NULL) {
+		CMenu *subMenu = NULL;
+		static CMenu *popUpMenu = NULL;
+		MENUITEMINFO info;
+		info.cbSize = sizeof (MENUITEMINFO); // must fill up this field
+		info.fMask = MIIM_SUBMENU;             
+
+
+		// Iterate the main menu
+		int menuCount = mainMenu->GetMenuItemCount();
+		int i;
+		for (i = 0; i < menuCount; i++) {
+			CString menuName;
+			if (mainMenu->GetMenuString(i, menuName, MF_BYPOSITION) && menuName == "机型选择") {
+				subMenu = mainMenu->GetSubMenu(i);
+				break;
+			}
+		}
+
+		for (i = 0; i < (int)subMenu->GetMenuItemCount(); i++) {
+			CString menuName;
+			if (subMenu->GetMenuString(i, menuName, MF_BYPOSITION) && menuName == "最近的模型") {
+				subMenu->GetMenuItemInfo(i, &info, TRUE);
+				break;
+			}
+		}
+		// Adding
+		if (!isNew) {
+			isNew = TRUE;
+			popUpMenu = new CMenu();
+			popUpMenu->CreateMenu();
+			info.hSubMenu = popUpMenu->GetSafeHmenu();
+			subMenu->SetMenuItemInfo(i, &info, TRUE);
+		}
+		if (popUpMenu != NULL) {
+			if (numberOfMenu < MAX_NUM_HELICOPTER_NAME) {
+				if (popUpMenu->AppendMenu(MF_STRING,  ID_HELICOPTER_BEGIN + numberOfMenu, "TEMP") ){					
+					numberOfMenu++;
+			    }
+			}
+
+			// Renaming
+			for (i = 0; i < (int)popUpMenu->GetMenuItemCount(); i++ ) {
+				popUpMenu->ModifyMenu(ID_HELICOPTER_BEGIN + i, MF_BYCOMMAND, ID_HELICOPTER_BEGIN + i, helicopterNames[i]);					
+			}
+			// Corresponding
+			m_wndMenuBar.CreateFromMenu(mainMenu->GetSafeHmenu(), TRUE, TRUE);
+		}
+	}	
+}
+
+void CMainFrame::AddName(CString name)
+{
+	// First check if name exists
+	DeleteName(name);
+	// Then make room for the newly arrived name
+	for (int i = MAX_NUM_HELICOPTER_NAME - 1; i > 0; i--) {
+		helicopterNames[i] = helicopterNames[i - 1];
+	}
+
+	// Thirdly ...
+	helicopterNames[0] = name;
+	//newestIdx = (newestIdx++) %  MAX_NUM_HELICOPTER_NAME;
+	//helicopterNames[newestIdx] = name;
+}
+
+void CMainFrame::DeleteName(CString name)
+{
+	int i; 
+	for (i = 0 ; i < MAX_NUM_HELICOPTER_NAME; i++) {
+		if (helicopterNames[i] == name) 
+			break;
+	}
+	for (int j = i; j < MAX_NUM_HELICOPTER_NAME - 1; j++) {
+		helicopterNames[j] = helicopterNames[j + 1];
+	}
+}
+
+void CMainFrame::OnZeroModel(void)
+{
+	TRACE(helicopterNames[0]);
+}
+
+void CMainFrame::OnFirstModel(void)
+{
+	TRACE(helicopterNames[1]);
+}
+
+void CMainFrame::OnSecondModel(void)
+{
+	TRACE(helicopterNames[2]);
+}
+
+void CMainFrame::OnThirdModel(void)
+{
+	TRACE(helicopterNames[3]);
+}
+
+void CMainFrame::OnForthModel(void)
+{
+	TRACE(helicopterNames[4]);
+}

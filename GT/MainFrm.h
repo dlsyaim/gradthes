@@ -4,6 +4,8 @@
 
 #pragma once
 
+#define MAX_NUM_HELICOPTER_NAME 5
+
 class CMainFrame : public CFrameWndEx
 {
 	
@@ -16,6 +18,7 @@ public:
 
 // Operations
 public:
+	void AddMenu(CString name);
 
 // Overrides
 public:
@@ -35,9 +38,16 @@ protected:  // control bar embedded members
 	CMFCToolBar       m_wndToolBar;
 	CMFCStatusBar     m_wndStatusBar;
 	CMFCToolBarImages m_UserImages;
-	
+
+	// A string array to store names of helicopter models already created.
+	CString helicopterNames[MAX_NUM_HELICOPTER_NAME];
+	// Number of menu items created
+	int numberOfMenu;
 	// User defined variable
 	//CMFCToolBar m_wndAHRSToolBar;
+
+	// If a new model is 
+	BOOL isNew;
 
 // Generated message map functions
 protected:
@@ -46,6 +56,19 @@ protected:
 	afx_msg LRESULT OnToolbarCreateNew(WPARAM wp, LPARAM lp);
 	DECLARE_MESSAGE_MAP()
 
+public:
+	afx_msg void OnNewModel();
+	afx_msg void OnZeroModel();
+	afx_msg void OnFirstModel();
+	afx_msg void OnSecondModel();
+	afx_msg void OnThirdModel();
+	afx_msg void OnForthModel();
+
+private:
+	void AddName(CString name);
+	void DeleteName(CString name);
+
+	void UpdateMenu(void);
 };
 
 

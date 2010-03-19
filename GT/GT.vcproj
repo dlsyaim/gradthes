@@ -217,10 +217,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ControlParameter.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\ControlPositionIndicator.cpp"
 				>
 			</File>
@@ -294,6 +290,10 @@
 			</File>
 			<File
 				RelativePath=".\Panel.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Parameter.cpp"
 				>
 			</File>
 			<File
@@ -415,10 +415,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ControlParameter.h"
-				>
-			</File>
-			<File
 				RelativePath=".\ControlPositionIndicator.h"
 				>
 			</File>
@@ -496,6 +492,10 @@
 			</File>
 			<File
 				RelativePath=".\Panel.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Parameter.h"
 				>
 			</File>
 			<File
