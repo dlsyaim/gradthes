@@ -57,18 +57,24 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
-	afx_msg void OnNewModel();
-	afx_msg void OnZeroModel();
-	afx_msg void OnFirstModel();
-	afx_msg void OnSecondModel();
-	afx_msg void OnThirdModel();
-	afx_msg void OnForthModel();
+	afx_msg void OnNewModel(void);
+	afx_msg void OnZeroModel(void);
+	afx_msg void OnFirstModel(void);
+	afx_msg void OnSecondModel(void);
+	afx_msg void OnThirdModel(void);
+	afx_msg void OnForthModel(void);
 
 private:
 	void AddName(CString name);
 	void DeleteName(CString name);
 
 	void UpdateMenu(void);
+	void DeleteMenu(CString name);
+
+	// 
+	void OnSelectModel(int idx);
+
+	int FindMenuItem(CMenu*, LPCTSTR str);
 };
 
 

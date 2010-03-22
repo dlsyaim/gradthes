@@ -7,16 +7,16 @@
 //	~CControlParameter(void);
 //};
 
-// 控制参数
+// Control parameters
 typedef struct _ControlParameter {
 	char controlAlgorithm[50];
 	char description[200];
 	bool bol[100];
 	long log[100];
 	double dbl[100];
-} ControlParameter;
+} ControlParameter, PControlParamter;
 
-// 飞机模型
+// helicopter model
 typedef struct _HelicopterModel {
 	char model[50];
 	char description[50];
@@ -25,7 +25,7 @@ typedef struct _HelicopterModel {
 	double dbl[100];
 } HelicopterModel, *PHelicopterModel;
 
-// 飞机状态
+// helicopter status(data)
 typedef struct _FlightData {
 	//时间序号
 	
@@ -49,7 +49,7 @@ typedef struct _FlightData {
 	double phi, theta, psi;
 	// PHI、THETA、PSI角速度
 	double acc_phi, acc_theta, acc_psi;
-} FlightData;
+} FlightData, PFlightData;
 
 // 飞行路径中的点
 typedef struct _Node {
@@ -60,5 +60,5 @@ typedef struct _Node {
 	// 悬停时间
 	double hoveringEndurance;
 	double reserved[3];
-} Node;
+} Node, PNode;
 
