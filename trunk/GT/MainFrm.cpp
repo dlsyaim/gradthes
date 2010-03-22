@@ -363,25 +363,121 @@ void CMainFrame::DeleteName(CString name)
 
 void CMainFrame::OnZeroModel(void)
 {
-	TRACE(helicopterNames[0]);
+	OnSelectModel(0);
 }
 
 void CMainFrame::OnFirstModel(void)
 {
-	TRACE(helicopterNames[1]);
+	OnSelectModel(1);
 }
 
 void CMainFrame::OnSecondModel(void)
 {
-	TRACE(helicopterNames[2]);
+	OnSelectModel(2);
 }
 
 void CMainFrame::OnThirdModel(void)
 {
-	TRACE(helicopterNames[3]);
+	OnSelectModel(3);
 }
 
 void CMainFrame::OnForthModel(void)
 {
-	TRACE(helicopterNames[4]);
+	OnSelectModel(4);
+}
+
+void CMainFrame::OnSelectModel(int idx)
+{
+	if (idx < 0 && idx > 4) 
+		return;
+
+	// Open the corresponding existing file
+	CString modelName = helicopterNames[idx];
+	// Construct a fileName
+	char fileName[256];
+	GetCurrentDirectory(256, fileName);
+	strcat(fileName, modelName);
+	// New a CFile pointer
+	CFile filePointer;
+	CFileException exception;
+	if (!filePointer.Open((LPCTSTR)fileName, CFile::modeRead | CFile::shareDenyWrite | CFile::modeNoTruncate, &exception)) {
+		// First delete fileName from helicopterNames
+		DeleteName(modelName);
+		DeleteMenu(modelName);
+		CString meg;
+		meg.Format("File couldn't be opend %d\n", exception.m_cause);
+		AfxMessageBox((LPCTSTR)meg);
+		return;
+	}
+	// New a helicopter model.
+  
+
+}
+
+void CMainFrame::DeleteMenu(CString name)
+{
+	CMenu* mainMenu = CMenu::FromHandle(m_wndMenuBar.GetDefaultMenu());
+	if (mainMenu != NULL) {
+		CMenu *subMenu = NULL;
+		static CMenu *popUpMenu = NULL;
+		MENUITEMINFO info;
+		info.cbSize = sizeof (MENUITEMINFO); // must fill up this field
+		info.fMask = MIIM_SUBMENU;             
+
+
+		// Iterate the main menu
+		int menuCount = mainMenu->GetMenuItemCount();
+		int i;
+		for (i = 0; i < menuCount; i++) {
+			CString menuName;
+			if (mainMenu->GetMenuString(i, menuName, MF_BYPOSITION) && menuName == "机型选择") {
+				subMenu = mainMenu->GetSubMenu(i);
+				break;
+			}
+		}
+
+		for (i = 0; i < (int)subMenu->GetMenuItemCount(); i++) {
+			CString menuName;
+			if (subMenu->GetMenuString(i, menuName, MF_BYPOSITION) && menuName == "最近的模型") {
+				subMenu->GetMenuItemInfo(i, &info, TRUE);
+				popUpMenu = CMenu::FromHandle(info.hSubMenu);
+				break;
+			}
+		}
+		numberOfMenu--;
+		if (popUpMenu != NULL) {
+			int pos = FindMenuItem(popUpMenu, name);
+			// Deleting
+			int j;
+			int originCount = popUpMenu->GetMenuItemCount();
+			for (j = pos; j < originCount; j++) {
+				popUpMenu->DeleteMenu(pos, MF_BYPOSITION);
+			}
+			// Adding
+			for (j = pos; j < numberOfMenu; j++ ) {
+				popUpMenu->AppendMenu(MF_STRING,  ID_HELICOPTER_BEGIN + j, helicopterNames[j]);					
+			}
+			info.hSubMenu = popUpMenu->GetSafeHmenu();
+			subMenu->SetMenuItemInfo(i, &info, TRUE);
+			// Corresponding
+			m_wndMenuBar.CreateFromMenu(mainMenu->GetSafeHmenu(), TRUE, TRUE);
+		}
+	}	
+}
+
+int CMainFrame::FindMenuItem(CMenu* Menu, LPCTSTR MenuString)
+{
+	 ASSERT(Menu);
+     ASSERT(::IsMenu(Menu->GetSafeHmenu()));
+
+     int count = Menu->GetMenuItemCount();
+     for (int i = 0; i < count; i++)
+    {
+		CString str;
+        if (Menu->GetMenuString(i, str, MF_BYPOSITION) &&
+         str.Compare(MenuString) == 0)
+         return i;
+     }
+
+     return -1;
 }
