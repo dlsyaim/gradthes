@@ -281,6 +281,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\NetClient.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\NetServer.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\NetSvrUdp.cpp"
 				>
 			</File>
@@ -431,6 +439,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\flysysdef.h"
+				>
+			</File>
+			<File
 				RelativePath=".\FuelKnob.h"
 				>
 			</File>
@@ -480,6 +492,14 @@
 			</File>
 			<File
 				RelativePath=".\ModelChoosingDialog.h"
+				>
+			</File>
+			<File
+				RelativePath=".\NetClient.h"
+				>
+			</File>
+			<File
+				RelativePath=".\NetServer.h"
 				>
 			</File>
 			<File

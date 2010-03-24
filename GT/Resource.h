@@ -73,6 +73,8 @@
 #define IDC_GPSTESTFAILURE_BUTTON       1048
 #define IDC_GPSTESTPASS_BUTTON          1049
 #define IDC_EDIT1                       1050
+#define IDC_COMMUNICATIONTEST_FAILURE   1051
+#define IDC_COMMUNICATIONTEST_PASS      1052
 #define ID_32771                        32771
 #define ID_32772                        32772
 #define ID_32773                        32773
@@ -101,7 +103,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        317
 #define _APS_NEXT_COMMAND_VALUE         32792
-#define _APS_NEXT_CONTROL_VALUE         1051
+#define _APS_NEXT_CONTROL_VALUE         1053
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif
