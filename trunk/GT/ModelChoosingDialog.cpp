@@ -2,10 +2,10 @@
 //
 
 #include "stdafx.h"
+#include <fstream>
 #include "GT.h"
 #include "MainFrm.h"
 #include "ModelChoosingDialog.h"
-
 
 
 
@@ -59,7 +59,11 @@ void CModelChoosingDialog::OnBnClickedOk()
 {
 	// TODO: 
 	//UpdateData(TRUE);
-	OnOK();
+	this->UpdateData();
+	// Construct a flight model
+	// ...
+	// Then use ofstream to store the flightmodel into files.
+	CDialog::OnOK();
 }
 
 //void CModelChoosingDialog::OnEnChangeAircraftnameEdit()

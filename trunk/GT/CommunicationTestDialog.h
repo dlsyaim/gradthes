@@ -18,4 +18,12 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV Ö§³Ö
 
 	DECLARE_MESSAGE_MAP()
+public:
+	CString commandDisplayer;
+	CString returnMessageDisplayer;
+	CString commandEdit;
+	afx_msg void OnBnClickedCommunicationtestFailure();
+	afx_msg void OnBnClickedCommunicationtestPass();
+	afx_msg void OnBnClickedDefaulttestButton();
+	afx_msg void OnBnClickedCommunicationtestButton();
 };
