@@ -6,20 +6,16 @@ public:
 	CNetClient(void);
 	~CNetClient(void);
 
-	//初始化网络环境
+	// Initialize the networking environment
 	BOOL InitNet();
 
-	//初始化客户端 （连接服务器）
-	int initCln(char * ip,int Port);
+	// Initialize the client
+	int initCln(char * ip, int Port);
 
-	//发送数据到服务器
-	int SendSvr(void * p,int len);
+	// Send data to the server
+	BOOL SendSvr(void * p, int len);
 	
 protected:
-	char svrip[1000];
-	int iplen;
-	int RunSocket;
+	int soc;
 	struct sockaddr_in server_sockaddr_in;
-	int svlen;
-	int port;
 };

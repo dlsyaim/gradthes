@@ -71,7 +71,18 @@ CNetServer::~CNetServer(void)
 BOOL CNetServer::InitNet(void)
 {
 	WSADATA wsadata;	
-	return !WSAStartup ( 0x101, &wsadata );
+	int err;
+	// Request 1.1 version of Windows Sockets Specification
+	err = WSAStartup (0x101, &wsadata);
+	if (err != 0) {
+		return FALSE;
+	}
+
+	if (LOBYTE(wsadata.wVersion) != 1 || HIBYTE(wsadata.wVersion) != 1) {
+		WSACleanup();
+		return FALSE;
+	}
+	return TRUE;
 }
 
 bool CNetServer::StartSvr(void)

@@ -15,7 +15,7 @@
 #include "GTView.h"
 #include "ModelChoosingDialog.h"
 #include "CommunicationTestDialog.h"
-#include "SteeringGearTestDialog.h"
+#include "ServoActorTestDialog.h"
 #include "GyroTestDialog.h"
 #include "GPSTestDialog.h"
 
@@ -55,7 +55,7 @@ BEGIN_MESSAGE_MAP(CGTView, CView)
 	ON_WM_RBUTTONDOWN()
 	
 	ON_COMMAND(ID_32774, &CGTView::OnCommunicationTest)
-	ON_COMMAND(ID_32775, &CGTView::OnSteeringGearTest)
+	ON_COMMAND(ID_32775, &CGTView::OnServoActorTest)
 	ON_COMMAND(ID_32776, &CGTView::OnGyroTest)
 	ON_COMMAND(ID_32777, &CGTView::OnGPSTest)
 END_MESSAGE_MAP()
@@ -547,10 +547,10 @@ void CGTView::OnCommunicationTest()
 	ctd.DoModal();
 }
 
-void CGTView::OnSteeringGearTest()
+void CGTView::OnServoActorTest()
 {
 	// TODO: 
-	CSteeringGearTestDialog sgtd;
+	CServoActorTestDialog sgtd;
 	sgtd.DoModal();
 }
 
