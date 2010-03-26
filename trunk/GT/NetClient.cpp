@@ -3,70 +3,62 @@
 
 CNetClient::CNetClient(void)
 {
-	RunSocket =0;
-	iplen = 0;
-	port = 0;
 }
 
 CNetClient::~CNetClient(void)
 {
-	if(RunSocket != 0)
+	if(soc != 0)
 	{
-		closesocket(RunSocket);
+		closesocket(soc);
 	}
 }
 
 BOOL CNetClient::InitNet()
 {
 	WSADATA wsadata;	
-	return !WSAStartup ( 0x101, &wsadata );
+	int err;
+	// Request 1.1 version of Windows Sockets Specification
+	err = WSAStartup (0x101, &wsadata);
+	if (err != 0) {
+		return FALSE;
+	}
+
+	if (LOBYTE(wsadata.wVersion) != 1 || HIBYTE(wsadata.wVersion) != 1) {
+		WSACleanup();
+		return FALSE;
+	}
+	return TRUE;
 }
 
 
-int CNetClient::SendSvr(void * p,int len)
-{
-	if(RunSocket <=0)
-	{
-		return 0;
-	}
-	
-	if (sendto(RunSocket, (char *)p, len, 0, (struct sockaddr*)&server_sockaddr_in, svlen)==SOCKET_ERROR)
-	{	
-		return 0;
-	}
-	else
-	{
-		return 1;
+BOOL CNetClient::SendSvr(void * p,int len)
+{	
+	if (sendto(soc, (char *)p, len, 0, (struct sockaddr*)&server_sockaddr_in,  sizeof server_sockaddr_in) == SOCKET_ERROR) {	
+		return FALSE;
+	} else {
+		return TRUE;
 	}
 }
 
 
-int CNetClient::initCln(char * ip, int Port)
+BOOL CNetClient::initCln(char * ip, int port)
 {
 	if(!InitNet())
-	{
-		return 0;
-	}
+		return FALSE;
 
-	iplen = strlen(ip);
-	if(iplen <= 0 || iplen > 999 )
-	{
-		iplen = 0;
-		return 0;
+	if(strlen(ip) <= 0 || strlen(ip) > 999 ) {	
+		return FALSE;
 	}
-
-	memcpy(svrip, ip, iplen);
-	svrip[iplen] = '\0';
-	port = Port;
 	
-	// start connections 
+	// New a socket object
 	{
-		svlen = sizeof(server_sockaddr_in);
 		// Configuration
 		server_sockaddr_in.sin_family = AF_INET;
-		server_sockaddr_in.sin_port = htons(port);                      // server的监听端口
-		server_sockaddr_in.sin_addr.s_addr = inet_addr(ip);        //  server的地址 
-		RunSocket = socket(AF_INET, SOCK_DGRAM, 0);
+		server_sockaddr_in.sin_port = htons(port);                      // The port the server listening
+		server_sockaddr_in.sin_addr.s_addr = inet_addr(ip);         // The address of the server 
+		soc = socket(AF_INET, SOCK_DGRAM, 0);
 	}
-	return 1;
+	if (soc = INVALID_SOCKET)
+		return FALSE;
+	return TRUE;
 };

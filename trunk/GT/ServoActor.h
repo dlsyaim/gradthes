@@ -1,15 +1,15 @@
 #pragma once
 
-class CSteeringGear
+class CServoActor
 {
 public:
-	CSteeringGear(double _roll = 0.0, double _pitch = 0.0, double _collectivePitch = 0.0, double _direction = 0.0):
+	CServoActor(double _roll = 0.0, double _pitch = 0.0, double _collectivePitch = 0.0, double _direction = 0.0):
 	roll(_roll),
 	pitch(_pitch),
 	collectivePitch(_collectivePitch),
 	direction(_direction)
 	{}
-	~CSteeringGear(void);
+	~CServoActor(void);
 	
 	inline void setRoll(double roll) {this->roll = roll;}
 	inline double getRoll(void) {return roll;}

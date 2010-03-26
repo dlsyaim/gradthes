@@ -7,6 +7,8 @@
 #include "CommunicationTestDialog.h"
 #include "NetSvrUdp.h"
 #include "flysysdef.h"
+#include "NetServer.h"
+#include "NetClient.h"
 
 
 // CCommunicationTestDialog ¶Ô»°¿ò
@@ -72,9 +74,21 @@ void CCommunicationTestDialog::OnBnClickedDefaulttestButton()
 
 void CCommunicationTestDialog::OnBnClickedCommunicationtestButton()
 {
-	// TODO: test
-	// Codes to send the command
-	 // NetTestData ntd;
+	// TODO: Communication test
+
+	/********** First gain the current timestamp **********/
+	// Declare a CTime object
+	CTime currentTime;
+	// Initialize the object
+	currentTime = CTime::GetCurrentTime();
+	// GetTime will return the number of seconds between the current CTime object and January 1, 1970
+	time_t elapsed = currentTime.GetTime();
+	unsigned long sendingTS = (unsigned long)elapsed;
 	
-	// Must create a thread to handle the sending command
+	/********** Then Create a client to send commands **********/
+	CNetClient cln;
+	if (!cln.initCln("www.serveraddress.com", 0)) {
+		AfxMessageBox("Failed to create a sending client", MB_OK | MB_ICONSTOP);
+	}
+
 }

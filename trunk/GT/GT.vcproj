@@ -321,6 +321,18 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ServoActor.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ServoActorLim.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ServoActorTestDialog.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -341,15 +353,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\SteeringGear.cpp"
+				RelativePath=".\TabCtrlSSL.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\SteeringGearLim.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SteeringGearTestDialog.cpp"
+				RelativePath=".\TabPageSSL.cpp"
 				>
 			</File>
 			<File
@@ -366,6 +374,10 @@
 			</File>
 			<File
 				RelativePath=".\Tools.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\TotalTab.cpp"
 				>
 			</File>
 			<File
@@ -420,6 +432,10 @@
 			</File>
 			<File
 				RelativePath=".\CommunicationTestDialog.h"
+				>
+			</File>
+			<File
+				RelativePath=".\compiledef.h"
 				>
 			</File>
 			<File
@@ -539,19 +555,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ServoActor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ServoActorLim.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ServoActorTestDialog.h"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.h"
 				>
 			</File>
 			<File
-				RelativePath=".\SteeringGear.h"
+				RelativePath=".\TabCtrlSSL.h"
 				>
 			</File>
 			<File
-				RelativePath=".\SteeringGearLim.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SteeringGearTestDialog.h"
+				RelativePath=".\TabPageSSL.h"
 				>
 			</File>
 			<File
@@ -572,6 +596,10 @@
 			</File>
 			<File
 				RelativePath=".\Tools.h"
+				>
+			</File>
+			<File
+				RelativePath=".\TotalTab.h"
 				>
 			</File>
 			<File

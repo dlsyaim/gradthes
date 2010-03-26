@@ -30,9 +30,13 @@
 #define IDS_EDIT_MENU                   306
 #define IDD_MODELCHOOSING_DIALOG        310
 #define IDD_COMMUNICATIONTEST_DIALOG    311
-#define IDD_STEERINGGEARTEST_DIALOG1    312
+#define IDD_STEERINGGEARTEST_DIALOG     312
 #define IDD_GYROTEST_DIALOG             313
 #define IDD_GPSTEST_DIALOG              314
+#define IDD_COLLECTIVE_TAB              317
+#define IDD_ROLL_TAB                    318
+#define IDD_PITCH_TAB                   319
+#define IDD_TAIL_TAB                    320
 #define IDC_AIRCRAFTNAME_EDIT           1000
 #define IDC_AIRCRAFTMASS_EDIT           1001
 #define IDC_MAINBLADELENGHT_EDIT        1002
@@ -44,14 +48,6 @@
 #define IDC_COMMUNICATIONTEST_BUTTON    1011
 #define IDC_GROUNDCOMMAND_EDIT          1012
 #define IDC_RETURNMESSAGE_EDIT          1013
-#define IDC_SIDEROLLPWM_EDIT            1016
-#define IDC_SIDEROLLANGLE_EDIT          1018
-#define IDC_PITCHINGPWM_EDIT            1020
-#define IDC_PITCHINGANGLE_EDIT          1021
-#define IDC_COLLECTIVEPWM_EDIT          1022
-#define IDC_COLLECTIVEANGLE_EDIT        1023
-#define IDC_DIRECTIONPWM_EDIT           1024
-#define IDC_DIRECTIONANGLE_EDIT         1025
 #define IDC_STEERINGGEARFAILURE_BUTTON  1026
 #define IDC_STEERINGGEARPASS_BUTTON     1027
 #define IDC_ROLLANGLE_EDIT              1028
@@ -75,6 +71,47 @@
 #define IDC_EDIT1                       1050
 #define IDC_COMMUNICATIONTEST_FAILURE   1051
 #define IDC_COMMUNICATIONTEST_PASS      1052
+#define IDC_PARAMETER_TAB               1053
+#define IDC_COLLECTIVE_PWM_EDIT2        1054
+#define IDC_COLLECTIVE_PWM_EDIT3        1055
+#define IDC_COLLECTIVE_PWM_EDIT4        1056
+#define IDC_COLLECTIVE_PWM_EDIT5        1057
+#define IDC_COLLECTIVE_ANGLE_EDIT1      1058
+#define IDC_COLLECTIVE_ANGLE_EDIT2      1059
+#define IDC_COLLECTIVE_ANGLE_EDIT3      1060
+#define IDC_COLLECTIVE_ANGLE_EDIT4      1061
+#define IDC_COLLECTIVE_ANGLE_EDIT5      1062
+#define IDC_COLLECTIVE_PWM_EDIT1        1063
+#define IDC_ROLL_PWM_EDIT2              1064
+#define IDC_ROLL_PWM_EDIT3              1065
+#define IDC_ROLL_PWM_EDIT4              1066
+#define IDC_ROLL_PWM_EDIT5              1067
+#define IDC_ROLL_ANGLE_EDIT1            1068
+#define IDC_ROLL_ANGLE_EDIT2            1069
+#define IDC_ROLL_ANGLE_EDIT3            1070
+#define IDC_ROLL_ANGLE_EDIT4            1071
+#define IDC_ROLL_ANGLE_EDIT5            1072
+#define IDC_ROLL_PWM_EDIT1              1073
+#define IDC_PITCH_PWM_EDIT1             1074
+#define IDC_PITCH_PWM_EDIT2             1075
+#define IDC_PITCH_PWM_EDIT3             1076
+#define IDC_PITCH_PWM_EDIT4             1077
+#define IDC_PITCH_PWM_EDIT5             1078
+#define IDC_PITCH_ANGLE_EDIT1           1079
+#define IDC_PITCH_ANGLE_EDIT2           1080
+#define IDC_PITCH_ANGLE_EDIT3           1081
+#define IDC_PITCH_ANGLE_EDIT4           1082
+#define IDC_PITCH_ANGLE_EDIT5           1083
+#define IDC_TAIL_PWM_EDIT1              1084
+#define IDC_TAIL_PWM_EDIT2              1085
+#define IDC_TAIL_PWM_EDIT3              1086
+#define IDC_TAIL_PWM_EDIT4              1087
+#define IDC_TAIL_PWM_EDIT5              1088
+#define IDC_TAIL_ANGLE_EDIT1            1089
+#define IDC_TAIL_ANGLE_EDIT2            1090
+#define IDC_TAIL_ANGLE_EDIT3            1091
+#define IDC_TAIL_ANGLE_EDIT4            1092
+#define IDC_TAIL_ANGLE_EDIT5            1093
 #define ID_32771                        32771
 #define ID_32772                        32772
 #define ID_32773                        32773
@@ -101,9 +138,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        317
+#define _APS_NEXT_RESOURCE_VALUE        321
 #define _APS_NEXT_COMMAND_VALUE         32792
-#define _APS_NEXT_CONTROL_VALUE         1053
+#define _APS_NEXT_CONTROL_VALUE         1094
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif
