@@ -261,6 +261,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\HelicopterChoosingDialog.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Instrument.cpp"
 				>
 			</File>
@@ -274,10 +278,6 @@
 			</File>
 			<File
 				RelativePath=".\MainFrm.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ModelChoosingDialog.cpp"
 				>
 			</File>
 			<File
@@ -491,6 +491,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\HelicopterChoosingDialog.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Instrument.h"
 				>
 			</File>
@@ -504,10 +508,6 @@
 			</File>
 			<File
 				RelativePath=".\MainFrm.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ModelChoosingDialog.h"
 				>
 			</File>
 			<File
