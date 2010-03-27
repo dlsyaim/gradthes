@@ -1,15 +1,15 @@
 #pragma once
 
 
-// CModelChoosingDialog 对话框
+// CHelicopterChoosingDialog 对话框
 
-class CModelChoosingDialog : public CDialog
+class CHelicopterChoosingDialog : public CDialog
 {
-	DECLARE_DYNAMIC(CModelChoosingDialog)
+	DECLARE_DYNAMIC(CHelicopterChoosingDialog)
 
 public:
-	CModelChoosingDialog(CWnd* pParent = NULL);   // 标准构造函数
-	virtual ~CModelChoosingDialog();
+	CHelicopterChoosingDialog(CWnd* pParent = NULL);   // 标准构造函数
+	virtual ~CHelicopterChoosingDialog();
 
 // 对话框数据
 	enum { IDD = IDD_MODELCHOOSING_DIALOG };

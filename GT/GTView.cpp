@@ -13,7 +13,7 @@
 
 #include "GTDoc.h"
 #include "GTView.h"
-#include "ModelChoosingDialog.h"
+#include "HelicopterChoosingDialog.h"
 #include "CommunicationTestDialog.h"
 #include "ServoActorTestDialog.h"
 #include "GyroTestDialog.h"

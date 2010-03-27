@@ -6,7 +6,7 @@
 #include "GT.h"
 
 #include "MainFrm.h"
-#include "ModelChoosingDialog.h"
+#include "HelicopterChoosingDialog.h"
 
 #define ID_HELICOPTER_BEGIN 48000
 
@@ -240,7 +240,7 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 void CMainFrame::OnNewModel()
 {
 	// TODO: 在此添加命令处理程序代码
-	CModelChoosingDialog *mcd = new CModelChoosingDialog(this);
+	CHelicopterChoosingDialog *mcd = new CHelicopterChoosingDialog(this);
 	mcd->DoModal();
 
 	// First add name
