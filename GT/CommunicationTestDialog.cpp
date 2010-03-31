@@ -6,7 +6,8 @@
 #include "GT.h"
 #include "CommunicationTestDialog.h"
 #include "NetSvrUdp.h"
-#include "flysysdef.h"
+#include "define\sysdef.h"
+#include "func\NetCln.h"
 #include "NetServer.h"
 #include "NetClient.h"
 
@@ -38,16 +39,16 @@ void CCommunicationTestDialog::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CCommunicationTestDialog, CDialog)
-	ON_BN_CLICKED(IDC_COMMUNICATIONTEST_FAILURE, &CCommunicationTestDialog::OnBnClickedCommunicationtestFailure)
-	ON_BN_CLICKED(IDC_COMMUNICATIONTEST_PASS, &CCommunicationTestDialog::OnBnClickedCommunicationtestPass)
-	ON_BN_CLICKED(IDC_DEFAULTTEST_BUTTON, &CCommunicationTestDialog::OnBnClickedDefaulttestButton)
-	ON_BN_CLICKED(IDC_COMMUNICATIONTEST_BUTTON, &CCommunicationTestDialog::OnBnClickedCommunicationtestButton)
+	ON_BN_CLICKED(IDC_COMMUNICATIONTEST_FAILURE, &CCommunicationTestDialog::OnBnClickedCommunicationTestFailure)
+	ON_BN_CLICKED(IDC_COMMUNICATIONTEST_PASS, &CCommunicationTestDialog::OnBnClickedCommunicationTestPass)
+	ON_BN_CLICKED(IDC_DEFAULTTEST_BUTTON, &CCommunicationTestDialog::OnBnClickedDefaultTestButton)
+	ON_BN_CLICKED(IDC_COMMUNICATIONTEST_BUTTON, &CCommunicationTestDialog::OnBnClickedCommunicationTestButton)
 END_MESSAGE_MAP()
 
 
 // CCommunicationTestDialog 消息处理程序
 
-void CCommunicationTestDialog::OnBnClickedCommunicationtestFailure()
+void CCommunicationTestDialog::OnBnClickedCommunicationTestFailure()
 {
 	// TODO: write the log files
 	std::ofstream of("communicationtest.log", std::ios::app);
@@ -61,34 +62,47 @@ void CCommunicationTestDialog::OnBnClickedCommunicationtestFailure()
 	//of.write(buf2, sizeof buf2);
 }
 
-void CCommunicationTestDialog::OnBnClickedCommunicationtestPass()
+void CCommunicationTestDialog::OnBnClickedCommunicationTestPass()
 {
 	// TODO: write the log files
 	std::ofstream  of("communicationtest.log", std::ios::app);
 }
 
-void CCommunicationTestDialog::OnBnClickedDefaulttestButton()
+void CCommunicationTestDialog::OnBnClickedDefaultTestButton()
 {
 	// TODO: default test and never 
 }
 
-void CCommunicationTestDialog::OnBnClickedCommunicationtestButton()
+void CCommunicationTestDialog::OnBnClickedCommunicationTestButton()
 {
-	// TODO: Communication test
-
 	/********** First gain the current timestamp **********/
-	// Declare a CTime object
-	CTime currentTime;
-	// Initialize the object
-	currentTime = CTime::GetCurrentTime();
-	// GetTime will return the number of seconds between the current CTime object and January 1, 1970
-	time_t elapsed = currentTime.GetTime();
-	unsigned long sendingTS = (unsigned long)elapsed;
+	//// Declare a CTime object
+	//CTime currentTime;
+	//// Initialize the object
+	//currentTime = CTime::GetCurrentTime();
+	//// GetTime will return the number of seconds between the current CTime object and January 1, 1970
+	//time_t elapsed = currentTime.GetTime();
+	//unsigned long sendingTS = (unsigned long)elapsed;
 	
-	/********** Then Create a client to send commands **********/
-	CNetClient cln;
-	if (!cln.initCln("www.serveraddress.com", 0)) {
+	/********** First Create a client to send commands **********/
+	//CNetClient cln;
+	//if (!cln.initCln("www.serveraddress.com", 0)) {
+	//	AfxMessageBox("Failed to create a sending client", MB_OK | MB_ICONSTOP);
+	//}
+	// The client point of the socket
+	CNetCln netcln;
+	// The server address
+	char *ip = "192.168.0.101";
+	// Initializing
+	if(netcln.initCln(ip, 1111) == 0)
+	{
 		AfxMessageBox("Failed to create a sending client", MB_OK | MB_ICONSTOP);
+		return;
 	}
+	// Construct the content of the command
+	__int16 a[2];
+	a[0] = FEM_EMERGENCY;
+	a[1] = 1;
+	netcln.SendSvr(a, 4);
 
 }

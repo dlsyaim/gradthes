@@ -15,10 +15,10 @@ IMPLEMENT_DYNAMIC(CHelicopterChoosingDialog, CDialog)
 
 CHelicopterChoosingDialog::CHelicopterChoosingDialog(CWnd* pParent /*=NULL*/)
 	: CDialog(CHelicopterChoosingDialog::IDD, pParent)
-	, aircraftName(_T(""))
-	, aircraftMass(0.5)
+	, helicopterName(_T(""))
+	, helicopterMass(0.5)
 	, mainBladeLength(0)
-	, aircraftLength(0)
+	, helicopterLength(0)
 	, mainBladeRPM(0)
 	, xInertia(0)
 {
@@ -32,13 +32,13 @@ CHelicopterChoosingDialog::~CHelicopterChoosingDialog()
 void CHelicopterChoosingDialog::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
-	DDX_Text(pDX, IDC_AIRCRAFTNAME_EDIT, aircraftName);
-	DDX_Text(pDX, IDC_AIRCRAFTMASS_EDIT, aircraftMass);
+	DDX_Text(pDX, IDC_HELICOPTERNAME_EDIT, helicopterName);
+	DDX_Text(pDX, IDC_HELICOPTERMASS_EDIT, helicopterMass);
 	DDX_Text(pDX, IDC_MAINBLADELENGHT_EDIT, mainBladeLength);
-	DDX_Text(pDX, IDC_AIRCRAFTLENGHT_EDIT, aircraftLength);
+	DDX_Text(pDX, IDC_HELICOPTERLENGHT_EDIT, helicopterLength);
 	DDX_Text(pDX, IDC_MAINBLADERPM_EDIT, mainBladeRPM);
 	DDX_Text(pDX, IDC_XINERTIA_EDIT, xInertia);
-	DDV_MinMaxDouble(pDX, aircraftMass, 0.5, 1000);
+	DDV_MinMaxDouble(pDX, helicopterMass, 0.5, 1000);
 }
 
 
@@ -102,9 +102,17 @@ BOOL CHelicopterChoosingDialog::OnInitDialog()
 
 	// TODO:  在此添加额外的初始化
 
-	GetDlgItem(IDC_AIRCRAFTNAME_EDIT)->SetFocus();
+	GetDlgItem(IDC_HELICOPTERNAME_EDIT)->SetFocus();
 	return FALSE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
 
+
+CString CHelicopterChoosingDialog::constructLogString(void)
+{
+	CString log;
+	log.Format("模型选择：%s", helicopterName);
+
+	return log;
+}
 
