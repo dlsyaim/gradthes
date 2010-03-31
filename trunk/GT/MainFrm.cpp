@@ -7,6 +7,7 @@
 
 #include "MainFrm.h"
 #include "HelicopterChoosingDialog.h"
+#include "RotorDiskDemarcateDialog.h"
 
 #define ID_HELICOPTER_BEGIN 48000
 
@@ -32,6 +33,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_HELICOPTER_BEGIN + 2, OnSecondModel)
 	ON_COMMAND(ID_HELICOPTER_BEGIN + 3, OnThirdModel)
 	ON_COMMAND(ID_HELICOPTER_BEGIN + 4, OnForthModel)
+	ON_COMMAND(ID_32793, &CMainFrame::On32793)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -244,7 +246,7 @@ void CMainFrame::OnNewModel()
 	mcd->DoModal();
 
 	// First add name
-	AddName(mcd->aircraftName);
+	AddName(mcd->helicopterName);
 	UpdateMenu();
 }
 
@@ -480,4 +482,10 @@ int CMainFrame::FindMenuItem(CMenu* Menu, LPCTSTR MenuString)
      }
 
      return -1;
+}
+
+void CMainFrame::On32793()
+{
+	RotorDiskDemarcateDialog rddd;
+	rddd.DoModal();
 }

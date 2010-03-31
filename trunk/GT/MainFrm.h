@@ -75,6 +75,8 @@ private:
 	void OnSelectModel(int idx);
 
 	int FindMenuItem(CMenu*, LPCTSTR str);
+public:
+	afx_msg void On32793();
 };
 
 

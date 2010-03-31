@@ -189,6 +189,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\AbstractLogWriter.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Aircraft.cpp"
 				>
 			</File>
@@ -213,6 +217,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CollectiveRotorDiskTab.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CollectiveTab.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\CommunicationTestDialog.cpp"
 				>
 			</File>
@@ -234,6 +246,10 @@
 			</File>
 			<File
 				RelativePath=".\FuelKnob.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GlobalExperimentData.cpp"
 				>
 			</File>
 			<File
@@ -285,7 +301,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\func\NetCln.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\NetServer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\func\NetSvr.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\func\NetSvrHeli.cpp"
 				>
 			</File>
 			<File
@@ -305,7 +333,31 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PitchRotorDiskTab.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PitchTab.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\func\ProtocolParser.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Renderer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RollRotorDiskTab.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RollTab.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RotorDiskDemarcateDialog.cpp"
 				>
 			</File>
 			<File
@@ -325,11 +377,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ServoActorLim.cpp"
+				RelativePath=".\ServoActorDemarcateDialog.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ServoActorTestDialog.cpp"
+				RelativePath=".\ServoActorLim.cpp"
 				>
 			</File>
 			<File
@@ -358,6 +410,10 @@
 			</File>
 			<File
 				RelativePath=".\TabPageSSL.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\TailTab.cpp"
 				>
 			</File>
 			<File
@@ -407,6 +463,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\AbstractLogWriter.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Aircraft.h"
 				>
 			</File>
@@ -431,11 +491,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\CommunicationTestDialog.h"
+				RelativePath=".\CollectiveRotorDiskTab.h"
 				>
 			</File>
 			<File
-				RelativePath=".\compiledef.h"
+				RelativePath=".\CollectiveTab.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CommunicationTestDialog.h"
 				>
 			</File>
 			<File
@@ -455,11 +519,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\flysysdef.h"
+				RelativePath=".\FuelKnob.h"
 				>
 			</File>
 			<File
-				RelativePath=".\FuelKnob.h"
+				RelativePath=".\GlobalExperimentData.h"
 				>
 			</File>
 			<File
@@ -515,7 +579,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\func\NetCln.h"
+				>
+			</File>
+			<File
 				RelativePath=".\NetServer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\func\NetSvr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\func\NetSvrHeli.h"
 				>
 			</File>
 			<File
@@ -535,11 +611,35 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PitchRotorDiskTab.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PitchTab.h"
+				>
+			</File>
+			<File
+				RelativePath=".\func\ProtocolParser.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Renderer.h"
 				>
 			</File>
 			<File
 				RelativePath=".\Resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RollRotorDiskTab.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RollTab.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RotorDiskDemarcateDialog.h"
 				>
 			</File>
 			<File
@@ -559,15 +659,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ServoActorDemarcateDialog.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ServoActorLim.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ServoActorTestDialog.h"
+				RelativePath=".\stdafx.h"
 				>
 			</File>
 			<File
-				RelativePath=".\stdafx.h"
+				RelativePath=".\define\sysdef.h"
 				>
 			</File>
 			<File
@@ -576,6 +680,10 @@
 			</File>
 			<File
 				RelativePath=".\TabPageSSL.h"
+				>
+			</File>
+			<File
+				RelativePath=".\TailTab.h"
 				>
 			</File>
 			<File

@@ -2,8 +2,8 @@
 
 
 // CHelicopterChoosingDialog 对话框
-
-class CHelicopterChoosingDialog : public CDialog
+#include "AbstractLogWriter.h"
+class CHelicopterChoosingDialog : public CDialog, public AbstractLogWriter
 {
 	DECLARE_DYNAMIC(CHelicopterChoosingDialog)
 
@@ -11,18 +11,19 @@ public:
 	CHelicopterChoosingDialog(CWnd* pParent = NULL);   // 标准构造函数
 	virtual ~CHelicopterChoosingDialog();
 
+	CString constructLogString(void);
 // 对话框数据
-	enum { IDD = IDD_MODELCHOOSING_DIALOG };
+	enum { IDD = IDD_HELICOPTERCHOOSING_DIALOG };
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
 	DECLARE_MESSAGE_MAP()
 public:
-	CString aircraftName;
-	double aircraftMass;
+	CString helicopterName;
+	double helicopterMass;
 	double mainBladeLength;
-	double aircraftLength;
+	double helicopterLength;
 	double mainBladeRPM;
 	double xInertia;
 	afx_msg void OnBnClickedOk();

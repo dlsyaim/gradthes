@@ -22,8 +22,8 @@ public:
 	CString commandDisplayer;
 	CString returnMessageDisplayer;
 	CString commandEdit;
-	afx_msg void OnBnClickedCommunicationtestFailure();
-	afx_msg void OnBnClickedCommunicationtestPass();
-	afx_msg void OnBnClickedDefaulttestButton();
-	afx_msg void OnBnClickedCommunicationtestButton();
+	afx_msg void OnBnClickedCommunicationTestFailure();
+	afx_msg void OnBnClickedCommunicationTestPass();
+	afx_msg void OnBnClickedDefaultTestButton();
+	afx_msg void OnBnClickedCommunicationTestButton();
 };

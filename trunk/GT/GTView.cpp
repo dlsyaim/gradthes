@@ -15,7 +15,7 @@
 #include "GTView.h"
 #include "HelicopterChoosingDialog.h"
 #include "CommunicationTestDialog.h"
-#include "ServoActorTestDialog.h"
+#include "ServoActorDemarcateDialog.h"
 #include "GyroTestDialog.h"
 #include "GPSTestDialog.h"
 
@@ -55,7 +55,7 @@ BEGIN_MESSAGE_MAP(CGTView, CView)
 	ON_WM_RBUTTONDOWN()
 	
 	ON_COMMAND(ID_32774, &CGTView::OnCommunicationTest)
-	ON_COMMAND(ID_32775, &CGTView::OnServoActorTest)
+	ON_COMMAND(ID_32775, &CGTView::OnServoActorDemarcate)
 	ON_COMMAND(ID_32776, &CGTView::OnGyroTest)
 	ON_COMMAND(ID_32777, &CGTView::OnGPSTest)
 END_MESSAGE_MAP()
@@ -109,7 +109,7 @@ void CGTView::OnDraw(CDC* /*pDC*/)
 	m_Renderer->setBase(base);
 
 	GetClientRect(&m_rect);
-	m_Renderer->draw(&m_rect);
+	//m_Renderer->draw(&m_rect);
 	// Swap the front and back framebuffer
 	SwapBuffers(wglGetCurrentDC());
 }
@@ -547,10 +547,10 @@ void CGTView::OnCommunicationTest()
 	ctd.DoModal();
 }
 
-void CGTView::OnServoActorTest()
+void CGTView::OnServoActorDemarcate()
 {
 	// TODO: 
-	CServoActorTestDialog sgtd;
+	CServoActorDemarcateDialog sgtd;
 	sgtd.DoModal();
 }
 
