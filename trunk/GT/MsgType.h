@@ -1,0 +1,2 @@
+#pragma once
+#define COMMUNICATION_TEST_REPLY_MSG WM_USER + 300
