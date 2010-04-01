@@ -5,11 +5,12 @@
 #include <fstream>
 #include "GT.h"
 #include "CommunicationTestDialog.h"
-#include "NetSvrUdp.h"
 #include "define\sysdef.h"
 #include "func\NetCln.h"
-#include "NetServer.h"
-#include "NetClient.h"
+#include "func\NetSvrHeli.h"
+#include "MsgType.h"
+#include "GlobalExperimentData.h"
+
 
 
 // CCommunicationTestDialog 对话框
@@ -22,7 +23,6 @@ CCommunicationTestDialog::CCommunicationTestDialog(CWnd* pParent /*=NULL*/)
 	, returnMessageDisplayer(_T(""))
 	, commandEdit(_T(""))
 {
-
 }
 
 CCommunicationTestDialog::~CCommunicationTestDialog()
@@ -43,6 +43,7 @@ BEGIN_MESSAGE_MAP(CCommunicationTestDialog, CDialog)
 	ON_BN_CLICKED(IDC_COMMUNICATIONTEST_PASS, &CCommunicationTestDialog::OnBnClickedCommunicationTestPass)
 	ON_BN_CLICKED(IDC_DEFAULTTEST_BUTTON, &CCommunicationTestDialog::OnBnClickedDefaultTestButton)
 	ON_BN_CLICKED(IDC_COMMUNICATIONTEST_BUTTON, &CCommunicationTestDialog::OnBnClickedCommunicationTestButton)
+	ON_MESSAGE(COMMUNICATION_TEST_REPLY_MSG, &OnReplyMsgArrived)
 END_MESSAGE_MAP()
 
 
@@ -50,59 +51,89 @@ END_MESSAGE_MAP()
 
 void CCommunicationTestDialog::OnBnClickedCommunicationTestFailure()
 {
-	// TODO: write the log files
+	// TODO: Write the log files
 	std::ofstream of("communicationtest.log", std::ios::app);
+	/*
+		char *buf = "通讯测试: 失败";
+		of.write(buf, sizeof buf);
+		of << std::endl;
+	*/
+	of.close();
 
-	//char *buf = "log: First";
-	//of.write(buf, sizeof buf);
-	//of << std::endl;
-	//char *buf1 = "log: Second\n\r";
-	//of.write(buf1, sizeof buf1);
-	//char *buf2 = "log: Third";
-	//of.write(buf2, sizeof buf2);
+	/********** Update the global experimental states **********/
+	GlobalExperimentData::isCommunicationTestPass = FALSE;
 }
 
 void CCommunicationTestDialog::OnBnClickedCommunicationTestPass()
 {
-	// TODO: write the log files
+	// TODO: Write the log files	
 	std::ofstream  of("communicationtest.log", std::ios::app);
+	/*
+		char *buf = "通讯测试: 成功";
+		of.write(buf, sizeof buf);
+		of << std::endl;
+	*/
+	of.close();
+
+	/********** Update the global experimental states **********/
+	GlobalExperimentData::isCommunicationTestPass = TRUE;
 }
 
 void CCommunicationTestDialog::OnBnClickedDefaultTestButton()
 {
-	// TODO: default test and never 
+	/********** Create a default command **********/
+	CString content = _T("This is the default command");
+	sendCommunicationTestCommand(content);
+
 }
 
 void CCommunicationTestDialog::OnBnClickedCommunicationTestButton()
 {
-	/********** First gain the current timestamp **********/
-	//// Declare a CTime object
-	//CTime currentTime;
-	//// Initialize the object
-	//currentTime = CTime::GetCurrentTime();
-	//// GetTime will return the number of seconds between the current CTime object and January 1, 1970
-	//time_t elapsed = currentTime.GetTime();
-	//unsigned long sendingTS = (unsigned long)elapsed;
 	
-	/********** First Create a client to send commands **********/
-	//CNetClient cln;
-	//if (!cln.initCln("www.serveraddress.com", 0)) {
-	//	AfxMessageBox("Failed to create a sending client", MB_OK | MB_ICONSTOP);
-	//}
+	/********** First check if the user enter commands or not **********/
+	this->UpdateData(TRUE);
+	if (!commandEdit.GetLength()) {
+		AfxMessageBox("Commands required", MB_OK | MB_ICONSTOP);
+		return;
+	}
+	
+	sendCommunicationTestCommand(commandEdit);
+}
+
+LRESULT CCommunicationTestDialog::OnReplyMsgArrived(WPARAM w, LPARAM l)
+{
+	const CNetSvrHeli* svr = ((CGTApp*)AfxGetApp())->getSvr();
+	returnMessageDisplayer.Append((char *)svr->recvbuf + 2);
+	returnMessageDisplayer.Append(_T("\r\n"));
+	this->UpdateData(FALSE);
+	return TRUE;
+}
+
+void CCommunicationTestDialog::sendCommunicationTestCommand(CString content)
+{
+	/********** Firstly create a client to send commands **********/
+	
 	// The client point of the socket
 	CNetCln netcln;
 	// The server address
-	char *ip = "192.168.0.101";
+	char *IP = "192.168.0.186";
 	// Initializing
-	if(netcln.initCln(ip, 1111) == 0)
+	if(netcln.initCln(IP, 22222) == 0)
 	{
 		AfxMessageBox("Failed to create a sending client", MB_OK | MB_ICONSTOP);
 		return;
 	}
-	// Construct the content of the command
-	__int16 a[2];
-	a[0] = FEM_EMERGENCY;
-	a[1] = 1;
-	netcln.SendSvr(a, 4);
 
+	/********** Construct the content of the communication test command *********/
+	char command[102];
+	__int16 *c = (__int16 *)command;
+	c[0] = FNT_NETTESTTEXT;
+
+	memcpy(&(command[2]), content, content.GetLength());
+	command[2 + content.GetLength()] = '\0';
+	netcln.SendSvr(command, 102);
+
+	/********** Update the "display list" *********/
+	commandDisplayer.Append(content + _T("\r\n"));
+	this->UpdateData(FALSE);
 }

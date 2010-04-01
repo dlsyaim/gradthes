@@ -8,7 +8,9 @@
 #endif
 
 #include "resource.h"       // main symbols
+#include "func\NetSvrHeli.h"
 
+class CCommunicationTestDialog;
 
 // CGTApp:
 // See GT.cpp for the implementation of this class
@@ -19,7 +21,14 @@ class CGTApp : public CWinAppEx
 public:
 	CGTApp();
 
-
+private:
+	CNetSvrHeli svr;
+	CCommunicationTestDialog *ctd;
+// Setter and getter
+public:
+	inline const CNetSvrHeli* getSvr(void) {return &svr;}
+	inline CCommunicationTestDialog* getCtd(void) {return ctd;}
+	inline void setCtd(CCommunicationTestDialog* ctd) {this->ctd = ctd;}
 // Overrides
 public:
 	virtual BOOL InitInstance();

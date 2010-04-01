@@ -12,7 +12,7 @@ public:
 	virtual ~CGyroTestDialog();
 
 // 对话框数据
-	enum { IDD = IDD_GYROTEST_DIALOG };
+	enum { IDD = IDD_IMUTEST_DIALOG };
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持

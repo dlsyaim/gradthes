@@ -1,6 +1,5 @@
 #pragma once
 
-
 // CCommunicationTestDialog 对话框
 
 class CCommunicationTestDialog : public CDialog
@@ -18,12 +17,20 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
 	DECLARE_MESSAGE_MAP()
-public:
+// Attributest
+private:
 	CString commandDisplayer;
 	CString returnMessageDisplayer;
 	CString commandEdit;
+	
+// Operations
+public:
 	afx_msg void OnBnClickedCommunicationTestFailure();
 	afx_msg void OnBnClickedCommunicationTestPass();
 	afx_msg void OnBnClickedDefaultTestButton();
 	afx_msg void OnBnClickedCommunicationTestButton();
+	afx_msg LRESULT OnReplyMsgArrived(WPARAM w, LPARAM l);
+private:
+	// Send the communication test command to the server
+	void sendCommunicationTestCommand(CString content);
 };
