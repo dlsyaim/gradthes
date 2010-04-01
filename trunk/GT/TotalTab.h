@@ -12,7 +12,7 @@ public:
 	virtual ~CTotalTab();
 
 // 对话框数据
-	enum { IDD = IDD_TOTAL_TAB };
+	enum { IDD = IDD_COLLECTIVE_TAB };
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持

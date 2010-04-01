@@ -1,4 +1,4 @@
-
+#include "stdafx.h"
 #include "NetSvr.h"
 
 
@@ -39,9 +39,8 @@ int initAsSvr(void * p)
 	//////////////////////////////////////////
 	FD_ZERO(&master);
 	FD_ZERO(&read_fds);
-	if((listener=socket(AF_INET,SOCK_STREAM,0))==-1)
-	{
-	
+	if((listener = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+	{	
 		return -1;
 	}
 	if(setsockopt(listener,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(int))==-1)
@@ -50,7 +49,7 @@ int initAsSvr(void * p)
 	}
 	myaddr.sin_family = AF_INET;
 	myaddr.sin_addr.s_addr = INADDR_ANY;
-	myaddr.sin_port=htons(port);
+	myaddr.sin_port = htons(port);
 	memset(&(myaddr.sin_zero),'\0',sizeof(myaddr.sin_zero));
 	if(bind(listener,(struct sockaddr *)&myaddr,sizeof(myaddr))==-1)
 	{

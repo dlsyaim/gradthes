@@ -1,7 +1,11 @@
-
+#include "stdafx.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include "..\GT.h"
+#include "..\MainFrm.h"
 #include "ProtocolParser.h"
-#include "stdio.h"
-#include "stdlib.h"
+#include "..\MsgType.h"
+#include "..\CommunicationTestDialog.h"
 
 
 CProtocolParser::CProtocolParser()
@@ -265,6 +269,15 @@ void CProtocolParser::OnComTestTReply(void * Target, __int32 Len)
 	char * text = (tmp+2);
 
 	printf("OnComTestTReply  text %s\n",text);
+	/***** Here the communication test dialog must be informed *****/
+	CGTApp* m_mainApp = (CGTApp*)AfxGetApp();
+	if (m_mainApp == NULL) {
+		AfxMessageBox("Failed to get the application", MB_OK | MB_ICONSTOP);
+	} else if (!m_mainApp->getCtd()->PostMessage(COMMUNICATION_TEST_REPLY_MSG, 0, 0)) {
+		AfxMessageBox("Failed to post messages", MB_OK | MB_ICONSTOP);
+	}
+
+	//PostMessage(GetDlgItem(IDD_COMMUNICATIONTEST_DIALOG), COMMUNICATION_TEST_REPLY_MSG, 0, 0);
 }
 
 void CProtocolParser::OnComTest(void * Target, __int32 Len)

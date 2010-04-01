@@ -540,10 +540,11 @@ BOOL CGTView::cBuildFont(void)
 	return TRUE;
 }
 
+/***** Here start to test the communication *****/
 void CGTView::OnCommunicationTest()
 {
-	// TODO:
 	CCommunicationTestDialog ctd;
+	((CGTApp*)AfxGetApp())->setCtd(&ctd);
 	ctd.DoModal();
 }
 

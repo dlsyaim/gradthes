@@ -123,6 +123,16 @@ BOOL CGTApp::InitInstance()
 	// The one and only window has been initialized, so show and update it
 	m_pMainWnd->ShowWindow(SW_SHOW);
 	m_pMainWnd->UpdateWindow();
+
+	/*
+	 * For we shouldn't always create a thread to receive the return messages from the server,
+	 * we start up a thread here. However, we should set the port we listen firstly.
+	 * 33333 is a casual digit and can be changed through discussion.
+	 */
+	svr.port = 33333;
+	if (!svr.StartSvr()) {
+		AfxMessageBox(_T("The server for connection failed to start up"), MB_OK | MB_ICONWARNING);
+	}
 	// call DragAcceptFiles only if there's a suffix
 	//  In an SDI app, this should occur after ProcessShellCommand
 	return TRUE;

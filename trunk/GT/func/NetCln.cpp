@@ -1,4 +1,4 @@
-
+#include "stdafx.h"
 
 #include "NetCln.h"
 
@@ -34,7 +34,7 @@ int CNetCln::SendSvr(void * p,int len)
 	{
 		return 0;
 	}
-	return send(RunSocket,(char * )p,len,0);
+	return send(RunSocket, (char * )p, len, 0);
 }
 
 
@@ -71,15 +71,15 @@ int CNetCln::initCln(char * ip,int Port)
 		pin.sin_port = htons(Port);
 	
 
-		RunSocket = socket(AF_INET,SOCK_STREAM,0);
+		RunSocket = socket(AF_INET, SOCK_STREAM, 0);
 		if(RunSocket<=0)
 		{
 			return 0;
 		}
 
-		if(connect(RunSocket,( struct sockaddr  *)&pin,sizeof(pin))==-1)
+		if(connect(RunSocket,( struct sockaddr  *)&pin,sizeof(pin)) == -1)
 		{
-			RunSocket= 0;
+			RunSocket = 0;
 			return 0;
 		}
 	}
