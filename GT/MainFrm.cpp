@@ -5,9 +5,17 @@
 #include "stdafx.h"
 #include "GT.h"
 
+#include <gl/glut.h>
+#include <vector>
+#include "ST_SplitterWnd.h"
 #include "MainFrm.h"
 #include "HelicopterChoosingDialog.h"
 #include "RotorDiskDemarcateDialog.h"
+#include "LeftView.h"
+#include "UpperRightView.h"
+#include "GTView.h"
+#include "GridView.h"
+
 
 #define ID_HELICOPTER_BEGIN 48000
 
@@ -488,4 +496,22 @@ void CMainFrame::On32793()
 {
 	RotorDiskDemarcateDialog rddd;
 	rddd.DoModal();
+}
+
+BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
+{
+	m_pSplitterWnd = new ST_SplitterWnd();
+	// First split the window vertically
+	m_pSplitterWnd->Create(this, NULL, NULL, pContext, true);
+	// Add views
+	m_pSplitterWnd->AddView(LEFT_SIDE, RUNTIME_CLASS(CGridView), pContext);
+	// Then split the right side horizontally
+	m_pSplitterWnd1 = m_pSplitterWnd->AddSubDivision(RIGHT_SIDE, NULL, NULL, pContext, false);
+	// Add views
+	m_pSplitterWnd1->AddView(TOP_SIDE, RUNTIME_CLASS(CUpperRightView), pContext);
+	m_pSplitterWnd1->AddView(BOTTOM_SIDE, RUNTIME_CLASS(CGTView), pContext);
+	m_pSplitterWnd1->ToggleSide(TOP_SIDE);
+	m_pSplitterWnd->SetInitialStatus();
+
+	return TRUE;
 }
