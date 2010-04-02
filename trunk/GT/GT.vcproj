@@ -258,6 +258,26 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GridCtrl_src\GridCell.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GridCtrl_src\GridCellBase.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GridCtrl_src\GridCtrl.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GridCtrl_src\GridDropTarget.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GridView.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GT.cpp"
 				>
 			</File>
@@ -282,11 +302,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GridCtrl_src\InPlaceEdit.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Instrument.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Layer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\LeftView.cpp"
 				>
 			</File>
 			<File
@@ -386,6 +414,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ST_SplitterWnd.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -430,6 +462,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GridCtrl_src\TitleTip.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Tools.cpp"
 				>
 			</File>
@@ -443,6 +479,10 @@
 			</File>
 			<File
 				RelativePath=".\TurnCoordinator.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\UpperRightView.cpp"
 				>
 			</File>
 			<File
@@ -492,6 +532,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GridCtrl_src\CellRange.h"
+				>
+			</File>
+			<File
 				RelativePath=".\CollectiveRotorDiskTab.h"
 				>
 			</File>
@@ -536,6 +580,26 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GridCtrl_src\GridCell.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GridCtrl_src\GridCellBase.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GridCtrl_src\GridCtrl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GridCtrl_src\GridDropTarget.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GridView.h"
+				>
+			</File>
+			<File
 				RelativePath=".\GT.h"
 				>
 			</File>
@@ -560,6 +624,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GridCtrl_src\InPlaceEdit.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Instrument.h"
 				>
 			</File>
@@ -568,11 +636,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\LeftView.h"
+				>
+			</File>
+			<File
 				RelativePath=".\MagneticCompass.h"
 				>
 			</File>
 			<File
 				RelativePath=".\MainFrm.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GridCtrl_src\MemDC.h"
 				>
 			</File>
 			<File
@@ -672,6 +748,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ST_SplitterWnd.h"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.h"
 				>
 			</File>
@@ -708,6 +788,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GridCtrl_src\TitleTip.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Tools.h"
 				>
 			</File>
@@ -721,6 +805,10 @@
 			</File>
 			<File
 				RelativePath=".\TurnCoordinator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\UpperRightView.h"
 				>
 			</File>
 			<File

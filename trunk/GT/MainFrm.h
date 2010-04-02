@@ -5,6 +5,7 @@
 #pragma once
 
 #define MAX_NUM_HELICOPTER_NAME 5
+class ST_SplitterWnd;
 
 class CMainFrame : public CFrameWndEx
 {
@@ -43,8 +44,10 @@ protected:  // control bar embedded members
 	CString helicopterNames[MAX_NUM_HELICOPTER_NAME];
 	// Number of menu items created
 	int numberOfMenu;
-	// User defined variable
-	//CMFCToolBar m_wndAHRSToolBar;
+	
+	ST_SplitterWnd* m_pSplitterWnd;
+	ST_SplitterWnd* m_pSplitterWnd1;
+	
 
 	// If a new model is 
 	BOOL isNew;
@@ -77,6 +80,8 @@ private:
 	int FindMenuItem(CMenu*, LPCTSTR str);
 public:
 	afx_msg void On32793();
+protected:
+	virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
 };
 
 

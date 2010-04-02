@@ -4,7 +4,7 @@
 //
 #define IDD_ABOUTBOX                    100
 #define IDP_OLE_INIT_FAILED             100
-#define IDD_FORMVIEW                    101
+#define IDD_LEFT_FORMVIEW               101
 #define IDR_POPUP_EDIT                  119
 #define ID_STATUSBAR_PANE1              120
 #define ID_STATUSBAR_PANE2              121
@@ -41,6 +41,8 @@
 #define IDD_ROLL_ROTORDISK_TAB          322
 #define IDD_PITCH_ROTORDISK_TAB         323
 #define IDD_COLLECTIVE_ROTORDISK_TAB    324
+#define IDD_UPPERRIGHT_FORMVIEW         325
+#define IDD_FORMVIEW                    326
 #define IDC_HELICOPTERNAME_EDIT         1000
 #define IDC_HELICOPTERMASS_EDIT         1001
 #define IDC_MAINBLADELENGHT_EDIT        1002
@@ -102,7 +104,6 @@
 #define IDC_GPSTESTFAILURE_BUTTON       1048
 #define IDC_ROLL_ANGLE_BUTTON5          1048
 #define IDC_GPSTESTPASS_BUTTON          1049
-#define IDC_EDIT1                       1050
 #define IDC_COMMUNICATIONTEST_FAILURE   1051
 #define IDC_ROLL_ROTORDISK_EDIT2        1051
 #define IDC_COMMUNICATIONTEST_PASS      1052
@@ -203,6 +204,22 @@
 #define IDC_COLLECTIVE_ROTORDISK_BUTTON4 1139
 #define IDC_COLLECTIVE_ROTORDISK_BUTTON5 1140
 #define IDC_OK_BUTTON                   1144
+#define IDC_EDIT1                       1145
+#define IDC_EDIT2                       1146
+#define IDC_EDIT3                       1147
+#define IDC_EDIT5                       1149
+#define IDC_EDIT6                       1150
+#define IDC_EDIT7                       1151
+#define IDC_EDIT14                      1152
+#define IDC_BUTTON6                     1153
+#define IDC_BUTTON7                     1154
+#define IDC_EDIT8                       1155
+#define IDC_EDIT9                       1157
+#define IDC_EDIT10                      1158
+#define IDC_EDIT11                      1159
+#define IDC_EDIT12                      1160
+#define IDC_EDIT13                      1161
+#define IDC_GRID						1162
 #define ID_32771                        32771
 #define ID_32772                        32772
 #define ID_32773                        32773
@@ -226,14 +243,15 @@
 #define ID_RECENT_MODEL                 32791
 #define ID_Menu                         32792
 #define ID_32793                        32793
+#define ID_32794                        32794
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        325
-#define _APS_NEXT_COMMAND_VALUE         32794
-#define _APS_NEXT_CONTROL_VALUE         1145
+#define _APS_NEXT_COMMAND_VALUE         32795
+#define _APS_NEXT_CONTROL_VALUE         1155
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

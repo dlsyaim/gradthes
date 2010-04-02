@@ -4,7 +4,10 @@
 
 
 #pragma once
-
+class CLeftView;
+class CGTView;
+class CUpperRightView;
+class CGridView;
 
 class CGTDoc : public CDocument
 {
@@ -14,6 +17,10 @@ protected: // create from serialization only
 
 // Attributes
 public:
+	CLeftView* leftView;
+	CGTView* lowerRightView;
+	CUpperRightView* upperRightView;
+	CGridView* gridView;
 private:
 	// A CFile pointer to the file which contains the flying statistics
 	CFile *sharedFile;

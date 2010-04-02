@@ -240,6 +240,7 @@ int CGTView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 	if (GetDocument() != NULL) {
+		GetDocument()->lowerRightView = this;
 		pSvrSock = new CNetSvrUdp(m_Renderer, GetDocument());
 
 		// 5518 is the port we monitor
