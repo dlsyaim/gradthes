@@ -215,11 +215,12 @@
 #define IDC_BUTTON7                     1154
 #define IDC_EDIT8                       1155
 #define IDC_EDIT9                       1157
+#define IDC_CUSTOM1                     1157
 #define IDC_EDIT10                      1158
 #define IDC_EDIT11                      1159
 #define IDC_EDIT12                      1160
 #define IDC_EDIT13                      1161
-#define IDC_GRID						1162
+#define IDC_GRID                        1162
 #define ID_32771                        32771
 #define ID_32772                        32772
 #define ID_32773                        32773
@@ -251,7 +252,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        325
 #define _APS_NEXT_COMMAND_VALUE         32795
-#define _APS_NEXT_CONTROL_VALUE         1155
+#define _APS_NEXT_CONTROL_VALUE         1158
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif
