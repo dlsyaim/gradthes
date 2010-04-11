@@ -89,6 +89,7 @@ public:
 	afx_msg void OnDestroy();
 	afx_msg void OnCommunicationTest();
 	afx_msg void OnServoActorDemarcate();
+	afx_msg void OnGyroTest();
 };
 
 
