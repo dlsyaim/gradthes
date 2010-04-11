@@ -1,4 +1,4 @@
-// TailTab.cpp : 实现文件
+// CTailTab.cpp : 实现文件
 //
 
 #include "stdafx.h"
@@ -6,12 +6,12 @@
 #include "TailTab.h"
 
 
-// TailTab 对话框
+// CTailTab 对话框
 
-IMPLEMENT_DYNAMIC(TailTab, CTabPageSSL)
+IMPLEMENT_DYNAMIC(CTailTab, CTabPageSSL)
 
-TailTab::TailTab(CWnd* pParent /*=NULL*/)
-	: CTabPageSSL(TailTab::IDD, pParent)
+CTailTab::CTailTab(CWnd* pParent /*=NULL*/)
+	: CTabPageSSL(CTailTab::IDD, pParent)
 	, tailPWM1(0)
 	, tailPWM2(0)
 	, tailPWM3(0)
@@ -26,11 +26,11 @@ TailTab::TailTab(CWnd* pParent /*=NULL*/)
 
 }
 
-TailTab::~TailTab()
+CTailTab::~CTailTab()
 {
 }
 
-void TailTab::DoDataExchange(CDataExchange* pDX)
+void CTailTab::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_TAIL_PWM_EDIT1, tailPWM1);
@@ -46,68 +46,78 @@ void TailTab::DoDataExchange(CDataExchange* pDX)
 }
 
 
-BEGIN_MESSAGE_MAP(TailTab, CTabPageSSL)
-	ON_BN_CLICKED(IDC_TAIL_PWM_BUTTON1, &TailTab::OnBnClickedTailPWMButton1)
-	ON_BN_CLICKED(IDC_TAIL_PWM_BUTTON2, &TailTab::OnBnClickedTailPWMButton2)
-	ON_BN_CLICKED(IDC_TAIL_PWM_BUTTON3, &TailTab::OnBnClickedTailPWMButton3)
-	ON_BN_CLICKED(IDC_TAIL_PWM_BUTTON4, &TailTab::OnBnClickedTailPWMButton4)
-	ON_BN_CLICKED(IDC_TAIL_PWM_BUTTON5, &TailTab::OnBnClickedTailPWMButton5)
-	ON_BN_CLICKED(IDC_TAIL_ANGLE_BUTTON1, &TailTab::OnBnClickedTailAngleButton1)
-	ON_BN_CLICKED(IDC_TAIL_ANGLE_BUTTON2, &TailTab::OnBnClickedTailAngleButton2)
-	ON_BN_CLICKED(IDC_TAIL_ANGLE_BUTTON3, &TailTab::OnBnClickedTailAngleButton3)
-	ON_BN_CLICKED(IDC_TAIL_ANGLE_BUTTON4, &TailTab::OnBnClickedTailAngleButton4)
-	ON_BN_CLICKED(IDC_TAIL_ANGLE_BUTTON5, &TailTab::OnBnClickedTailAngleButton5)
+BEGIN_MESSAGE_MAP(CTailTab, CTabPageSSL)
+	ON_BN_CLICKED(IDC_TAIL_PWM_BUTTON1, &CTailTab::OnBnClickedTailPWMButton1)
+	ON_BN_CLICKED(IDC_TAIL_PWM_BUTTON2, &CTailTab::OnBnClickedTailPWMButton2)
+	ON_BN_CLICKED(IDC_TAIL_PWM_BUTTON3, &CTailTab::OnBnClickedTailPWMButton3)
+	ON_BN_CLICKED(IDC_TAIL_PWM_BUTTON4, &CTailTab::OnBnClickedTailPWMButton4)
+	ON_BN_CLICKED(IDC_TAIL_PWM_BUTTON5, &CTailTab::OnBnClickedTailPWMButton5)
+	ON_BN_CLICKED(IDC_TAIL_ANGLE_BUTTON1, &CTailTab::OnBnClickedTailAngleButton1)
+	ON_BN_CLICKED(IDC_TAIL_ANGLE_BUTTON2, &CTailTab::OnBnClickedTailAngleButton2)
+	ON_BN_CLICKED(IDC_TAIL_ANGLE_BUTTON3, &CTailTab::OnBnClickedTailAngleButton3)
+	ON_BN_CLICKED(IDC_TAIL_ANGLE_BUTTON4, &CTailTab::OnBnClickedTailAngleButton4)
+	ON_BN_CLICKED(IDC_TAIL_ANGLE_BUTTON5, &CTailTab::OnBnClickedTailAngleButton5)
 END_MESSAGE_MAP()
 
 
-// TailTab 消息处理程序
+// CTailTab 消息处理程序
 
-void TailTab::OnBnClickedTailPWMButton1()
+void CTailTab::OnBnClickedTailPWMButton1()
+{
+	this->UpdateData();
+	sendTestData(tailPWM1);
+}
+
+void CTailTab::OnBnClickedTailPWMButton2()
+{
+	this->UpdateData();
+	sendTestData(tailPWM2);
+}
+
+void CTailTab::OnBnClickedTailPWMButton3()
+{
+	this->UpdateData();
+	sendTestData(tailPWM3);
+}
+
+void CTailTab::OnBnClickedTailPWMButton4()
+{
+	this->UpdateData();
+	sendTestData(tailPWM4);
+}
+
+void CTailTab::OnBnClickedTailPWMButton5()
+{
+	this->UpdateData();
+	sendTestData(tailPWM5);
+}
+
+void CTailTab::OnBnClickedTailAngleButton1()
 {
 	// TODO: 在此添加控件通知处理程序代码
 }
 
-void TailTab::OnBnClickedTailPWMButton2()
+void CTailTab::OnBnClickedTailAngleButton2()
 {
 	// TODO: 在此添加控件通知处理程序代码
 }
 
-void TailTab::OnBnClickedTailPWMButton3()
+void CTailTab::OnBnClickedTailAngleButton3()
 {
 	// TODO: 在此添加控件通知处理程序代码
 }
 
-void TailTab::OnBnClickedTailPWMButton4()
+void CTailTab::OnBnClickedTailAngleButton4()
 {
 	// TODO: 在此添加控件通知处理程序代码
 }
 
-void TailTab::OnBnClickedTailPWMButton5()
+void CTailTab::OnBnClickedTailAngleButton5()
 {
 	// TODO: 在此添加控件通知处理程序代码
 }
 
-void TailTab::OnBnClickedTailAngleButton1()
+__int8 CTailTab::getActorSerial(void)
 {
-	// TODO: 在此添加控件通知处理程序代码
-}
-
-void TailTab::OnBnClickedTailAngleButton2()
-{
-	// TODO: 在此添加控件通知处理程序代码
-}
-
-void TailTab::OnBnClickedTailAngleButton3()
-{
-	// TODO: 在此添加控件通知处理程序代码
-}
-
-void TailTab::OnBnClickedTailAngleButton4()
-{
-	// TODO: 在此添加控件通知处理程序代码
-}
-
-void TailTab::OnBnClickedTailAngleButton5()
-{
-	// TODO: 在此添加控件通知处理程序代码
+	return 3;
 }

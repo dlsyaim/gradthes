@@ -4,6 +4,11 @@
 #include "stdafx.h"
 #include "GT.h"
 #include "CollectiveTab.h"
+#include "define\sysdef.h"
+#include "func\NetCln.h"
+#include "func\NetSvrHeli.h"
+#include "MsgType.h"
+#include "GlobalExperimentData.h"
 
 
 // CCollectiveTab 对话框
@@ -64,27 +69,32 @@ END_MESSAGE_MAP()
 
 void CCollectiveTab::OnBnClickedCollectivePWMButton1()
 {
-	
+	this->UpdateData();
+	sendTestData(collectivePWM1);	
 }
 
 void CCollectiveTab::OnBnClickedCollectivePWMButton2()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	this->UpdateData();
+	sendTestData(collectivePWM2);	
 }
 
 void CCollectiveTab::OnBnClickedCollectivePWMButton3()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	this->UpdateData();
+	sendTestData(collectivePWM3);	
 }
 
 void CCollectiveTab::OnBnClickedCollectivePWMButton4()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	this->UpdateData();
+	sendTestData(collectivePWM4);	
 }
 
 void CCollectiveTab::OnBnClickedCollectivePWMButton5()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	this->UpdateData();
+	sendTestData(collectivePWM5);	
 }
 
 void CCollectiveTab::OnBnClickedCollectiveAngleButton1()
@@ -110,4 +120,9 @@ void CCollectiveTab::OnBnClickedCollectiveAngleButton4()
 void CCollectiveTab::OnBnClickedCollectiveAngleButton5()
 {
 	// TODO: 在此添加控件通知处理程序代码
+}
+
+__int8 CCollectiveTab::getActorSerial(void)
+{
+	return 0;
 }

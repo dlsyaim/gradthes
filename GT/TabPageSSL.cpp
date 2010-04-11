@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "TabPageSSL.h"
+#include "define\sysdef.h"
+#include "func\NetCln.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -16,7 +18,7 @@ CTabPageSSL::CTabPageSSL () {
 #endif // !_AFX_NO_OCC_SUPPORT
 	m_bRouteCommand = false;
 	m_bRouteCmdMsg = false;
-	m_bRouteNotify = false;
+	m_bRouteNotify = false;	
 }
 
 CTabPageSSL::CTabPageSSL (UINT nIDTemplate, CWnd* pParent /*=NULL*/)
@@ -95,4 +97,25 @@ BOOL CTabPageSSL::OnCmdMsg (UINT nID, int nCode, void* pExtra,
 #endif // !_AFX_NO_OCC_SUPPORT
 
 	return bReturn;
+}
+
+void CTabPageSSL::sendTestData(double value)
+{
+	/********** Construct the content of the servo actor demarcate command *********/
+	char command[10];
+	__int16 *c = (__int16 *)command;
+	c[0] = SAT_SERVOACTOR_TST;
+
+	ServoActorTstInsData sattd;
+	sattd.ActorSerial = getActorSerial();
+	sattd.SetPWM = (float)value;
+
+	memcpy(&(command[2]), (char*)&sattd, sizeof(sattd));
+	command[2 + sizeof(sattd)] = '\0';
+	cln->SendSvr(command, 10);
+}
+
+__int8 CTabPageSSL::getActorSerial(void)
+{
+	return 0;
 }

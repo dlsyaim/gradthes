@@ -1,8 +1,7 @@
 #pragma once
-
 /////////////////////////////////////////////////////////////////////////////
 // CTabPageSSL declaration
-
+class CNetCln;
 class CTabPageSSL : public CDialog
 {
 public:
@@ -35,6 +34,14 @@ protected:
 	bool m_bRouteCommand;
 	bool m_bRouteCmdMsg;
 	bool m_bRouteNotify;
+protected:
+	//Attributes
+	CNetCln *cln;
+	// Operations
+	void sendTestData(double value);
+	virtual __int8 getActorSerial(void);
+public:
+	inline void setCln(CNetCln* cln) {this->cln = cln;}
 };
 
 

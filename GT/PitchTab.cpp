@@ -1,4 +1,4 @@
-// PitchTab.cpp : 实现文件
+// CPitchTab.cpp : 实现文件
 //
 
 #include "stdafx.h"
@@ -6,12 +6,12 @@
 #include "PitchTab.h"
 
 
-// PitchTab 对话框
+// CPitchTab 对话框
 
-IMPLEMENT_DYNAMIC(PitchTab, CTabPageSSL)
+IMPLEMENT_DYNAMIC(CPitchTab, CTabPageSSL)
 
-PitchTab::PitchTab(CWnd* pParent /*=NULL*/)
-	: CTabPageSSL(PitchTab::IDD, pParent)
+CPitchTab::CPitchTab(CWnd* pParent /*=NULL*/)
+	: CTabPageSSL(CPitchTab::IDD, pParent)
 	, pitchPWM1(0)
 	, pitchPWM2(0)
 	, pitchPWM3(0)
@@ -26,11 +26,11 @@ PitchTab::PitchTab(CWnd* pParent /*=NULL*/)
 
 }
 
-PitchTab::~PitchTab()
+CPitchTab::~CPitchTab()
 {
 }
 
-void PitchTab::DoDataExchange(CDataExchange* pDX)
+void CPitchTab::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_PITCH_PWM_EDIT1, pitchPWM1);
@@ -46,68 +46,78 @@ void PitchTab::DoDataExchange(CDataExchange* pDX)
 }
 
 
-BEGIN_MESSAGE_MAP(PitchTab, CTabPageSSL)
-	ON_BN_CLICKED(IDC_PITCH_PWM_BUTTON1, &PitchTab::OnBnClickedPitchPWMButton1)
-	ON_BN_CLICKED(IDC_PITCH_PWM_BUTTON2, &PitchTab::OnBnClickedPitchPWMButton2)
-	ON_BN_CLICKED(IDC_PITCH_PWM_BUTTON3, &PitchTab::OnBnClickedPitchPWMButton3)
-	ON_BN_CLICKED(IDC_PITCH_PWM_BUTTON4, &PitchTab::OnBnClickedPitchPWMButton4)
-	ON_BN_CLICKED(IDC_PITCH_PWM_BUTTON5, &PitchTab::OnBnClickedPitchPWMButton5)
-	ON_BN_CLICKED(IDC_PITCH_ANGLE_BUTTON1, &PitchTab::OnBnClickedPitchAngleButton1)
-	ON_BN_CLICKED(IDC_PITCH_ANGLE_BUTTON2, &PitchTab::OnBnClickedPitchAngleButton2)
-	ON_BN_CLICKED(IDC_PITCH_ANGLE_BUTTON3, &PitchTab::OnBnClickedPitchAngleButton3)
-	ON_BN_CLICKED(IDC_PITCH_ANGLE_BUTTON4, &PitchTab::OnBnClickedPitchAngleButton4)
-	ON_BN_CLICKED(IDC_PITCH_ANGLE_BUTTON5, &PitchTab::OnBnClickedPitchAngleButton5)
+BEGIN_MESSAGE_MAP(CPitchTab, CTabPageSSL)
+	ON_BN_CLICKED(IDC_PITCH_PWM_BUTTON1, &CPitchTab::OnBnClickedPitchPWMButton1)
+	ON_BN_CLICKED(IDC_PITCH_PWM_BUTTON2, &CPitchTab::OnBnClickedPitchPWMButton2)
+	ON_BN_CLICKED(IDC_PITCH_PWM_BUTTON3, &CPitchTab::OnBnClickedPitchPWMButton3)
+	ON_BN_CLICKED(IDC_PITCH_PWM_BUTTON4, &CPitchTab::OnBnClickedPitchPWMButton4)
+	ON_BN_CLICKED(IDC_PITCH_PWM_BUTTON5, &CPitchTab::OnBnClickedPitchPWMButton5)
+	ON_BN_CLICKED(IDC_PITCH_ANGLE_BUTTON1, &CPitchTab::OnBnClickedPitchAngleButton1)
+	ON_BN_CLICKED(IDC_PITCH_ANGLE_BUTTON2, &CPitchTab::OnBnClickedPitchAngleButton2)
+	ON_BN_CLICKED(IDC_PITCH_ANGLE_BUTTON3, &CPitchTab::OnBnClickedPitchAngleButton3)
+	ON_BN_CLICKED(IDC_PITCH_ANGLE_BUTTON4, &CPitchTab::OnBnClickedPitchAngleButton4)
+	ON_BN_CLICKED(IDC_PITCH_ANGLE_BUTTON5, &CPitchTab::OnBnClickedPitchAngleButton5)
 END_MESSAGE_MAP()
 
 
-// PitchTab 消息处理程序
+// CPitchTab 消息处理程序
 
-void PitchTab::OnBnClickedPitchPWMButton1()
+void CPitchTab::OnBnClickedPitchPWMButton1()
+{
+	this->UpdateData();
+	sendTestData(pitchPWM1);	
+}
+
+void CPitchTab::OnBnClickedPitchPWMButton2()
+{
+	this->UpdateData();
+	sendTestData(pitchPWM2);
+}
+
+void CPitchTab::OnBnClickedPitchPWMButton3()
+{
+	this->UpdateData();
+	sendTestData(pitchPWM3);
+}
+
+void CPitchTab::OnBnClickedPitchPWMButton4()
+{
+	this->UpdateData();
+	sendTestData(pitchPWM4);
+}
+
+void CPitchTab::OnBnClickedPitchPWMButton5()
+{
+	this->UpdateData();
+	sendTestData(pitchPWM5);
+}
+
+void CPitchTab::OnBnClickedPitchAngleButton1()
 {
 	// TODO: 在此添加控件通知处理程序代码
 }
 
-void PitchTab::OnBnClickedPitchPWMButton2()
+void CPitchTab::OnBnClickedPitchAngleButton2()
 {
 	// TODO: 在此添加控件通知处理程序代码
 }
 
-void PitchTab::OnBnClickedPitchPWMButton3()
+void CPitchTab::OnBnClickedPitchAngleButton3()
 {
 	// TODO: 在此添加控件通知处理程序代码
 }
 
-void PitchTab::OnBnClickedPitchPWMButton4()
+void CPitchTab::OnBnClickedPitchAngleButton4()
 {
 	// TODO: 在此添加控件通知处理程序代码
 }
 
-void PitchTab::OnBnClickedPitchPWMButton5()
+void CPitchTab::OnBnClickedPitchAngleButton5()
 {
 	// TODO: 在此添加控件通知处理程序代码
 }
 
-void PitchTab::OnBnClickedPitchAngleButton1()
+__int8 CPitchTab::getActorSerial(void)
 {
-	// TODO: 在此添加控件通知处理程序代码
-}
-
-void PitchTab::OnBnClickedPitchAngleButton2()
-{
-	// TODO: 在此添加控件通知处理程序代码
-}
-
-void PitchTab::OnBnClickedPitchAngleButton3()
-{
-	// TODO: 在此添加控件通知处理程序代码
-}
-
-void PitchTab::OnBnClickedPitchAngleButton4()
-{
-	// TODO: 在此添加控件通知处理程序代码
-}
-
-void PitchTab::OnBnClickedPitchAngleButton5()
-{
-	// TODO: 在此添加控件通知处理程序代码
+	return 2;
 }

@@ -22,8 +22,23 @@ CHelicopterChoosingDialog::CHelicopterChoosingDialog(CWnd* pParent /*=NULL*/)
 	, mainBladeRPM(0)
 	, xInertia(0)
 {
-
+	isNew = TRUE;
 }
+
+CHelicopterChoosingDialog::CHelicopterChoosingDialog(CString _helicopterName, double _helicopterMass, double _helicopterLength, 
+		double _mainBladeLength, double _mainBladeRPM, double _xInertia,
+		CWnd* pParent/* = NULL*/) 
+: CDialog(CHelicopterChoosingDialog::IDD, pParent)
+, helicopterName(_helicopterName)
+, helicopterMass(_helicopterMass)
+, mainBladeLength(_mainBladeLength)
+, helicopterLength(_helicopterLength)
+, mainBladeRPM(_mainBladeRPM)
+, xInertia(_xInertia)
+{
+	isNew = FALSE;
+}
+
 
 CHelicopterChoosingDialog::~CHelicopterChoosingDialog()
 {
@@ -57,12 +72,50 @@ END_MESSAGE_MAP()
 
 void CHelicopterChoosingDialog::OnBnClickedOk()
 {
-	// TODO: 
-	//UpdateData(TRUE);
+	// TODO:1. Construct a helicopter model and save it into files, or update a helicopter model already in the files.
 	this->UpdateData();
-	// Construct a flight model
-	// ...
-	// Then use ofstream to store the flightmodel into files.
+	/***** Construct a flight model *****/
+	/*
+		HelicopterModel hm;
+		hm.setHelicopterName(helicopterName);
+		hm.setHelicopterMass(helicopterMass);
+	    ...
+	*/
+	
+	/***** Then use ofstream to save the helicopter model into files. *****/
+	
+	/*
+		if (!isNew) {
+			// We need to read all the helicopter model from the files
+			std::vector<HelicopterModel*> HMV;
+			HelicopterModel hmT;
+			std::ifstream ifs("helicopterModel.hm", std::ios::binary);
+			while(!eof()) {				
+				ifs.read((char*) hmT, sizeof(hmT));
+				if (hmT.helicopterName == hm.helicopterName)
+					HMV.insert(HMV.begin(), &hm);
+			    else 
+					HMV.insert(HMV.begin(), &hmT);
+			}
+			ifs.close();
+			
+			// Then write the updated helicopter models into files
+			ofstream ofs("helicopterModel.hm", std::ios::binary | std::ios::trunc);
+			std::vector<HelicopterModel*>::iterator itr;
+			for (itr = HMV.begin(); itr != HMV.end(); itr++) {
+				ofs.write((char*)itr, sizeof(*itr));
+			}
+			ofs.close();
+
+		} else {
+			// We just append the new helicopter model into the end of the files
+			std::ofstream ofs("helicopterModel.hm", std::ios::binary | std::ios::app);
+			ofs.write((char*)&hm, sizeof(hm));
+			ofs.close();
+		}
+		
+	*/
+
 	CDialog::OnOK();
 }
 
@@ -101,7 +154,7 @@ BOOL CHelicopterChoosingDialog::OnInitDialog()
 	CDialog::OnInitDialog();
 
 	// TODO:  在此添加额外的初始化
-
+	// The first edit control gets the focus.
 	GetDlgItem(IDC_HELICOPTERNAME_EDIT)->SetFocus();
 	return FALSE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE

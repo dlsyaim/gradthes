@@ -99,8 +99,6 @@ public:
 	afx_msg void OnAHRSStop();
 	afx_msg LONG OnCommunication(WPARAM ch, LPARAM port);
 	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
-	afx_msg void OnCommunicationTest();
-	afx_msg void OnServoActorDemarcate();
 	afx_msg void OnGyroTest();
 	afx_msg void OnGPSTest();
 };

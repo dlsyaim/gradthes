@@ -51,14 +51,14 @@ END_MESSAGE_MAP()
 
 void CCommunicationTestDialog::OnBnClickedCommunicationTestFailure()
 {
-	// TODO: Write the log files
-	std::ofstream of("communicationtest.log", std::ios::app);
+	// TODO: Write the log files	
 	/*
+		std::ofstream of("communicationtest.log", std::ios::app);
 		char *buf = "通讯测试: 失败";
 		of.write(buf, sizeof buf);
 		of << std::endl;
-	*/
-	of.close();
+		of.close();
+	*/	
 
 	/********** Update the global experimental states **********/
 	GlobalExperimentData::isCommunicationTestPass = FALSE;
@@ -67,13 +67,14 @@ void CCommunicationTestDialog::OnBnClickedCommunicationTestFailure()
 void CCommunicationTestDialog::OnBnClickedCommunicationTestPass()
 {
 	// TODO: Write the log files	
-	std::ofstream  of("communicationtest.log", std::ios::app);
+	
 	/*
+		std::ofstream  of("communicationtest.log", std::ios::app);	
 		char *buf = "通讯测试: 成功";
 		of.write(buf, sizeof buf);
-		of << std::endl;
+		of << std::endl;	
+		of.close();
 	*/
-	of.close();
 
 	/********** Update the global experimental states **********/
 	GlobalExperimentData::isCommunicationTestPass = TRUE;

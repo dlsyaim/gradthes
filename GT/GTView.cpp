@@ -13,9 +13,7 @@
 
 #include "GTDoc.h"
 #include "GTView.h"
-#include "HelicopterChoosingDialog.h"
-#include "CommunicationTestDialog.h"
-#include "ServoActorDemarcateDialog.h"
+
 #include "GyroTestDialog.h"
 #include "GPSTestDialog.h"
 
@@ -52,10 +50,7 @@ BEGIN_MESSAGE_MAP(CGTView, CView)
 	//ON_COMMAND(ID_AHRS_START, &CGTView::OnAHRSStart)
 	//ON_COMMAND(ID_AHRS_STOP, &CGTView::OnAHRSStop)
 	ON_MESSAGE(WM_COMM_RXCHAR, &CGTView::OnCommunication)
-	ON_WM_RBUTTONDOWN()
-	
-	ON_COMMAND(ID_32774, &CGTView::OnCommunicationTest)
-	ON_COMMAND(ID_32775, &CGTView::OnServoActorDemarcate)
+	ON_WM_RBUTTONDOWN()	
 	ON_COMMAND(ID_32776, &CGTView::OnGyroTest)
 	ON_COMMAND(ID_32777, &CGTView::OnGPSTest)
 END_MESSAGE_MAP()
@@ -541,20 +536,7 @@ BOOL CGTView::cBuildFont(void)
 	return TRUE;
 }
 
-/***** Here start to test the communication *****/
-void CGTView::OnCommunicationTest()
-{
-	CCommunicationTestDialog ctd;
-	((CGTApp*)AfxGetApp())->setCtd(&ctd);
-	ctd.DoModal();
-}
 
-void CGTView::OnServoActorDemarcate()
-{
-	// TODO: 
-	CServoActorDemarcateDialog sgtd;
-	sgtd.DoModal();
-}
 
 void CGTView::OnGyroTest()
 {

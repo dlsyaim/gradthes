@@ -10,6 +10,8 @@
 #include "ST_SplitterWnd.h"
 #include "MainFrm.h"
 #include "HelicopterChoosingDialog.h"
+#include "CommunicationTestDialog.h"
+#include "ServoActorDemarcateDialog.h"
 #include "RotorDiskDemarcateDialog.h"
 #include "LeftView.h"
 #include "UpperRightView.h"
@@ -35,13 +37,16 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_CREATE()
 	ON_COMMAND(ID_VIEW_CUSTOMIZE, &CMainFrame::OnViewCustomize)
 	ON_REGISTERED_MESSAGE(AFX_WM_CREATETOOLBAR, &CMainFrame::OnToolbarCreateNew)
-	ON_COMMAND(ID_32771, &CMainFrame::OnNewModel)
+	ON_COMMAND(ID_NEW_HELICOPTER_MODEL, &CMainFrame::OnNewModel)
 	ON_COMMAND(ID_HELICOPTER_BEGIN + 0, OnZeroModel)
 	ON_COMMAND(ID_HELICOPTER_BEGIN + 1, OnFirstModel)
 	ON_COMMAND(ID_HELICOPTER_BEGIN + 2, OnSecondModel)
 	ON_COMMAND(ID_HELICOPTER_BEGIN + 3, OnThirdModel)
 	ON_COMMAND(ID_HELICOPTER_BEGIN + 4, OnForthModel)
 	ON_COMMAND(ID_32793, &CMainFrame::On32793)
+	ON_WM_DESTROY()
+	ON_COMMAND(ID_COMMUNICATION_TEST, &CMainFrame::OnCommunicationTest)
+	ON_COMMAND(ID_SERVOACTOR_DEMARCATE, &CMainFrame::OnServoActorDemarcate)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -58,8 +63,6 @@ CMainFrame::CMainFrame()
 {
 	// TODO: add member initialization code here
 	numberOfMenu = 0;
-
-	isNew = FALSE;
 }
 
 CMainFrame::~CMainFrame()
@@ -161,6 +164,11 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	CMFCToolBar::SetBasicCommands(lstBasicCommands);
 
+	// Read the helicopter names from Registry
+	readHMFromRegistry();
+	// Create the recent helicopter model name menu items
+	createRecentHMMenuItems();
+
 	return 0;
 }
 
@@ -249,13 +257,22 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 
 void CMainFrame::OnNewModel()
 {
-	// TODO: 在此添加命令处理程序代码
+	// New a dialog
 	CHelicopterChoosingDialog *mcd = new CHelicopterChoosingDialog(this);
-	mcd->DoModal();
+	switch (mcd->DoModal()) {
+		case IDOK:
+			// First add the helicopter name string
+			AddName(mcd->getHelicopterName());
+			// Then update menu items
+			UpdateMenu();
+			break;
+		case IDCANCEL:
+			break;
+		default:
+			break;
+	}
 
-	// First add name
-	AddName(mcd->helicopterName);
-	UpdateMenu();
+	
 }
 
 void CMainFrame::AddMenu(CString message)
@@ -295,11 +312,10 @@ void CMainFrame::UpdateMenu(void)
 	CMenu* mainMenu = CMenu::FromHandle(m_wndMenuBar.GetDefaultMenu());
 	if (mainMenu != NULL) {
 		CMenu *subMenu = NULL;
-		static CMenu *popUpMenu = NULL;
+		CMenu *popUpMenu = NULL;
 		MENUITEMINFO info;
-		info.cbSize = sizeof (MENUITEMINFO); // must fill up this field
-		info.fMask = MIIM_SUBMENU;             
-
+		info.cbSize = sizeof (MENUITEMINFO); // Must fill up this field
+		info.fMask = MIIM_SUBMENU;
 
 		// Iterate the main menu
 		int menuCount = mainMenu->GetMenuItemCount();
@@ -316,29 +332,30 @@ void CMainFrame::UpdateMenu(void)
 			CString menuName;
 			if (subMenu->GetMenuString(i, menuName, MF_BYPOSITION) && menuName == "最近的模型") {
 				subMenu->GetMenuItemInfo(i, &info, TRUE);
+				popUpMenu = CMenu::FromHandle(info.hSubMenu);
 				break;
 			}
 		}
 		// Adding
-		if (!isNew) {
-			isNew = TRUE;
+		if (!popUpMenu) {
 			popUpMenu = new CMenu();
 			popUpMenu->CreateMenu();
-			info.hSubMenu = popUpMenu->GetSafeHmenu();
-			subMenu->SetMenuItemInfo(i, &info, TRUE);
+			info.hSubMenu = popUpMenu->GetSafeHmenu();			
 		}
 		if (popUpMenu != NULL) {
+			//Appending
 			if (numberOfMenu < MAX_NUM_HELICOPTER_NAME) {
-				if (popUpMenu->AppendMenu(MF_STRING,  ID_HELICOPTER_BEGIN + numberOfMenu, "TEMP") ){					
+				if (popUpMenu->AppendMenu(MF_STRING, ID_HELICOPTER_BEGIN + numberOfMenu, "TEMP") ){					
 					numberOfMenu++;
 			    }
 			}
 
 			// Renaming
-			for (i = 0; i < (int)popUpMenu->GetMenuItemCount(); i++ ) {
-				popUpMenu->ModifyMenu(ID_HELICOPTER_BEGIN + i, MF_BYCOMMAND, ID_HELICOPTER_BEGIN + i, helicopterNames[i]);					
+			for (int j = 0; j < (int)popUpMenu->GetMenuItemCount(); j++ ) {
+				popUpMenu->ModifyMenu(ID_HELICOPTER_BEGIN + j, MF_BYCOMMAND, ID_HELICOPTER_BEGIN + j, helicopterNames[j]);					
 			}
-			// Corresponding
+			// Updating
+			subMenu->SetMenuItemInfo(i, &info, TRUE);
 			m_wndMenuBar.CreateFromMenu(mainMenu->GetSafeHmenu(), TRUE, TRUE);
 		}
 	}	
@@ -362,7 +379,7 @@ void CMainFrame::AddName(CString name)
 void CMainFrame::DeleteName(CString name)
 {
 	int i; 
-	for (i = 0 ; i < MAX_NUM_HELICOPTER_NAME; i++) {
+	for (i = 0; i < MAX_NUM_HELICOPTER_NAME; i++) {
 		if (helicopterNames[i] == name) 
 			break;
 	}
@@ -396,29 +413,46 @@ void CMainFrame::OnForthModel(void)
 	OnSelectModel(4);
 }
 
+// Select the created helicopter model according to the index
 void CMainFrame::OnSelectModel(int idx)
 {
 	if (idx < 0 && idx > 4) 
 		return;
 
-	// Open the corresponding existing file
-	CString modelName = helicopterNames[idx];
+	/*
+	 * All the helicopter models are saved into one single file
+	 */
+	
 	// Construct a fileName
 	char fileName[256];
 	GetCurrentDirectory(256, fileName);
-	strcat(fileName, modelName);
+	strcat(fileName, "");
 	// New a CFile pointer
 	CFile filePointer;
 	CFileException exception;
 	if (!filePointer.Open((LPCTSTR)fileName, CFile::modeRead | CFile::shareDenyWrite | CFile::modeNoTruncate, &exception)) {
 		// First delete fileName from helicopterNames
-		DeleteName(modelName);
-		DeleteMenu(modelName);
+		CString name = helicopterNames[idx];
+		DeleteName(name);
+		DeleteMenu(name);
 		CString meg;
 		meg.Format("File couldn't be opend %d\n", exception.m_cause);
 		AfxMessageBox((LPCTSTR)meg);
 		return;
 	}
+	
+	/***** Firstly we check the helicopter model buffer ******/
+	/*
+		if (hmBuf.size() == 0) {
+			// We should read the helicopter model from the files
+			std::ifstream ifs("helicopterModel.hm", ios::binary);
+			HelicopterModel hm;
+			while (!eof()) {
+				ifs.read((char*) &hm, sizeof(hm));
+				hmBuf.add();
+			}
+		}
+	 */
 	// New a helicopter model.
   
 
@@ -429,11 +463,10 @@ void CMainFrame::DeleteMenu(CString name)
 	CMenu* mainMenu = CMenu::FromHandle(m_wndMenuBar.GetDefaultMenu());
 	if (mainMenu != NULL) {
 		CMenu *subMenu = NULL;
-		static CMenu *popUpMenu = NULL;
+		CMenu *popUpMenu = NULL;
 		MENUITEMINFO info;
-		info.cbSize = sizeof (MENUITEMINFO); // must fill up this field
-		info.fMask = MIIM_SUBMENU;             
-
+		info.cbSize = sizeof (MENUITEMINFO); // Must fill up this field
+		info.fMask = MIIM_SUBMENU;
 
 		// Iterate the main menu
 		int menuCount = mainMenu->GetMenuItemCount();
@@ -454,22 +487,23 @@ void CMainFrame::DeleteMenu(CString name)
 				break;
 			}
 		}
-		numberOfMenu--;
 		if (popUpMenu != NULL) {
 			int pos = FindMenuItem(popUpMenu, name);
-			// Deleting
+			// Delete all the items from pos
 			int j;
 			int originCount = popUpMenu->GetMenuItemCount();
 			for (j = pos; j < originCount; j++) {
+				// Note that the first parameter must be pos
 				popUpMenu->DeleteMenu(pos, MF_BYPOSITION);
 			}
-			// Adding
-			for (j = pos; j < numberOfMenu; j++ ) {
-				popUpMenu->AppendMenu(MF_STRING,  ID_HELICOPTER_BEGIN + j, helicopterNames[j]);					
+			// Appending
+			for (j = pos; j < numberOfMenu - 1; j++) {
+				popUpMenu->AppendMenu(MF_STRING, ID_HELICOPTER_BEGIN + j, helicopterNames[j]);					
 			}
-			info.hSubMenu = popUpMenu->GetSafeHmenu();
+			numberOfMenu--;
+			
+			// Updating
 			subMenu->SetMenuItemInfo(i, &info, TRUE);
-			// Corresponding
 			m_wndMenuBar.CreateFromMenu(mainMenu->GetSafeHmenu(), TRUE, TRUE);
 		}
 	}	
@@ -514,4 +548,136 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 	m_pSplitterWnd->SetInitialStatus();
 
 	return TRUE;
+}
+
+
+void CMainFrame::readHMFromRegistry(void)
+{
+	// This variable will allow us to keep track of the KEY
+	HKEY hk;
+	// This variable will be used to hold the type of value
+	DWORD dwType;
+	// This variable will represent the size of the value
+	DWORD dwLength;
+	// Check the HKEY_CURRENT_USER node and look for the RemHMCreated node under it
+	// If it exists, open it
+	RegOpenKeyEx(HKEY_CURRENT_USER,"RemHMCreated", 0, KEY_QUERY_VALUE, &hk);
+	// Retrieve the value of the first helicopter model name
+	unsigned char buf[256];
+	char res[5];
+
+	for (int i = 0 ; i < MAX_NUM_HELICOPTER_NAME; i++) {
+		itoa(i,res,10);
+		memset(buf, 0, 256);
+		dwLength = 256;	
+		RegQueryValueEx(hk, res, NULL, &dwType, (LPBYTE)buf, &dwLength);
+		helicopterNames[i] = buf;
+	}
+	
+	// We have finished reading the registry,
+	// so free the resources we were using
+	RegCloseKey(hk);
+	return;
+}
+
+void CMainFrame::createRecentHMMenuItems(void)
+{
+	// No first means nothing
+	if (helicopterNames[0].GetLength() == 0) {
+		return;
+	}
+
+	CMenu* mainMenu = CMenu::FromHandle(m_wndMenuBar.GetDefaultMenu());
+	if (mainMenu != NULL) {
+		CMenu *subMenu = NULL;
+		CMenu *popUpMenu = NULL;
+		MENUITEMINFO info;
+		info.cbSize = sizeof (MENUITEMINFO); // Must fill up this field
+		info.fMask = MIIM_SUBMENU;             
+
+
+		// Iterate the main menu
+		int menuCount = mainMenu->GetMenuItemCount();
+		int i;
+		for (i = 0; i < menuCount; i++) {
+			CString menuName;
+			if (mainMenu->GetMenuString(i, menuName, MF_BYPOSITION) && menuName == "机型选择") {
+				subMenu = mainMenu->GetSubMenu(i);
+				break;
+			}
+		}
+
+		for (i = 0; i < (int)subMenu->GetMenuItemCount(); i++) {
+			CString menuName;
+			if (subMenu->GetMenuString(i, menuName, MF_BYPOSITION) && menuName == "最近的模型") {
+				subMenu->GetMenuItemInfo(i, &info, TRUE);
+				break;
+			}
+		}
+		// Adding
+		if (!info.hSubMenu) {
+			popUpMenu = new CMenu();
+			popUpMenu->CreateMenu();
+			info.hSubMenu = popUpMenu->GetSafeHmenu();			
+		}
+
+		if (popUpMenu) {
+			// Appending
+			int j;
+			for (j = 0; j < MAX_NUM_HELICOPTER_NAME; j++) {
+				if (helicopterNames[j].GetLength() != 0) {
+					if (popUpMenu->AppendMenu(MF_STRING, ID_HELICOPTER_BEGIN + j, "TEMP")){					
+						numberOfMenu++;
+					}
+				}
+			}
+			// Renaming
+			for (j = 0; j < (int)popUpMenu->GetMenuItemCount(); j++) {
+				popUpMenu->ModifyMenu(ID_HELICOPTER_BEGIN + j, MF_BYCOMMAND, ID_HELICOPTER_BEGIN + j, helicopterNames[j]);					
+			}
+			// Updating
+			subMenu->SetMenuItemInfo(i, &info, TRUE);
+			m_wndMenuBar.CreateFromMenu(mainMenu->GetSafeHmenu(), TRUE, TRUE);
+		}
+	}
+}
+void CMainFrame::OnDestroy()
+{
+	CFrameWndEx::OnDestroy();
+
+	/***** Here we must keep the helicopter names in the Registry *****/
+	HKEY hk;
+	DWORD dwDisp;
+	// Check the HKEY_CURRENT_USER key and look for the RemHMCreated node under it
+	// If you don't find it, then create it
+	RegCreateKeyEx(HKEY_CURRENT_USER, "RemHMCreated", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hk, &dwDisp);
+	// Store the first name in a key named 0
+	// But first convert the CString into a null-terminated string
+	
+	unsigned char buf[256];
+	char res[5];
+
+	for (int i = 0; i < MAX_NUM_HELICOPTER_NAME ; i++) {	
+		itoa(i,res,10);
+		memcpy(buf, helicopterNames[i].GetBuffer(0), helicopterNames[i].GetLength());
+		buf[helicopterNames[i].GetLength()] = '\0';
+		RegSetValueEx(hk,res,0, REG_SZ,(PBYTE)buf, helicopterNames[i].GetLength() + 1);
+	}
+	
+	// We have finished with the registry,
+	// so liberate the resources we were using		
+	RegCloseKey(hk);
+}
+
+void CMainFrame::OnCommunicationTest()
+{
+	CCommunicationTestDialog ctd;
+	((CGTApp*)AfxGetApp())->setCtd(&ctd);
+	ctd.DoModal();
+}
+
+void CMainFrame::OnServoActorDemarcate()
+{
+	CServoActorDemarcateDialog sgtd;
+	sgtd.DoModal();
 }

@@ -1,15 +1,15 @@
 #pragma once
 #include "TabPageSSL.h"
 
-// TailTab 对话框
+// CTailTab 对话框
 
-class TailTab : public CTabPageSSL
+class CTailTab : public CTabPageSSL
 {
-	DECLARE_DYNAMIC(TailTab)
+	DECLARE_DYNAMIC(CTailTab)
 
 public:
-	TailTab(CWnd* pParent = NULL);   // 标准构造函数
-	virtual ~TailTab();
+	CTailTab(CWnd* pParent = NULL);   // 标准构造函数
+	virtual ~CTailTab();
 
 // 对话框数据
 	enum { IDD = IDD_TAIL_TAB };
@@ -39,4 +39,6 @@ public:
 	afx_msg void OnBnClickedTailAngleButton3();
 	afx_msg void OnBnClickedTailAngleButton4();
 	afx_msg void OnBnClickedTailAngleButton5();
+private:
+	__int8 getActorSerial(void);
 };

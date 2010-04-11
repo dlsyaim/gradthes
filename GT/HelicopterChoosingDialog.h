@@ -9,6 +9,9 @@ class CHelicopterChoosingDialog : public CDialog, public AbstractLogWriter
 
 public:
 	CHelicopterChoosingDialog(CWnd* pParent = NULL);   // 标准构造函数
+	CHelicopterChoosingDialog(CString helicopterName, double helicopterMass, double helicopterLength, 
+		double mainBladeLength, double mainBladeRPM, double xInertia,
+		CWnd* pParent = NULL);
 	virtual ~CHelicopterChoosingDialog();
 
 	CString constructLogString(void);
@@ -19,13 +22,19 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
 	DECLARE_MESSAGE_MAP()
-public:
+private:
 	CString helicopterName;
-	double helicopterMass;
-	double mainBladeLength;
+	double helicopterMass;	
 	double helicopterLength;
+	double mainBladeLength;
 	double mainBladeRPM;
 	double xInertia;
+
+	// Flag indicates if the helicopter model is new or not
+	BOOL isNew;
+public:
+	inline CString getHelicopterName(void) {return helicopterName;}
+public:
 	afx_msg void OnBnClickedOk();
 	//afx_msg void OnEnChangeAircraftnameEdit();
 	//afx_msg void OnEnChangeAircraftmassEdit();

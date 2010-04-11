@@ -39,4 +39,6 @@ public:
 	afx_msg void OnBnClickedCollectiveAngleButton3();
 	afx_msg void OnBnClickedCollectiveAngleButton4();
 	afx_msg void OnBnClickedCollectiveAngleButton5();
+protected:
+	__int8 getActorSerial(void);
 };
