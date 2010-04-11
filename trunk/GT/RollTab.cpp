@@ -1,4 +1,4 @@
-// RollTab.cpp : 实现文件
+// CRollTab.cpp : 实现文件
 //
 
 #include "stdafx.h"
@@ -6,12 +6,12 @@
 #include "RollTab.h"
 
 
-// RollTab 对话框
+// CRollTab 对话框
 
-IMPLEMENT_DYNAMIC(RollTab, CTabPageSSL)
+IMPLEMENT_DYNAMIC(CRollTab, CTabPageSSL)
 
-RollTab::RollTab(CWnd* pParent /*=NULL*/)
-	: CTabPageSSL(RollTab::IDD, pParent)
+CRollTab::CRollTab(CWnd* pParent /*=NULL*/)
+	: CTabPageSSL(CRollTab::IDD, pParent)
 	, rollPWM1(0)
 	, rollPWM2(0)
 	, rollPWM3(0)
@@ -26,11 +26,11 @@ RollTab::RollTab(CWnd* pParent /*=NULL*/)
 
 }
 
-RollTab::~RollTab()
+CRollTab::~CRollTab()
 {
 }
 
-void RollTab::DoDataExchange(CDataExchange* pDX)
+void CRollTab::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_ROLL_PWM_EDIT1, rollPWM1);
@@ -46,68 +46,78 @@ void RollTab::DoDataExchange(CDataExchange* pDX)
 }
 
 
-BEGIN_MESSAGE_MAP(RollTab, CTabPageSSL)
-	ON_BN_CLICKED(IDC_ROLL_PWM_BUTTON1, &RollTab::OnBnClickedRollPWMButton1)
-	ON_BN_CLICKED(IDC_ROLL_PWM_BUTTON2, &RollTab::OnBnClickedRollPWMButton2)
-	ON_BN_CLICKED(IDC_ROLL_PWM_BUTTON3, &RollTab::OnBnClickedRollPWMButton3)
-	ON_BN_CLICKED(IDC_ROLL_PWM_BUTTON4, &RollTab::OnBnClickedRollPWMButton4)
-	ON_BN_CLICKED(IDC_ROLL_PWM_BUTTON5, &RollTab::OnBnClickedRollPWMButton5)
-	ON_BN_CLICKED(IDC_ROLL_ANGLE_BUTTON1, &RollTab::OnBnClickedRollAngleButton1)
-	ON_BN_CLICKED(IDC_ROLL_ANGLE_BUTTON2, &RollTab::OnBnClickedRollAngleButton2)
-	ON_BN_CLICKED(IDC_ROLL_ANGLE_BUTTON3, &RollTab::OnBnClickedRollAngleButton3)
-	ON_BN_CLICKED(IDC_ROLL_ANGLE_BUTTON4, &RollTab::OnBnClickedRollAngleButton4)
-	ON_BN_CLICKED(IDC_ROLL_ANGLE_BUTTON5, &RollTab::OnBnClickedRollAngleButton5)
+BEGIN_MESSAGE_MAP(CRollTab, CTabPageSSL)
+	ON_BN_CLICKED(IDC_ROLL_PWM_BUTTON1, &CRollTab::OnBnClickedRollPWMButton1)
+	ON_BN_CLICKED(IDC_ROLL_PWM_BUTTON2, &CRollTab::OnBnClickedRollPWMButton2)
+	ON_BN_CLICKED(IDC_ROLL_PWM_BUTTON3, &CRollTab::OnBnClickedRollPWMButton3)
+	ON_BN_CLICKED(IDC_ROLL_PWM_BUTTON4, &CRollTab::OnBnClickedRollPWMButton4)
+	ON_BN_CLICKED(IDC_ROLL_PWM_BUTTON5, &CRollTab::OnBnClickedRollPWMButton5)
+	ON_BN_CLICKED(IDC_ROLL_ANGLE_BUTTON1, &CRollTab::OnBnClickedRollAngleButton1)
+	ON_BN_CLICKED(IDC_ROLL_ANGLE_BUTTON2, &CRollTab::OnBnClickedRollAngleButton2)
+	ON_BN_CLICKED(IDC_ROLL_ANGLE_BUTTON3, &CRollTab::OnBnClickedRollAngleButton3)
+	ON_BN_CLICKED(IDC_ROLL_ANGLE_BUTTON4, &CRollTab::OnBnClickedRollAngleButton4)
+	ON_BN_CLICKED(IDC_ROLL_ANGLE_BUTTON5, &CRollTab::OnBnClickedRollAngleButton5)
 END_MESSAGE_MAP()
 
 
-// RollTab 消息处理程序
+// CRollTab 消息处理程序
 
-void RollTab::OnBnClickedRollPWMButton1()
+void CRollTab::OnBnClickedRollPWMButton1()
+{
+	this->UpdateData();
+	sendTestData(rollPWM1);	
+}
+
+void CRollTab::OnBnClickedRollPWMButton2()
+{
+	this->UpdateData();
+	sendTestData(rollPWM2);	
+}
+
+void CRollTab::OnBnClickedRollPWMButton3()
+{
+	this->UpdateData();
+	sendTestData(rollPWM3);	
+}
+
+void CRollTab::OnBnClickedRollPWMButton4()
+{
+	this->UpdateData();
+	sendTestData(rollPWM4);	
+}
+
+void CRollTab::OnBnClickedRollPWMButton5()
+{
+	this->UpdateData();
+	sendTestData(rollPWM5);	
+}
+
+void CRollTab::OnBnClickedRollAngleButton1()
 {
 	// TODO: 在此添加控件通知处理程序代码
 }
 
-void RollTab::OnBnClickedRollPWMButton2()
+void CRollTab::OnBnClickedRollAngleButton2()
 {
 	// TODO: 在此添加控件通知处理程序代码
 }
 
-void RollTab::OnBnClickedRollPWMButton3()
+void CRollTab::OnBnClickedRollAngleButton3()
 {
 	// TODO: 在此添加控件通知处理程序代码
 }
 
-void RollTab::OnBnClickedRollPWMButton4()
+void CRollTab::OnBnClickedRollAngleButton4()
 {
 	// TODO: 在此添加控件通知处理程序代码
 }
 
-void RollTab::OnBnClickedRollPWMButton5()
+void CRollTab::OnBnClickedRollAngleButton5()
 {
 	// TODO: 在此添加控件通知处理程序代码
 }
 
-void RollTab::OnBnClickedRollAngleButton1()
+__int8 CRollTab::getActorSerial(void)
 {
-	// TODO: 在此添加控件通知处理程序代码
-}
-
-void RollTab::OnBnClickedRollAngleButton2()
-{
-	// TODO: 在此添加控件通知处理程序代码
-}
-
-void RollTab::OnBnClickedRollAngleButton3()
-{
-	// TODO: 在此添加控件通知处理程序代码
-}
-
-void RollTab::OnBnClickedRollAngleButton4()
-{
-	// TODO: 在此添加控件通知处理程序代码
-}
-
-void RollTab::OnBnClickedRollAngleButton5()
-{
-	// TODO: 在此添加控件通知处理程序代码
+	return 1;
 }

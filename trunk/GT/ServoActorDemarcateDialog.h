@@ -1,6 +1,8 @@
 #pragma once
 #include "TabCtrlSSL.h"
 #include "TabPageSSL.h"
+#include "func\NetCln.h"
+
 
 // CServoActorDemarcateDialog ¶Ô»°¿ò
 
@@ -26,4 +28,10 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	virtual BOOL OnInitDialog();
+	afx_msg void OnBnClickedServoActorTestFailure();
+	afx_msg void OnBnClickedServoActorTestPass();
+private:
+	// The client point of the socket
+	CNetCln netcln;
+
 };

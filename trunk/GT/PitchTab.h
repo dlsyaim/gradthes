@@ -1,15 +1,15 @@
 #pragma once
 #include "TabPageSSL.h"
 
-// PitchTab 对话框
+// CPitchTab 对话框
 
-class PitchTab : public CTabPageSSL
+class CPitchTab : public CTabPageSSL
 {
-	DECLARE_DYNAMIC(PitchTab)
+	DECLARE_DYNAMIC(CPitchTab)
 
 public:
-	PitchTab(CWnd* pParent = NULL);   // 标准构造函数
-	virtual ~PitchTab();
+	CPitchTab(CWnd* pParent = NULL);   // 标准构造函数
+	virtual ~CPitchTab();
 
 // 对话框数据
 	enum { IDD = IDD_PITCH_TAB };
@@ -39,4 +39,6 @@ public:
 	afx_msg void OnBnClickedPitchAngleButton3();
 	afx_msg void OnBnClickedPitchAngleButton4();
 	afx_msg void OnBnClickedPitchAngleButton5();
+protected:
+	__int8 getActorSerial(void);
 };

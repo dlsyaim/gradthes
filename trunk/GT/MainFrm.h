@@ -48,10 +48,6 @@ protected:  // control bar embedded members
 	ST_SplitterWnd* m_pSplitterWnd;
 	ST_SplitterWnd* m_pSplitterWnd1;
 	
-
-	// If a new model is 
-	BOOL isNew;
-
 // Generated message map functions
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
@@ -74,14 +70,25 @@ private:
 	void UpdateMenu(void);
 	void DeleteMenu(CString name);
 
-	// 
+	// Select the created helicopter model according to the index
 	void OnSelectModel(int idx);
 
 	int FindMenuItem(CMenu*, LPCTSTR str);
+	// Read the helicopter model name from the Registry
+	void readHMFromRegistry(void);
+	// Create the recent helicopter model name menu items
+	void createRecentHMMenuItems(void);
 public:
 	afx_msg void On32793();
 protected:
 	virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
+private:
+	// The helicopter model buffer
+	// std::vector<HelicopterModel*> hmBuf;
+public:
+	afx_msg void OnDestroy();
+	afx_msg void OnCommunicationTest();
+	afx_msg void OnServoActorDemarcate();
 };
 
 

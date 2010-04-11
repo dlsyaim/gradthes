@@ -1,15 +1,15 @@
 #pragma once
 #include "TabPageSSL.h"
 
-// RollTab 对话框
+// CRollTab 对话框
 
-class RollTab : public CTabPageSSL
+class CRollTab : public CTabPageSSL
 {
-	DECLARE_DYNAMIC(RollTab)
+	DECLARE_DYNAMIC(CRollTab)
 
 public:
-	RollTab(CWnd* pParent = NULL);   // 标准构造函数
-	virtual ~RollTab();
+	CRollTab(CWnd* pParent = NULL);   // 标准构造函数
+	virtual ~CRollTab();
 
 // 对话框数据
 	enum { IDD = IDD_ROLL_TAB };
@@ -39,4 +39,6 @@ public:
 	afx_msg void OnBnClickedRollAngleButton3();
 	afx_msg void OnBnClickedRollAngleButton4();
 	afx_msg void OnBnClickedRollAngleButton5();
+protected:
+	__int8 getActorSerial(void);
 };

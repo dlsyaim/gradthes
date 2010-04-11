@@ -55,7 +55,10 @@
 #define IDC_GROUNDCOMMAND_EDIT          1012
 #define IDC_RETURNMESSAGE_EDIT          1013
 #define IDC_STEERINGGEARFAILURE_BUTTON  1026
+#define ID_SERVOACTOR_TEST_FAILURE_BUTTON 1026
+#define IDC_SERVOACTOR_TEST_FAILURE_BUTTON 1026
 #define IDC_STEERINGGEARPASS_BUTTON     1027
+#define IDC_SERVOACTOR_TEST_PASS_BUTTON 1027
 #define IDC_ROLLANGLE_EDIT              1028
 #define IDC_PITCHANGLE_EDIT             1029
 #define IDC_HEADINGANGLE_EDIT           1030
@@ -215,7 +218,6 @@
 #define IDC_BUTTON7                     1154
 #define IDC_EDIT8                       1155
 #define IDC_EDIT9                       1157
-#define IDC_CUSTOM1                     1157
 #define IDC_EDIT10                      1158
 #define IDC_EDIT11                      1159
 #define IDC_EDIT12                      1160
@@ -245,13 +247,17 @@
 #define ID_Menu                         32792
 #define ID_32793                        32793
 #define ID_32794                        32794
+#define ID_NEW_HELICOPTER_MODEL         32795
+#define ID_COMMUNICTION_TEST            32796
+#define ID_COMMUNICATION_TEST           32797
+#define ID_SERVOACTOR_DEMARCATE         32798
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        325
-#define _APS_NEXT_COMMAND_VALUE         32795
+#define _APS_NEXT_COMMAND_VALUE         32799
 #define _APS_NEXT_CONTROL_VALUE         1158
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
