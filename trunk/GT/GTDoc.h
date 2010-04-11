@@ -8,6 +8,7 @@ class CLeftView;
 class CGTView;
 class CUpperRightView;
 class CGridView;
+class CIMUTestFormView;
 
 class CGTDoc : public CDocument
 {
@@ -21,6 +22,7 @@ public:
 	CGTView* lowerRightView;
 	CUpperRightView* upperRightView;
 	CGridView* gridView;
+	CIMUTestFormView* IMUView;
 private:
 	// A CFile pointer to the file which contains the flying statistics
 	CFile *sharedFile;

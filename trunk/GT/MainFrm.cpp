@@ -17,6 +17,7 @@
 #include "UpperRightView.h"
 #include "GTView.h"
 #include "GridView.h"
+#include "IMUTestFormView.h"
 
 
 #define ID_HELICOPTER_BEGIN 48000
@@ -47,6 +48,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_DESTROY()
 	ON_COMMAND(ID_COMMUNICATION_TEST, &CMainFrame::OnCommunicationTest)
 	ON_COMMAND(ID_SERVOACTOR_DEMARCATE, &CMainFrame::OnServoActorDemarcate)
+	ON_COMMAND(ID_GYRO_TEST, &CMainFrame::OnGyroTest)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -539,12 +541,14 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 	m_pSplitterWnd->Create(this, NULL, NULL, pContext, true);
 	// Add views
 	m_pSplitterWnd->AddView(LEFT_SIDE, RUNTIME_CLASS(CGridView), pContext);
+	m_pSplitterWnd->AddView(LEFT_SIDE, RUNTIME_CLASS(CIMUTestFormView), pContext);
 	// Then split the right side horizontally
 	m_pSplitterWnd1 = m_pSplitterWnd->AddSubDivision(RIGHT_SIDE, NULL, NULL, pContext, false);
 	// Add views
 	m_pSplitterWnd1->AddView(TOP_SIDE, RUNTIME_CLASS(CUpperRightView), pContext);
 	m_pSplitterWnd1->AddView(BOTTOM_SIDE, RUNTIME_CLASS(CGTView), pContext);
 	m_pSplitterWnd1->ToggleSide(TOP_SIDE);
+	
 	m_pSplitterWnd->SetInitialStatus();
 
 	return TRUE;
@@ -680,4 +684,10 @@ void CMainFrame::OnServoActorDemarcate()
 {
 	CServoActorDemarcateDialog sgtd;
 	sgtd.DoModal();
+}
+
+void CMainFrame::OnGyroTest()
+{
+	/*CGyroTestDialog gtd;
+	gtd.DoModal();*/
 }

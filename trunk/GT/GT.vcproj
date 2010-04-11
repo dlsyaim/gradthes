@@ -294,11 +294,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GyroTestDialog.cpp"
+				RelativePath=".\HelicopterChoosingDialog.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\HelicopterChoosingDialog.cpp"
+				RelativePath=".\IMUTestFormView.cpp"
 				>
 			</File>
 			<File
@@ -616,11 +616,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GyroTestDialog.h"
+				RelativePath=".\HelicopterChoosingDialog.h"
 				>
 			</File>
 			<File
-				RelativePath=".\HelicopterChoosingDialog.h"
+				RelativePath=".\IMUTestFormView.h"
 				>
 			</File>
 			<File

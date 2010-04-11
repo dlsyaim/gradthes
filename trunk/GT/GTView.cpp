@@ -14,7 +14,6 @@
 #include "GTDoc.h"
 #include "GTView.h"
 
-#include "GyroTestDialog.h"
 #include "GPSTestDialog.h"
 
 #ifdef _DEBUG
@@ -51,7 +50,6 @@ BEGIN_MESSAGE_MAP(CGTView, CView)
 	//ON_COMMAND(ID_AHRS_STOP, &CGTView::OnAHRSStop)
 	ON_MESSAGE(WM_COMM_RXCHAR, &CGTView::OnCommunication)
 	ON_WM_RBUTTONDOWN()	
-	ON_COMMAND(ID_32776, &CGTView::OnGyroTest)
 	ON_COMMAND(ID_32777, &CGTView::OnGPSTest)
 END_MESSAGE_MAP()
 
@@ -538,12 +536,7 @@ BOOL CGTView::cBuildFont(void)
 
 
 
-void CGTView::OnGyroTest()
-{
-	// TODO: 
-	CGyroTestDialog gtd;
-	gtd.DoModal();
-}
+
 
 void CGTView::OnGPSTest()
 {
