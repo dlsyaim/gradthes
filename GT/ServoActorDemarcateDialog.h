@@ -2,7 +2,10 @@
 #include "TabCtrlSSL.h"
 #include "TabPageSSL.h"
 #include "func\NetCln.h"
-
+#include "PitchTab.h"
+#include "CollectiveTab.h"
+#include "RollTab.h"
+#include "TailTab.h"
 
 // CServoActorDemarcateDialog 对话框
 
@@ -17,10 +20,10 @@ public:
 // 对话框数据
 	enum { IDD = IDD_SERVOACTORDEMARCATE_DIALOG};
 	CTabCtrlSSL	m_tabServoActor;
-	CTabPageSSL m_tabCollective;
-	CTabPageSSL m_tabPitch;
-	CTabPageSSL m_tabRoll;
-	CTabPageSSL m_tabTail;
+	CCollectiveTab m_tabCollective;
+	CPitchTab m_tabPitch;
+	CRollTab m_tabRoll;
+	CTailTab m_tabTail;
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持

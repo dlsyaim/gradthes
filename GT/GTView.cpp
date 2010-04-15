@@ -13,7 +13,6 @@
 
 #include "GTDoc.h"
 #include "GTView.h"
-
 #include "GPSTestDialog.h"
 
 #ifdef _DEBUG
@@ -57,7 +56,8 @@ END_MESSAGE_MAP()
 
 CGTView::CGTView()
 {
-	// TODO: add construction code here
+	isGyro = FALSE;
+	isExperiment = FALSE;
 }
 
 CGTView::~CGTView()
@@ -81,8 +81,6 @@ void CGTView::OnDraw(CDC* /*pDC*/)
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
-
-	// TODO: add draw code for native data here
 	
 	// Set m_hRC to be the current render context.
 	wglMakeCurrent(m_pDC->GetSafeHdc(), m_hRC);
@@ -102,7 +100,15 @@ void CGTView::OnDraw(CDC* /*pDC*/)
 	m_Renderer->setBase(base);
 
 	GetClientRect(&m_rect);
-	//m_Renderer->draw(&m_rect);
+	switch (renderMode) {
+		case FLIGHT_PATH_SET:
+			m_Renderer->draw(&m_rect, renderMode);
+			break;
+		default:
+			break;
+	}
+	//m_Renderer->draw(&m_rect, isExperiment, isGyro);
+	
 	// Swap the front and back framebuffer
 	SwapBuffers(wglGetCurrentDC());
 }
@@ -272,7 +278,6 @@ void CGTView::OnSize(UINT nType, int cx, int cy)
 
 BOOL CGTView::OnEraseBkgnd(CDC* pDC)
 {
-	// TODO: 
 	// This line of code is quite important.
 	return TRUE;
 }
@@ -534,13 +539,15 @@ BOOL CGTView::cBuildFont(void)
 	return TRUE;
 }
 
-
-
-
-
 void CGTView::OnGPSTest()
 {
 	// TODO: 
 	CGPSTestDialog gtd;
 	gtd.DoModal();
+}
+
+void CGTView::updateIMUData(IMUTestData *itd)
+{
+	m_Renderer->updateAircraft(itd);
+	Invalidate();
 }

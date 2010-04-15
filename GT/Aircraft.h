@@ -1,6 +1,7 @@
 #pragma once
 #include "VRMLLoader.h"
 #include "Tools.h"
+
 class Terrain;
 class Aircraft
 {
@@ -40,9 +41,10 @@ public:
 
 	inline void setZ(double z) {this->z = z;}
 	inline double getZ(void) {return z;}
-	// 
+	// Update data
 	void update(double *stat);
 	void update(FlyState* fs);
+	void update(IMUTestData* itd);
 
 private:
 	std::vector<Mesh> meshes;

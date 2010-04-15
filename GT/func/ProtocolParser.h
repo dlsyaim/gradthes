@@ -1,6 +1,6 @@
 #ifndef _HELI_PROTOCOLPARSER_H_
 #define _HELI_PROTOCOLPARSER_H_
-#include "..\define\sysdef.h"
+
 
 class CProtocolParser  
 {

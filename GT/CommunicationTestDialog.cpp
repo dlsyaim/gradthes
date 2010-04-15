@@ -5,7 +5,7 @@
 #include <fstream>
 #include "GT.h"
 #include "CommunicationTestDialog.h"
-#include "define\sysdef.h"
+
 #include "func\NetCln.h"
 #include "func\NetSvrHeli.h"
 #include "MsgType.h"

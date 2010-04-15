@@ -8,8 +8,9 @@
 #include "SerialPort.h"
 #include "NetSvrUdp.h"
 
-#define FLY_STATISTICS 9
 
+#define FLY_STATISTICS 9
+class CGTDoc;
 class CGTView : public CView
 {
 protected: // create from serialization only
@@ -24,6 +25,7 @@ public:
 	CRect m_rect;
 	double m_left,m_right,m_bottom,m_top,m_near,m_far;
 	
+	// This variable renders the 3D helicopter model
 	Renderer *m_Renderer;
 	
 	// Timer identifier
@@ -43,10 +45,33 @@ public:
 	// Socket to receive the flight state statistics
 	CNetSvrUdp* pSvrSock;
 
+	// Mode
+	enum RENDER_MODE {
+		IMU_TEST,
+		FLIGHT_PATH_SET,
+		FLIGHT_EXPERIMENT,
+		DATA_PROCESS
+	};
+
 	CGTDoc* GetDocument() const;
+private:
+	// Flag indicates whether start gyro test or not
+	BOOL isGyro;
+	// Flag indicates whether the flight experiment starts or not
+	BOOL isExperiment;
+	// Mode
+	RENDER_MODE renderMode;
 
 // Operations
 public:
+	// Setters and getters
+	inline void setIsGryo(BOOL isGyro) {this->isGyro = isGyro; Invalidate();}
+	inline void setIsExperiment(BOOL isExperiment) {this->isExperiment = isExperiment;this->Invalidate(FALSE);}
+	inline void setRenderMode(RENDER_MODE m) {this->renderMode = m; Invalidate(FALSE);}
+	inline void setPath(std::vector<PathPointData*> *pPath) {m_Renderer->setPPath(pPath); this->Invalidate(FALSE);}
+
+	// Update the data for the IMU test
+	void updateIMUData(IMUTestData* itd);
 
 protected:
 	// Setup pixel format.

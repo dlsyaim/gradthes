@@ -1,6 +1,12 @@
 #pragma once
-
+#include <vector>
 #include "GridCtrl_src/GridCtrl.h"
+#include "func\NetCln.h"
+
+
+
+#define NUM_OF_ROW 10
+#define NUM_OF_COL 5
 
 // CGridView ¥∞ÃÂ ”Õº
 class CGTDoc;
@@ -35,12 +41,31 @@ public:
 	afx_msg void OnGridEndEdit(NMHDR *pNotifyStruct, LRESULT* pResult);
 	afx_msg void OnGridStartEdit(NMHDR *pNotifyStruct, LRESULT* pResult);
 	afx_msg void OnGridClick(NMHDR *pNotifyStruct, LRESULT* pResult);
-protected:
-	virtual void OnDraw(CDC* /*pDC*/);
+
+public:
+	afx_msg void OnBnClickedSetPointCompleted();
+	afx_msg void OnBnClickedSchedulePath();
+	afx_msg void OnBnClickedAssurePath();
+
+// Operations
+private:
+	void schedulePath(void);
+// Attributes
+	CNetCln netcln;
+	// The origin path
+	std::vector<PathPointData*> path;
+	// The scheduled path
+	std::vector<PathPointData*> scheduledPath;
+	// The selected path point
+	PathPointData* selectedPathPoint;
+	// The state variable
+	BOOL isPathCompleted;
+	// This variable indicates if the cell is edit for the first time
+	BOOL isFirst[NUM_OF_ROW * NUM_OF_COL];
 
 };
 
-#ifndef _DEBUG  // debug version in LeftView.cpp
+#ifndef _DEBUG  // debug version in GridView.cpp
 inline CGTDoc* CGridView::GetDocument() const
    { return reinterpret_cast<CGTDoc*>(m_pDocument); }
 #endif

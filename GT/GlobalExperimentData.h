@@ -12,4 +12,5 @@ public:
 	static BOOL isGPSTestPass;
 	static BOOL isFlightPathSet;
 	static BOOL isControlParameterSet;
+	static ServoActorData* std;
 };

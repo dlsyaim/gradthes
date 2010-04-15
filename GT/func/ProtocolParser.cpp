@@ -1,7 +1,12 @@
 #include "stdafx.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <gl/glut.h>
+#include <vector>
 #include "..\GT.h"
+#include "..\GTView.h"
+#include "..\IMUTestFormView.h"
+#include "..\GTDoc.h"
 #include "..\MainFrm.h"
 #include "ProtocolParser.h"
 #include "..\MsgType.h"
@@ -276,8 +281,6 @@ void CProtocolParser::OnComTestTReply(void * Target, __int32 Len)
 	} else if (!m_mainApp->getCtd()->PostMessage(COMMUNICATION_TEST_REPLY_MSG, 0, 0)) {
 		AfxMessageBox("Failed to post messages", MB_OK | MB_ICONSTOP);
 	}
-
-	//PostMessage(GetDlgItem(IDD_COMMUNICATIONTEST_DIALOG), COMMUNICATION_TEST_REPLY_MSG, 0, 0);
 }
 
 void CProtocolParser::OnComTest(void * Target, __int32 Len)
@@ -363,13 +366,23 @@ void CProtocolParser::OnIMUTestData(void * Target, __int32 Len)
 		printf("error ins para OnIMUTestData\n");
 		return;
 	}
+
+	/***** The IMUTestFormView and CGTView must be informed *****/
+
 	char * tmpc = (char *)Target;
 	struct IMUTestData * tmp = (struct IMUTestData *)(tmpc+2);
-	printf("OnIMUTestData %d %f %f %f %f %f %f %f %f %f %f %f %f\n",tmp->IMUState,
+	CGTApp* m_mainApp = (CGTApp*)AfxGetApp();
+	CGTDoc* m_pDoc = m_mainApp->getDoc();
+	if (m_pDoc) {
+		m_pDoc->IMUView->updateData(tmp);
+		m_pDoc->lowerRightView->updateIMUData(tmp);
+	}
+	
+	/*printf("OnIMUTestData %d %f %f %f %f %f %f %f %f %f %f %f %f\n",tmp->IMUState,
 		tmp->N_Speed,tmp->E_Speed,tmp->D_Speed,
 		tmp->N_Acc,tmp->E_Acc,tmp->D_Acc,
 		tmp->phi,tmp->theta,tmp->psi,
-		tmp->phi_Acc,tmp->theta_Acc,tmp->psi_Acc);
+		tmp->phi_Acc,tmp->theta_Acc,tmp->psi_Acc);*/
 }
 
 void CProtocolParser::OnGPSTestStart(void * Target, __int32 Len)

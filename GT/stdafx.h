@@ -40,7 +40,8 @@
 #include <afxsock.h>       // MFC Socket extension
 
 
-
+#include "define\FlyInsDefine.h"
+#include "define\FlyStructDefine.h"
 
 
 
