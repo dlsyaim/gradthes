@@ -133,6 +133,16 @@ BOOL CGTApp::InitInstance()
 	if (!svr.StartSvr()) {
 		AfxMessageBox(_T("The server for connection failed to start up"), MB_OK | MB_ICONWARNING);
 	}
+
+	/*
+	 * We set up a single socket client point
+	 */
+	char *IP = "192.168.0.186";
+	// Initializing
+	/*if(cln.initCln(IP, 22222) == 0)
+	{
+		AfxMessageBox("Failed to create a sending client", MB_OK | MB_ICONSTOP);		
+	}*/
 	// call DragAcceptFiles only if there's a suffix
 	//  In an SDI app, this should occur after ProcessShellCommand
 	return TRUE;
@@ -194,6 +204,34 @@ void CGTApp::LoadCustomState()
 
 void CGTApp::SaveCustomState()
 {
+}
+
+CGTDoc* CGTApp::getDoc(void)
+{
+	// Get the position of the first document template
+	POSITION pos = GetFirstDocTemplatePosition();
+	// Do we have a valid template position?
+	if (pos)
+	{
+		// Get a pointer to the document template
+		CDocTemplate* pDocTemp = GetNextDocTemplate(pos);
+		// Do we have a valid pointer?
+		if (pDocTemp)
+		{
+			// Get the position of the first document
+			POSITION dPos = pDocTemp->GetFirstDocPosition();
+			// Do we have a valid document position?
+			if (dPos)
+			{
+				// Get a pointer to the document
+				CGTDoc* pDocWnd = (CGTDoc*)pDocTemp->GetNextDoc(dPos);
+				// Do we have a valid pointer?
+				if (pDocWnd)
+					return pDocWnd;
+			}
+		}
+	}	
+	return NULL;
 }
 
 // CGTApp message handlers

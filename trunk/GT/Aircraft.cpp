@@ -77,9 +77,16 @@ void Aircraft::update(double *stat) {
 }
 
 void Aircraft::update(FlyState *fs) {
-	yrot = fs->BODY_ANG_PSI;
-	xrot = fs->BODY_ANG_THETA;
-	zrot = fs->BODY_ANG_PHI;
+	//yrot = fs->BODY_ANG_PSI;
+	//xrot = fs->BODY_ANG_THETA;
+	//zrot = fs->BODY_ANG_PHI;
+}
+
+void Aircraft::update(IMUTestData *itd)
+{
+	yrot = itd->psi;
+	xrot = itd->theta;
+	zrot = itd->phi;
 }
 
 // Draw function.
@@ -111,7 +118,7 @@ void Aircraft::draw(LPRECT lpRect)
 		glPushMatrix();
 		glDisable(GL_BLEND);
 		glColor3f(1.0f, 1.0f, 1.0f);
-		// -800.0f is an experience point. 
+		// -800.0f is an experienced value. 
 		//glTranslatef(0.0f, 0.0f, -800.0f);
 		glTranslatef(x, y, z);
 		// To make the aircraft's head toward left
@@ -135,7 +142,5 @@ void Aircraft::draw(LPRECT lpRect)
 		glEnd();
 		glEnable(GL_BLEND);
 		glPopMatrix();
-		
-
 	glPopMatrix();
 }

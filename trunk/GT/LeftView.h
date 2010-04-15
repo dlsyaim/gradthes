@@ -30,6 +30,21 @@ protected:
 public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	int feHour;
+	int feMinute;
+	int feSecond;
+	double feRoll;
+	double feRollUpper;
+	double feRollLower;
+	double fePitch;
+	double fePitchUpper;
+	double fePitchLower;
+	double feHead;
+	double feHeadUpper;
+	double feHeadLower;
+	CString feFileName;
+	afx_msg void OnBnClickedFEStart();
+	afx_msg void OnBnClickedFEStop();
 };
 
 #ifndef _DEBUG  // debug version in LeftView.cpp

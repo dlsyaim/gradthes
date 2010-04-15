@@ -9,6 +9,7 @@
 #include "Util.h"
 #include "DirectionalGyro.h"
 #include "Terrain.h"
+#include "GTView.h"
 
 #ifndef PI
 #define PI 3.14159265359
@@ -40,6 +41,9 @@ Renderer::Renderer(int _length):length(_length)
 
 	// Initialize the illumination and material
 	initializeIlluminationAndMaterial();
+
+	// Initial path is empty
+	pPath = NULL;
 }
 
 // Load configuration.
@@ -176,17 +180,17 @@ void Renderer::updateInstrumentsData(FlyState *fs)
 void Renderer::updateStat(FlyState* fs) 
 {
 	// Should transform radian into angle
-	stat[0] = fs->BODY_ANG_PSI / PI * 180.0;
-	stat[1] = fs->BODY_ANG_THETA / PI * 180.0;
-	stat[2] = fs->BODY_ANG_PHI / PI * 180.0;
-	
-	stat[3] = fs->BODY_ANG_P;
-	stat[4] = fs->BODY_ANG_Q;
-	stat[5] = fs->BODY_ANG_R;
+	//stat[0] = fs->BODY_ANG_PSI / PI * 180.0;
+	//stat[1] = fs->BODY_ANG_THETA / PI * 180.0;
+	//stat[2] = fs->BODY_ANG_PHI / PI * 180.0;
+	//
+	//stat[3] = fs->BODY_ANG_P;
+	//stat[4] = fs->BODY_ANG_Q;
+	//stat[5] = fs->BODY_ANG_R;
 
-	stat[6] = fs->BODY_ACC_X;
-	stat[7] = fs->BODY_ACC_Y;
-	stat[8] = fs->BODY_ACC_Z;
+	//stat[6] = fs->BODY_ACC_X;
+	//stat[7] = fs->BODY_ACC_Y;
+	//stat[8] = fs->BODY_ACC_Z;
 }
 
 void Renderer::updateCamera(void)
@@ -251,7 +255,91 @@ void Renderer::drawFonts()
 }
 
 // Draw function
-void Renderer::draw(LPRECT lpRect)
+//void Renderer::draw(LPRECT lpRect, BOOL isExperiment/* = FALSE*/, BOOL isGyro/* = FALSE*/)
+//{
+//	if (isMultiport) {
+//		for (int i = 0; i < 4; i++) {
+//			switch (i) {
+//				case 0:
+//					glViewport(0, lpRect->bottom / 2, lpRect->right / 2, lpRect->bottom / 2);
+//					glMatrixMode(GL_PROJECTION);
+//					glLoadIdentity();
+//					//gluPerspective(60.0, (GLdouble) lpRect->right / (GLdouble) lpRect->bottom, 1.0, 100000.0);
+//					gluOrtho2D(0, lpRect->right / 2, 0, lpRect->bottom / 2);					
+//					break;
+//				case 1:
+//					glViewport(lpRect->right / 2, lpRect->bottom / 2, lpRect->right / 2, lpRect->bottom / 2);
+//					glMatrixMode(GL_PROJECTION);
+//					glLoadIdentity();
+//					gluPerspective(60.0, (GLdouble) lpRect->right / (GLdouble) lpRect->bottom, 1.0, 100000.0);
+//					//gluOrtho2D(0, lpRect->right / 2, 0, lpRect->bottom / 2);					
+//					break;
+//				case 2:
+//					glViewport(lpRect->right / 2, 0, lpRect->right / 2, lpRect->bottom / 2);
+//					glMatrixMode(GL_PROJECTION);
+//					glLoadIdentity();
+//					gluPerspective(60.0, (GLdouble) lpRect->right / (GLdouble) lpRect->bottom, 1.0, 100000.0);
+//					break;
+//				case 3:
+//					glViewport(0, 0, lpRect->right / 2, lpRect->bottom / 2);
+//					glMatrixMode(GL_PROJECTION);
+//					glLoadIdentity();
+//					gluPerspective(60.0, (GLdouble) lpRect->right / (GLdouble) lpRect->bottom, 1.0, 100000.0);
+//					break;
+//				default:
+//					break;
+//			}
+//			
+//			switch (i) {
+//				case 0:					
+//					// Test codes
+//					glMatrixMode(GL_MODELVIEW);
+//					glLoadIdentity();
+//					glClear(GL_DEPTH_BUFFER_BIT);
+//					glColor3f(1.0f, 1.0f, 1.0f);
+//					glBegin(GL_QUADS);			
+//					glVertex2i(10, 10);
+//					glVertex2i(20, 10);
+//					glVertex2i(20, 10 + 20);
+//					glVertex2i(10, 10 + 20);
+//					glEnd();	
+//					break;
+//				case 1:					
+//					// Establish a 3-d model
+//					glMatrixMode(GL_MODELVIEW);
+//					glLoadIdentity();
+//					camera->Look();
+//					glClear(GL_DEPTH_BUFFER_BIT);
+//					aircraft->draw(lpRect);
+//					break;
+//				case 2:
+//					break;
+//				case 3:
+//					// Clear the depth buffer.
+//					glClear(GL_DEPTH_BUFFER_BIT);
+//					draw();
+//					break;
+//				default:
+//					break;
+//			}
+//		}
+//	} else {
+//		// Currently we just focus on this branch.
+//		glViewport(0, 0, lpRect->right, lpRect->bottom);
+//		glMatrixMode(GL_PROJECTION);
+//		glLoadIdentity();
+//		gluPerspective(60.0, (GLdouble) lpRect->right / (GLdouble) lpRect->bottom, 1.0, 100000.0);
+//		// Clear the depth buffer.
+//		glClear(GL_DEPTH_BUFFER_BIT);
+//		if (isExperiment) {
+//			draw();
+//		} else if(isGyro) {
+//			drawWithoutInstruments();
+//		}
+//	}
+//}
+
+void Renderer::draw(LPRECT lpRect, int renderMode)
 {
 	if (isMultiport) {
 		for (int i = 0; i < 4; i++) {
@@ -320,13 +408,60 @@ void Renderer::draw(LPRECT lpRect)
 			}
 		}
 	} else {
-		// Current we just focus on this branch.
+		// Currently we just focus on this branch.
 		glViewport(0, 0, lpRect->right, lpRect->bottom);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		gluPerspective(60.0, (GLdouble) lpRect->right / (GLdouble) lpRect->bottom, 1.0, 100000.0);
 		// Clear the depth buffer.
 		glClear(GL_DEPTH_BUFFER_BIT);
-		draw();
+		//if (isExperiment) {
+		//	draw();
+		//} else if(isGyro) {
+		//	drawWithoutInstruments();
+		//}
+		switch (renderMode) {
+			case CGTView::FLIGHT_PATH_SET:
+				drawPath();
+				break;
+		}
+	}
+}
+
+void Renderer::drawWithoutInstruments(void)
+{
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	camera->Look();
+
+	// Draw fonts
+	drawFonts();
+
+	glDisable(GL_DEPTH_TEST);
+	// Draw aircraft
+	aircraft->draw();
+}
+
+void Renderer::updateAircraft(IMUTestData* itd)
+{
+	aircraft->update(itd);
+}
+
+void Renderer::drawPath(void)
+{
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	camera->Look();
+	glTranslatef(0.0f, 0.0f, -5.0f);
+	// Draw path
+	if (pPath) {
+		std::vector<PathPointData*>::iterator iter;
+		glBegin(GL_LINES);
+		for (iter = pPath->begin(); iter != pPath->end(); iter++) {
+			if (*iter) {
+				glVertex3f((*iter)->Coordinate_X, (*iter)->Coordinate_Y, (*iter)->Coordinate_Z);
+			}
+		}
+		glEnd();
 	}
 }

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "TabPageSSL.h"
-#include "define\sysdef.h"
+
 #include "func\NetCln.h"
 
 #ifdef _DEBUG
@@ -102,6 +102,7 @@ BOOL CTabPageSSL::OnCmdMsg (UINT nID, int nCode, void* pExtra,
 void CTabPageSSL::sendTestData(double value)
 {
 	/********** Construct the content of the servo actor demarcate command *********/
+	/***** Attention 10 is not enough *****/
 	char command[10];
 	__int16 *c = (__int16 *)command;
 	c[0] = SAT_SERVOACTOR_TST;

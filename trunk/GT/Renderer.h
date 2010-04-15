@@ -16,7 +16,9 @@ public:
 	BOOL loadConfiguration();
 
 	// Draw function
-	void draw(LPRECT lpRect);
+	//void draw(LPRECT lpRect, BOOL isExperiment = FALSE, BOOL isGyro = FALSE);
+	// Draw function
+	void draw(LPRECT lpRect, int renderMode);
 	// Draw fonts
 	void drawFonts(void);	
 	
@@ -41,6 +43,12 @@ public:
 	inline void setIsMultiport(BOOL isMultiport) {this->isMultiport = isMultiport;}
 	inline BOOL getIsMultiport(void) {return isMultiport;}
 
+	// Update the aircraft's data
+	void updateAircraft(IMUTestData* itd);
+
+	// Update the path data
+	inline void setPPath(std::vector<PathPointData*> *pPath) {this->pPath = pPath;}
+
 // Attributes
 private:
 	// Panel
@@ -57,14 +65,20 @@ private:
 	BOOL isMultiport;
 	// Aircraft model.
 	Aircraft* aircraft;
+	// Path data
+	std::vector<PathPointData*> *pPath;
 
 // Operations
 private:
 	// Draw function
 	void draw(void);
+	// Draw flight path
+	void drawPath(void);
 	// Initialize the illumination and material
 	void initializeIlluminationAndMaterial(void);
 	// Update stat array
 	void updateStat(FlyState* fs);
+	// Draw function without drawing instruments
+	void drawWithoutInstruments(void);
 
 };

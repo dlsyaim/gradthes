@@ -2,9 +2,12 @@
 //
 
 #include "stdafx.h"
+#include <gl/glut.h>
 #include "GT.h"
 #include "GridView.h"
 #include "GTDoc.h"
+#include "GTView.h"
+
 
 // CGridView
 
@@ -14,12 +17,19 @@ CGridView::CGridView()
 	: CFormView(CGridView::IDD)
 {
 	m_pGridCtrl = NULL;
+
+	memset(isFirst, TRUE, NUM_OF_ROW * NUM_OF_COL);
 }
 
 CGridView::~CGridView()
 {
 	if (m_pGridCtrl) {
 		delete m_pGridCtrl;
+	}
+
+	std::vector<PathPointData*>::iterator iter;
+	for (iter = path.begin(); iter != path.end(); iter++) {
+		delete *iter;
 	}
 }
 
@@ -36,6 +46,9 @@ BEGIN_MESSAGE_MAP(CGridView, CFormView)
 	ON_NOTIFY(GVN_ENDLABELEDIT, IDC_GRID, OnGridEndEdit)
 	ON_NOTIFY(GVN_BEGINLABELEDIT, IDC_GRID, OnGridStartEdit)
 	ON_NOTIFY(NM_CLICK, IDC_GRID, OnGridClick)
+	ON_BN_CLICKED(IDC_SET_POINT_COM, &CGridView::OnBnClickedSetPointCompleted)
+	ON_BN_CLICKED(IDC_SCHEDULE_PATH, &CGridView::OnBnClickedSchedulePath)
+	ON_BN_CLICKED(IDC_ASSURE_PATH, &CGridView::OnBnClickedAssurePath)
 END_MESSAGE_MAP()
 
 
@@ -74,7 +87,6 @@ int CGridView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CFormView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	// TODO:  在此添加您专用的创建代码
 	GetDocument()->gridView = this;	
 	
 	if (m_pGridCtrl == NULL)
@@ -88,13 +100,13 @@ int CGridView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		GetClientRect(rect);
 		m_pGridCtrl->Create(rect, this, IDC_GRID);
 
-		// fill it up with stuff
+		// Fill it up with stuff
 		m_pGridCtrl->SetEditable(TRUE);
 		m_pGridCtrl->EnableDragAndDrop(TRUE);
 		
 		try {
-			m_pGridCtrl->SetRowCount(11);
-			m_pGridCtrl->SetColumnCount(5);
+			m_pGridCtrl->SetRowCount(NUM_OF_ROW + 1);
+			m_pGridCtrl->SetColumnCount(NUM_OF_COL + 1);
 			m_pGridCtrl->SetFixedRowCount(1);
 			m_pGridCtrl->SetFixedColumnCount(1);
 		}
@@ -141,8 +153,33 @@ int CGridView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		    }
 		    m_pGridCtrl->SetItem(&Item);
 		}
+
+		// Just fill the row headings
+		for (int row = 1; row < m_pGridCtrl->GetRowCount(); row++) { 
+			GV_ITEM Item;
+			Item.mask = GVIF_TEXT;
+			Item.row = row;
+			Item.col = 5;
+
+			//Item.nFormat = DT_RIGHT|DT_VCENTER|DT_SINGLELINE|DT_END_ELLIPSIS|DT_NOPREFIX;
+			Item.strText.Format(_T("Add"));
+			m_pGridCtrl->SetItem(&Item);
+			m_pGridCtrl->SetItemState(row, 5, m_pGridCtrl->GetItemState(row, 5) | GVIS_READONLY);
+			
+		}
 		(*m_pGridCtrl).AutoSize();
 	}	
+
+	/***** Initialize *****/
+	//// The server address
+	//char *IP = "192.168.0.186";
+	//// Initializing
+	//if(netcln.initCln(IP, 22222) == 0)
+	//{
+	//	TRACE("Can't create a sending client\n");
+	//}
+
+	path.resize(10);
 	return 0;
 }
 
@@ -153,22 +190,30 @@ void CGridView::OnSize(UINT nType, int cx, int cy)
 	{
 		CRect rect;
 		GetClientRect(rect);
+		rect.bottom = rect.bottom / 2;
 		m_pGridCtrl->MoveWindow(rect);
 	}
 }
 
 BOOL CGridView::OnEraseBkgnd(CDC* pDC)
 {
-	return TRUE;
-
-	//return CFormView::OnEraseBkgnd(pDC);
+	/* 
+	 * If just return true, then the form view can't be updated each time we drag the splitter bar
+	 */
+	return CFormView::OnEraseBkgnd(pDC);
 }
 
+
+void CGridView::OnGridStartEdit(NMHDR *pNotifyStruct, LRESULT *pResult)
+{
+	NM_GRIDVIEW* pItem = (NM_GRIDVIEW*) pNotifyStruct;
+    TRACE(_T("Start Edit on row %d, col %d\n"), pItem->iRow, pItem->iColumn);
+}
 
 void CGridView::OnGridEndEdit(NMHDR *pNotifyStruct, LRESULT *pResult)
 {
 	NM_GRIDVIEW* pItem = (NM_GRIDVIEW*) pNotifyStruct;
-	CString itemText = m_pGridCtrl->GetItemText(pItem->iRow, pItem->iColumn);
+	CString itemText = m_pGridCtrl->GetItemText(pItem->iRow, pItem->iColumn);	
 }
 
 BOOL CGridView::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult) 
@@ -195,22 +240,107 @@ BOOL CGridView::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
 	return CFormView::OnNotify(wParam, lParam, pResult);
 }
 
-void CGridView::OnDraw(CDC* /*pDC*/)
-{
-	// TODO: 在此添加专用代码和/或调用基类
-	CGTDoc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-}
-
-
-void CGridView::OnGridStartEdit(NMHDR *pNotifyStruct, LRESULT *pResult)
-{
-	NM_GRIDVIEW* pItem = (NM_GRIDVIEW*) pNotifyStruct;
-    TRACE(_T("Start Edit on row %d, col %d\n"), pItem->iRow, pItem->iColumn);
-}
 
 void CGridView::OnGridClick(NMHDR *pNotifyStruct, LRESULT* /*pResult*/)
 {
     NM_GRIDVIEW* pItem = (NM_GRIDVIEW*) pNotifyStruct;
     TRACE(_T("Clicked on row %d, col %d\n"), pItem->iRow, pItem->iColumn);
+	/***** When click the last cell, then should check if the text is 'Add' or 'Update' *****/
+	if (pItem->iColumn == 5) {
+		CString label = m_pGridCtrl->GetItemText(pItem->iRow, pItem->iColumn);
+		if (label == "Add") {
+			// Contruct a new path point
+			PathPointData *ppd = new PathPointData();
+			//memset(&ppd, 0, sizeof(ppd));
+			// Set the serial number
+			ppd->serial = pItem->iRow - 1;
+			for (int i = 1; i <= NUM_OF_COL - 1; i++) {
+				CString itemText = m_pGridCtrl->GetItemText(pItem->iRow, i);
+				switch (i - 1) {
+					case 0:
+						sscanf(itemText, "%f", &ppd->Coordinate_X);
+						break;
+					case 1:
+						sscanf(itemText, "%f", &ppd->Coordinate_Y);
+						break;
+					case 2:
+						sscanf(itemText, "%f", &ppd->Coordinate_Z);
+						break;
+					case 3:
+						sscanf(itemText, "%f", &ppd->StayTime);
+						break;
+					default:
+						break;
+				}
+			}
+			// Change the text
+			m_pGridCtrl->SetItemText(pItem->iRow, pItem->iColumn, "Update");
+			// Insert			
+			path.insert(path.begin() + pItem->iRow - 1, ppd);
+		} else if (label == "Update") {
+			// Update a path point
+			PathPointData* editedPoint = path[pItem->iRow - 1];
+			// Means this isn't the first time editing this cell, so need to update the CGTView
+			if (editedPoint != NULL) {
+				// Update the point's data
+				for (int i = 1; i <= NUM_OF_COL - 1; i++) {
+					CString itemText = m_pGridCtrl->GetItemText(pItem->iRow, i);
+					switch (i - 1) {
+						case 0:
+							sscanf(itemText, "%f", &editedPoint->Coordinate_X);
+							break;
+						case 1:
+							sscanf(itemText, "%f", &editedPoint->Coordinate_Y);
+							break;
+						case 2:
+							sscanf(itemText, "%f", &editedPoint->Coordinate_Z);
+							break;
+						case 3:
+							sscanf(itemText, "%f", &editedPoint->StayTime);
+							break;
+						default:
+							break;
+					}
+				}
+			}
+		}
+
+		// Inform the CGTView to update
+		GetDocument()->lowerRightView->setPath(&path);
+	}	
+}
+
+void CGridView::OnBnClickedSetPointCompleted()
+{
+	/***** Set the state variable *****/
+	isPathCompleted = TRUE;
+}
+
+void CGridView::OnBnClickedSchedulePath()
+{
+	schedulePath();
+}
+
+void CGridView::OnBnClickedAssurePath()
+{
+	/***** Here we must send all the point to the server *****/
+	/********** Construct the content of the communication test command *********/
+	char command[102];
+	__int16 *c = (__int16 *)command;
+	c[0] = FNT_NETTESTTEXT;
+
+	// memcpy(&(command[2]), content, content.GetLength());
+	// command[2 + content.GetLength()] = '\0';
+	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
+	//netcln.SendSvr(command, 102);
+	cln->SendSvr(command, 102);
+
+	/***** Set the global flag variable *****/
+
+}
+
+
+void CGridView::schedulePath(void)
+{
+	// TODO: 路径规划
 }

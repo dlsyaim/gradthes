@@ -238,6 +238,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DPLeftFormView.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\DPUpperRightView.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\FlapsIndicator.cpp"
 				>
 			</File>
@@ -294,6 +302,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\HeliBodyTab.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\HelicopterChoosingDialog.cpp"
 				>
 			</File>
@@ -323,6 +335,10 @@
 			</File>
 			<File
 				RelativePath=".\MainFrm.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MainRotorTab.cpp"
 				>
 			</File>
 			<File
@@ -359,6 +375,10 @@
 			</File>
 			<File
 				RelativePath=".\Parameter.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PIDCPDialog.cpp"
 				>
 			</File>
 			<File
@@ -414,6 +434,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Singleton.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ST_SplitterWnd.cpp"
 				>
 			</File>
@@ -443,6 +467,10 @@
 			</File>
 			<File
 				RelativePath=".\TabPageSSL.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\TailRotorTab.cpp"
 				>
 			</File>
 			<File
@@ -556,11 +584,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DPLeftFormView.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DPUpperRightView.h"
+				>
+			</File>
+			<File
 				RelativePath=".\FlapsIndicator.h"
 				>
 			</File>
 			<File
 				RelativePath=".\FlightModel.h"
+				>
+			</File>
+			<File
+				RelativePath=".\define\FlyInsDefine.h"
+				>
+			</File>
+			<File
+				RelativePath=".\define\FlyStructDefine.h"
 				>
 			</File>
 			<File
@@ -600,6 +644,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GSDefinition.h"
+				>
+			</File>
+			<File
 				RelativePath=".\GT.h"
 				>
 			</File>
@@ -613,6 +661,10 @@
 			</File>
 			<File
 				RelativePath=".\Gyro.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HeliBodyTab.h"
 				>
 			</File>
 			<File
@@ -645,6 +697,10 @@
 			</File>
 			<File
 				RelativePath=".\MainFrm.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MainRotorTab.h"
 				>
 			</File>
 			<File
@@ -689,6 +745,10 @@
 			</File>
 			<File
 				RelativePath=".\Parameter.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PIDCPDialog.h"
 				>
 			</File>
 			<File
@@ -748,6 +808,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Singleton.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ST_SplitterWnd.h"
 				>
 			</File>
@@ -756,15 +820,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\define\sysdef.h"
-				>
-			</File>
-			<File
 				RelativePath=".\TabCtrlSSL.h"
 				>
 			</File>
 			<File
 				RelativePath=".\TabPageSSL.h"
+				>
+			</File>
+			<File
+				RelativePath=".\TailRotorTab.h"
 				>
 			</File>
 			<File

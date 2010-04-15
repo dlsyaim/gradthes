@@ -6,7 +6,7 @@
 
 #define MAX_NUM_HELICOPTER_NAME 5
 class ST_SplitterWnd;
-
+class CGTView;
 class CMainFrame : public CFrameWndEx
 {
 	
@@ -64,6 +64,7 @@ public:
 	afx_msg void OnForthModel(void);
 
 private:
+	// Operations
 	void AddName(CString name);
 	void DeleteName(CString name);
 
@@ -78,6 +79,8 @@ private:
 	void readHMFromRegistry(void);
 	// Create the recent helicopter model name menu items
 	void createRecentHMMenuItems(void);
+	// Get the GTView pointer
+	CGTView* getLowerRightPane(void);
 public:
 	afx_msg void On32793();
 protected:
@@ -90,6 +93,13 @@ public:
 	afx_msg void OnCommunicationTest();
 	afx_msg void OnServoActorDemarcate();
 	afx_msg void OnGyroTest();
+	afx_msg void OnFlightPathSet();
+	afx_msg void OnReadConfiguration();
+	afx_msg void OnSaveConfiguration();
+	afx_msg void OnSaveAsConfiguration();
+	afx_msg void OnControlParameter();
+	afx_msg void OnFlightExperiment();
+	afx_msg void OnDataProcess();
 };
 
 

@@ -1,7 +1,7 @@
 #pragma once
 
 
-
+#include "func\NetCln.h"
 // CIMUTestFormView ¥∞ÃÂ ”Õº
 class CGTDoc;
 class CIMUTestFormView : public CFormView
@@ -29,9 +29,30 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	//double rollAngle;
+	//double rollAngleVel;
+	double headingAngle;
+	//double pitchAngleVel;
+	double pitchAngle;
+	//double headingAngleVel;
+	afx_msg void OnBnClickedIMUTestStart();
+	afx_msg void OnBnClickedIMUTestPass();
+	afx_msg void OnBnClickedIMUTestStop();
+	afx_msg void OnBnClickedIMUTestFailure();
+	void updateData(IMUTestData *itd);
+// Attributes
+	// The client point of the socket
+	CNetCln netcln;
+	double rollAngle;
+	double n_x_Vel;
+	double e_y_Vel;
+	double d_z_Vel;
+	double n_x_Acc;
+	double e_y_Acc;
+	double d_z_Acc;
 };
 
-#ifndef _DEBUG  // debug version in GTView.cpp
+#ifndef _DEBUG  // debug version in IMUTestFormView.cpp
 inline CGTDoc* CIMUTestFormView::GetDocument() const
    { return reinterpret_cast<CGTDoc*>(m_pDocument); }
 #endif

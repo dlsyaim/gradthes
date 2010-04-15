@@ -30,9 +30,13 @@ protected:
 public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	afx_msg void OnBnClickedFEZoomIn();
+	afx_msg void OnBnClickedFEZoomOut();
+	int feXCoor;
+	int feYCoor;
 };
 
-#ifndef _DEBUG  // debug version in LeftView.cpp
+#ifndef _DEBUG  // debug version in UpperRightView.cpp
 inline CGTDoc* CUpperRightView::GetDocument() const
    { return reinterpret_cast<CGTDoc*>(m_pDocument); }
 #endif

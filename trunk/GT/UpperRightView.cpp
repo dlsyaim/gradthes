@@ -12,6 +12,8 @@ IMPLEMENT_DYNCREATE(CUpperRightView, CFormView)
 
 CUpperRightView::CUpperRightView()
 	: CFormView(CUpperRightView::IDD)
+	, feXCoor(0)
+	, feYCoor(0)
 {
 
 }
@@ -23,11 +25,15 @@ CUpperRightView::~CUpperRightView()
 void CUpperRightView::DoDataExchange(CDataExchange* pDX)
 {
 	CFormView::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_FE_X_COOR, feXCoor);
+	DDX_Text(pDX, IDC_FE_Y_COOR, feYCoor);
 }
 
 BEGIN_MESSAGE_MAP(CUpperRightView, CFormView)
 	ON_WM_CREATE()
 	ON_WM_ERASEBKGND()
+	ON_BN_CLICKED(IDC_FE_ZOOM_IN, &CUpperRightView::OnBnClickedFEZoomIn)
+	ON_BN_CLICKED(IDC_FE_ZOOM_OUT, &CUpperRightView::OnBnClickedFEZoomOut)
 END_MESSAGE_MAP()
 
 
@@ -68,7 +74,17 @@ int CUpperRightView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 BOOL CUpperRightView::OnEraseBkgnd(CDC* pDC)
 {
-	return TRUE;
+	//return TRUE;
 	
-	//return CFormView::OnEraseBkgnd(pDC);
+	return CFormView::OnEraseBkgnd(pDC);
+}
+
+void CUpperRightView::OnBnClickedFEZoomIn()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+void CUpperRightView::OnBnClickedFEZoomOut()
+{
+	// TODO: 在此添加控件通知处理程序代码
 }

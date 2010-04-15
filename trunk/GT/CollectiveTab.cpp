@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "GT.h"
 #include "CollectiveTab.h"
-#include "define\sysdef.h"
+
 #include "func\NetCln.h"
 #include "func\NetSvrHeli.h"
 #include "MsgType.h"
@@ -13,7 +13,7 @@
 
 // CCollectiveTab ¶Ô»°¿ò
 
-IMPLEMENT_DYNAMIC(CCollectiveTab, CTabPageSSL)
+//IMPLEMENT_DYNAMIC(CCollectiveTab, CTabPageSSL)
 
 CCollectiveTab::CCollectiveTab(CWnd* pParent /*=NULL*/)
 	: CTabPageSSL(CCollectiveTab::IDD, pParent)
@@ -31,13 +31,13 @@ CCollectiveTab::CCollectiveTab(CWnd* pParent /*=NULL*/)
 
 }
 
-CCollectiveTab::~CCollectiveTab()
-{
-}
+//CCollectiveTab::~CCollectiveTab()
+//{
+//}
 
 void CCollectiveTab::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	CTabPageSSL::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_COLLECTIVE_PWM_EDIT1, collectivePWM1);
 	DDX_Text(pDX, IDC_COLLECTIVE_PWM_EDIT2, collectivePWM2);
 	DDX_Text(pDX, IDC_COLLECTIVE_PWM_EDIT3, collectivePWM3);
@@ -70,19 +70,21 @@ END_MESSAGE_MAP()
 void CCollectiveTab::OnBnClickedCollectivePWMButton1()
 {
 	this->UpdateData();
-	sendTestData(collectivePWM1);	
+	sendTestData(collectivePWM1);
+	
 }
 
 void CCollectiveTab::OnBnClickedCollectivePWMButton2()
 {
 	this->UpdateData();
 	sendTestData(collectivePWM2);	
+	
 }
 
 void CCollectiveTab::OnBnClickedCollectivePWMButton3()
 {
 	this->UpdateData();
-	sendTestData(collectivePWM3);	
+	sendTestData(collectivePWM3);
 }
 
 void CCollectiveTab::OnBnClickedCollectivePWMButton4()

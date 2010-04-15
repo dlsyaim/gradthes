@@ -16,3 +16,4 @@ BOOL GlobalExperimentData::isFlightPathSet = FALSE;
 BOOL GlobalExperimentData::isServoActorDemarcated = FALSE;
 BOOL GlobalExperimentData::isIMUTestPass = FALSE;
 BOOL GlobalExperimentData::isGPSTestPass  = FALSE;
+ServoActorData* GlobalExperimentData::std = NULL;

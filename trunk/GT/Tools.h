@@ -216,29 +216,29 @@ public:
 };
 
 
-typedef struct FlyState			/*/飞行状态值/*/
-{
-	/*/地理坐标系位置/*/
-	double NED_POS_X;
-	double NED_POS_Y;
-	double NED_POS_Z;
-	/*/机体坐标线系线速度/*/
-	double BODY_VEL_X;
-	double BODY_VEL_Y;
-	double BODY_VEL_Z;
-	/*/机体坐标线系线加速度/*/
-	double BODY_ACC_X;
-	double BODY_ACC_Y;
-	double BODY_ACC_Z;
-	/*/机体坐标系-地理坐标系角度/*/
-	double BODY_ANG_PHI;
-	double BODY_ANG_THETA;
-	double BODY_ANG_PSI;
-	/*/角速度/*/
-	double BODY_ANG_P;
-	double BODY_ANG_Q;
-	double BODY_ANG_R;
-} *p_FlyState;
+//typedef struct FlyState			/*/飞行状态值/*/
+//{
+//	/*/地理坐标系位置/*/
+//	double NED_POS_X;
+//	double NED_POS_Y;
+//	double NED_POS_Z;
+//	/*/机体坐标线系线速度/*/
+//	double BODY_VEL_X;
+//	double BODY_VEL_Y;
+//	double BODY_VEL_Z;
+//	/*/机体坐标线系线加速度/*/
+//	double BODY_ACC_X;
+//	double BODY_ACC_Y;
+//	double BODY_ACC_Z;
+//	/*/机体坐标系-地理坐标系角度/*/
+//	double BODY_ANG_PHI;
+//	double BODY_ANG_THETA;
+//	double BODY_ANG_PSI;
+//	/*/角速度/*/
+//	double BODY_ANG_P;
+//	double BODY_ANG_Q;
+//	double BODY_ANG_R;
+//} *p_FlyState;
 
 
 typedef struct FlyActorValue	/*/舵机输出量/*/
