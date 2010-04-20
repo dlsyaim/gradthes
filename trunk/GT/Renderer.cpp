@@ -15,6 +15,30 @@
 #define PI 3.14159265359
 #endif
 
+#ifndef ANGLE_LABEL_WIDTH 
+#define ANGLE_LABEL_WIDTH 0.25f
+#endif
+
+#ifndef ANGLE_VALUE_WIDTH
+#define ANGLE_VALUE_WIDTH 0.25f
+#endif
+
+#ifndef RATE_LABEL_WIDTH
+#define RATE_LABEL_WIDTH 0.1f
+#endif
+
+#ifndef RATE_VALUE_WIDTH
+#define RATE_VALUE_WIDTH 0.25f
+#endif
+
+#ifndef UNIT_WIDTH
+#define UNIT_WIDTH 0.2f
+#endif
+
+#ifndef LETTER_WIDTH
+#define LETTER_WIDTH 0.1f
+#endif
+
 //#define RADIAN_TO_ANGLE()
 
 Renderer::Renderer(void):length(0)
@@ -90,7 +114,7 @@ void Renderer::draw(void)
 	panel->draw();
 
 	// Draw aircraft
-	aircraft->draw();
+	aircraft->draw(lpRect);
 }
 
 // Initialize the illumination and material
@@ -213,39 +237,85 @@ void Renderer::updateCamera(int virtualKey)
 // Draw fonts.
 void Renderer::drawFonts()
 {
+	// When the client area minimized, just return.
+	if (lpRect->right == 0 || lpRect->bottom == 0)
+		return;
+	
 	glPushMatrix();
 	glLoadIdentity();
+	
+	/*
+	 * Because this LPRECT represents the client area's size, so upper-left cornor is (0, 0)
+	 */
+	static LONG originRight = lpRect->right;
+	static LONG originBottom = lpRect->bottom;
+
+	/*
+	 * We just handle the X-axis' coordinate and Y-axis' coordinate
+	 */
+	static float xPos = -1.6f;
+	static float yPos = 1.1f;
+	// Calculate the difference
+	float xDiff, yDiff;
+	xDiff = float(originRight - lpRect->right)/ originRight * abs(xPos);
+	yDiff = float(originBottom - lpRect->bottom) / originBottom * abs(yPos);
+	
+	originRight = lpRect->right;
+	originBottom = lpRect->bottom;
+	
+	xPos = xPos + xDiff; 
+	yPos = yPos - yDiff;
+
 	glPushAttrib(GL_COLOR_BUFFER_BIT);	
 	glDisable(GL_LIGHTING);	
-	glColor3f(0.8f, 0.8f, 1.0f);
-	glRasterPos3f(-0.8f, 1.0f, -2.0f);
+	glColor3f(1.0f, 1.0f, 1.0f);
+
+	/*
+	 * 0.1f is the height of a letter
+	 * And make the 0.25f the width of angles
+	 */
+
+	/*
+	 * The angle column
+	 */
+	glRasterPos3f(xPos, yPos - LETTER_WIDTH, -2.0f);
+	glPrint(base, "Heading");
+	glRasterPos3f(xPos, yPos - LETTER_WIDTH * 2, -2.0f);
+	glPrint(base, "Pitch");
+	glRasterPos3f(xPos, yPos - LETTER_WIDTH * 3, -2.0f);
+	glPrint(base, "Roll");
+	TRACE(_T("xPos: %f\n"), xPos);
+	/*
+	 * Rate column
+	 */
+	float rateX = xPos + ANGLE_LABEL_WIDTH + ANGLE_VALUE_WIDTH;
+	glRasterPos3f(rateX, yPos, -2.0f);
 	glPrint(base, "Rate(dec/sec)");
-	glRasterPos3f(-0.8f, 0.9f, -2.0f);
+	glRasterPos3f(rateX, yPos - LETTER_WIDTH, -2.0f);
 	glPrint(base, "X");
-	glRasterPos3f(-0.8f, 0.8f, -2.0f);
+	glRasterPos3f(rateX, yPos - LETTER_WIDTH * 2, -2.0f);
 	glPrint(base, "Y");
-	glRasterPos3f(-0.8f, 0.7f, -2.0f);
+	glRasterPos3f(rateX, yPos - LETTER_WIDTH * 3, -2.0f);
 	glPrint(base, "Z");
 	
-	glRasterPos3f(-0.1f, 1.0f, -2.0f);
+	/*
+	 * Acceleration(g) column
+	 */
+	float accX = xPos + ANGLE_LABEL_WIDTH + ANGLE_VALUE_WIDTH + RATE_LABEL_WIDTH + RATE_VALUE_WIDTH + UNIT_WIDTH;
+	glRasterPos3f(accX, yPos, -2.0f);
 	glPrint(base, "Acceleration(g)");
 	
-	glRasterPos3f(-1.7f, 0.9f, -2.0f);
-	glPrint(base, "Heading  ");
-	glRasterPos3f(-1.7f, 0.8f, -2.0f);
-	glPrint(base, "Pitch       ");
-	glRasterPos3f(-1.7f, 0.7f, -2.0f);
-	glPrint(base, "Roll        ");
+	
 
 	for (int i = 0; i < length; i++) {
 		if (i >= 0 && i <= 2) {
-			glRasterPos3f(-1.2f, 0.9f - 0.1f * (i % 3), -2.0f);
+			glRasterPos3f(xPos + ANGLE_LABEL_WIDTH, yPos - LETTER_WIDTH * (i % 3 + 1), -2.0f);
 			glPrint(base, "%3.2f", stat[i]);
 		} else if (i >= 3 && i <= 5) {
-			glRasterPos3f(-0.7f, 0.9f - 0.1f * (i % 3), -2.0f);
+			glRasterPos3f(rateX + RATE_LABEL_WIDTH, yPos - LETTER_WIDTH * (i % 3 + 1), -2.0f);
 			glPrint(base, "%3.1f", stat[i]);
 		} else if (i >= 6 && i <= 8) {
-			glRasterPos3f(-0.1f, 0.9f - 0.1f * (i % 3), -2.0f);
+			glRasterPos3f(accX, yPos - LETTER_WIDTH * (i % 3 + 1), -2.0f);
 			glPrint(base, "%3.3f", stat[i]);
 		}
 	}
@@ -341,6 +411,8 @@ void Renderer::drawFonts()
 
 void Renderer::draw(LPRECT lpRect, int renderMode)
 {
+	if (lpRect)
+		this->lpRect = lpRect;
 	if (isMultiport) {
 		for (int i = 0; i < 4; i++) {
 			switch (i) {
@@ -424,10 +496,21 @@ void Renderer::draw(LPRECT lpRect, int renderMode)
 			case CGTView::FLIGHT_PATH_SET:
 				drawPath();
 				break;
+			case CGTView::IMU_TEST:
+				drawWithoutInstruments();
+				break;
+			case CGTView::OPT_TEST:
+				drawWithoutInstruments();
+				break;
+			default:
+				break;
 		}
 	}
 }
 
+/*
+ * This function will be invoked when IMU test starts
+ */
 void Renderer::drawWithoutInstruments(void)
 {
 	glMatrixMode(GL_MODELVIEW);
@@ -438,13 +521,18 @@ void Renderer::drawWithoutInstruments(void)
 	drawFonts();
 
 	glDisable(GL_DEPTH_TEST);
-	// Draw aircraft
-	aircraft->draw();
+	// Draw aircraft without terrains
+	aircraft->draw(lpRect, FALSE);
 }
 
 void Renderer::updateAircraft(IMUTestData* itd)
 {
 	aircraft->update(itd);
+}
+
+void Renderer::updateAircraft(pOPTTRACETestData otd)
+{
+	aircraft->update(otd);
 }
 
 void Renderer::drawPath(void)

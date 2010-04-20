@@ -19,11 +19,10 @@ public:
 	// 
 	void loadAircraft(char* filePath);
 
-	// Draw funtion.
-	void draw(void);
+
 
 	// Draw function.
-	void draw(LPRECT lpRect);
+	void draw(LPRECT lpRect, BOOL isTerrain = TRUE);
 
 	// Setters and getters
 	inline void setXrot(double xrot) {this->xrot = xrot;}
@@ -45,6 +44,7 @@ public:
 	void update(double *stat);
 	void update(FlyState* fs);
 	void update(IMUTestData* itd);
+	void update(pOPTTRACETestData otd);
 
 private:
 	std::vector<Mesh> meshes;
@@ -55,6 +55,12 @@ private:
 
 	// Position
 	double x, y, z;
+
+// Operations
+	/*
+	 * Whe the client area's size changes, then the aircraft must update acoordingly.
+	 */
+	void drawWithAutoSize(LPRECT lpRect);
 
 
 };

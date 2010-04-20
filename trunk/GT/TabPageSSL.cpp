@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "TabPageSSL.h"
-
 #include "func\NetCln.h"
 
 #ifdef _DEBUG
@@ -101,19 +100,22 @@ BOOL CTabPageSSL::OnCmdMsg (UINT nID, int nCode, void* pExtra,
 
 void CTabPageSSL::sendTestData(double value)
 {
-	/********** Construct the content of the servo actor demarcate command *********/
+	/********** Construct the content of the servo actor demarcated command *********/
 	/***** Attention 10 is not enough *****/
 	char command[10];
 	__int16 *c = (__int16 *)command;
 	c[0] = SAT_SERVOACTOR_TST;
 
-	ServoActorTstInsData sattd;
-	sattd.ActorSerial = getActorSerial();
-	sattd.SetPWM = (float)value;
+	ServoActorTstInsData satid;
+	satid.ActorSerial = getActorSerial();
+	satid.SetPWM = (float)value;
 
-	memcpy(&(command[2]), (char*)&sattd, sizeof(sattd));
-	command[2 + sizeof(sattd)] = '\0';
-	cln->SendSvr(command, 10);
+	memcpy(&(command[2]), (char*)&satid, sizeof(satid));
+	command[2 + sizeof(satid)] = '\0';
+	if (!cln)
+		AfxMessageBox(_T("No client"), MB_OK | MB_ICONSTOP);
+	else
+		cln->SendSvr(command, sizeof(command));
 }
 
 __int8 CTabPageSSL::getActorSerial(void)

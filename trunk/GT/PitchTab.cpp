@@ -32,7 +32,7 @@ CPitchTab::~CPitchTab()
 
 void CPitchTab::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	CTabPageSSL::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_PITCH_PWM_EDIT1, pitchPWM1);
 	DDX_Text(pDX, IDC_PITCH_PWM_EDIT2, pitchPWM2);
 	DDX_Text(pDX, IDC_PITCH_PWM_EDIT3, pitchPWM3);
@@ -64,31 +64,31 @@ END_MESSAGE_MAP()
 
 void CPitchTab::OnBnClickedPitchPWMButton1()
 {
-	this->UpdateData();
+	this->UpdateData(TRUE);
 	sendTestData(pitchPWM1);	
 }
 
 void CPitchTab::OnBnClickedPitchPWMButton2()
 {
-	this->UpdateData();
+	this->UpdateData(TRUE);
 	sendTestData(pitchPWM2);
 }
 
 void CPitchTab::OnBnClickedPitchPWMButton3()
 {
-	this->UpdateData();
+	this->UpdateData(TRUE);
 	sendTestData(pitchPWM3);
 }
 
 void CPitchTab::OnBnClickedPitchPWMButton4()
 {
-	this->UpdateData();
+	this->UpdateData(TRUE);
 	sendTestData(pitchPWM4);
 }
 
 void CPitchTab::OnBnClickedPitchPWMButton5()
 {
-	this->UpdateData();
+	this->UpdateData(TRUE);
 	sendTestData(pitchPWM5);
 }
 

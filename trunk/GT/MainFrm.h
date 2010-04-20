@@ -7,6 +7,7 @@
 #define MAX_NUM_HELICOPTER_NAME 5
 class ST_SplitterWnd;
 class CGTView;
+
 class CMainFrame : public CFrameWndEx
 {
 	
@@ -14,11 +15,9 @@ protected: // create from serialization only
 	CMainFrame();
 	DECLARE_DYNCREATE(CMainFrame)
 
-// Attributes
-public:
-
 // Operations
 public:
+	// Deprecated
 	void AddMenu(CString name);
 
 // Overrides
@@ -44,7 +43,7 @@ protected:  // control bar embedded members
 	CString helicopterNames[MAX_NUM_HELICOPTER_NAME];
 	// Number of menu items created
 	int numberOfMenu;
-	
+	// Splitter window
 	ST_SplitterWnd* m_pSplitterWnd;
 	ST_SplitterWnd* m_pSplitterWnd1;
 	
@@ -64,31 +63,30 @@ public:
 	afx_msg void OnForthModel(void);
 
 private:
-	// Operations
+// Operations
+	// Operations about the helicopter name array
 	void AddName(CString name);
 	void DeleteName(CString name);
 
+	// Operations about the recent menu items
 	void UpdateMenu(void);
 	void DeleteMenu(CString name);
+	int FindMenuItem(CMenu*, LPCTSTR str);
 
 	// Select the created helicopter model according to the index
 	void OnSelectModel(int idx);
-
-	int FindMenuItem(CMenu*, LPCTSTR str);
+	
 	// Read the helicopter model name from the Registry
 	void readHMFromRegistry(void);
 	// Create the recent helicopter model name menu items
 	void createRecentHMMenuItems(void);
 	// Get the GTView pointer
 	CGTView* getLowerRightPane(void);
-public:
-	afx_msg void On32793();
+	
 protected:
 	virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
-private:
-	// The helicopter model buffer
-	// std::vector<HelicopterModel*> hmBuf;
 public:
+	afx_msg void On32793();
 	afx_msg void OnDestroy();
 	afx_msg void OnCommunicationTest();
 	afx_msg void OnServoActorDemarcate();
@@ -100,6 +98,7 @@ public:
 	afx_msg void OnControlParameter();
 	afx_msg void OnFlightExperiment();
 	afx_msg void OnDataProcess();
+	afx_msg void OnOptTest();
 };
 
 

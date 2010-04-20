@@ -3,11 +3,20 @@
 
 #include "stdafx.h"
 #include <gl/glut.h>
+#include <algorithm>
+#include <fstream>
 #include "GT.h"
 #include "GridView.h"
 #include "GTDoc.h"
 #include "GTView.h"
+#include "Singleton.h"
+#include "MsgType.h"
 
+
+bool lowerSorter(PathPointData* p1, PathPointData* p2)
+{
+	return p1->serial <= p2->serial;
+}
 
 // CGridView
 
@@ -17,8 +26,6 @@ CGridView::CGridView()
 	: CFormView(CGridView::IDD)
 {
 	m_pGridCtrl = NULL;
-
-	memset(isFirst, TRUE, NUM_OF_ROW * NUM_OF_COL);
 }
 
 CGridView::~CGridView()
@@ -49,6 +56,8 @@ BEGIN_MESSAGE_MAP(CGridView, CFormView)
 	ON_BN_CLICKED(IDC_SET_POINT_COM, &CGridView::OnBnClickedSetPointCompleted)
 	ON_BN_CLICKED(IDC_SCHEDULE_PATH, &CGridView::OnBnClickedSchedulePath)
 	ON_BN_CLICKED(IDC_ASSURE_PATH, &CGridView::OnBnClickedAssurePath)
+	ON_MESSAGE(LOAD_POINT_REPLY_MSG, &CGridView::OnLoadReply)
+	ON_MESSAGE(PATH_CHECK_REPLY_MSG, &CGridView::OnCheckReply)
 END_MESSAGE_MAP()
 
 
@@ -124,10 +133,10 @@ int CGridView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 			Item.row = row;
 			Item.col = 0;
 
-			//Item.nFormat = DT_RIGHT|DT_VCENTER|DT_SINGLELINE|DT_END_ELLIPSIS|DT_NOPREFIX;
 			Item.strText.Format(_T("%d"), row);
 			m_pGridCtrl->SetItem(&Item);
 		}
+		
 		// Just fill the column headings
 		for (int col = 1; col < m_pGridCtrl->GetRowCount(); col++) { 
 			GV_ITEM Item;
@@ -154,31 +163,22 @@ int CGridView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		    m_pGridCtrl->SetItem(&Item);
 		}
 
-		// Just fill the row headings
+		// Just fill the row buttons
 		for (int row = 1; row < m_pGridCtrl->GetRowCount(); row++) { 
 			GV_ITEM Item;
 			Item.mask = GVIF_TEXT;
 			Item.row = row;
-			Item.col = 5;
+			Item.col = NUM_OF_COL;
 
-			//Item.nFormat = DT_RIGHT|DT_VCENTER|DT_SINGLELINE|DT_END_ELLIPSIS|DT_NOPREFIX;
 			Item.strText.Format(_T("Add"));
 			m_pGridCtrl->SetItem(&Item);
-			m_pGridCtrl->SetItemState(row, 5, m_pGridCtrl->GetItemState(row, 5) | GVIS_READONLY);
+			m_pGridCtrl->SetItemState(row, NUM_OF_COL, m_pGridCtrl->GetItemState(row, NUM_OF_COL) | GVIS_READONLY);
 			
 		}
 		(*m_pGridCtrl).AutoSize();
 	}	
 
-	/***** Initialize *****/
-	//// The server address
-	//char *IP = "192.168.0.186";
-	//// Initializing
-	//if(netcln.initCln(IP, 22222) == 0)
-	//{
-	//	TRACE("Can't create a sending client\n");
-	//}
-
+	/* Currently we just assume the max size is 10 */
 	path.resize(10);
 	return 0;
 }
@@ -246,28 +246,27 @@ void CGridView::OnGridClick(NMHDR *pNotifyStruct, LRESULT* /*pResult*/)
     NM_GRIDVIEW* pItem = (NM_GRIDVIEW*) pNotifyStruct;
     TRACE(_T("Clicked on row %d, col %d\n"), pItem->iRow, pItem->iColumn);
 	/***** When click the last cell, then should check if the text is 'Add' or 'Update' *****/
-	if (pItem->iColumn == 5) {
+	if (pItem->iColumn == NUM_OF_COL) {
 		CString label = m_pGridCtrl->GetItemText(pItem->iRow, pItem->iColumn);
 		if (label == "Add") {
 			// Contruct a new path point
 			PathPointData *ppd = new PathPointData();
-			//memset(&ppd, 0, sizeof(ppd));
 			// Set the serial number
 			ppd->serial = pItem->iRow - 1;
 			for (int i = 1; i <= NUM_OF_COL - 1; i++) {
 				CString itemText = m_pGridCtrl->GetItemText(pItem->iRow, i);
 				switch (i - 1) {
 					case 0:
-						sscanf(itemText, "%f", &ppd->Coordinate_X);
+						sscanf_s(itemText, "%f", &ppd->Coordinate_X);
 						break;
 					case 1:
-						sscanf(itemText, "%f", &ppd->Coordinate_Y);
+						sscanf_s(itemText, "%f", &ppd->Coordinate_Y);
 						break;
 					case 2:
-						sscanf(itemText, "%f", &ppd->Coordinate_Z);
+						sscanf_s(itemText, "%f", &ppd->Coordinate_Z);
 						break;
 					case 3:
-						sscanf(itemText, "%f", &ppd->StayTime);
+						sscanf_s(itemText, "%f", &ppd->StayTime);
 						break;
 					default:
 						break;
@@ -280,23 +279,22 @@ void CGridView::OnGridClick(NMHDR *pNotifyStruct, LRESULT* /*pResult*/)
 		} else if (label == "Update") {
 			// Update a path point
 			PathPointData* editedPoint = path[pItem->iRow - 1];
-			// Means this isn't the first time editing this cell, so need to update the CGTView
 			if (editedPoint != NULL) {
 				// Update the point's data
 				for (int i = 1; i <= NUM_OF_COL - 1; i++) {
 					CString itemText = m_pGridCtrl->GetItemText(pItem->iRow, i);
 					switch (i - 1) {
 						case 0:
-							sscanf(itemText, "%f", &editedPoint->Coordinate_X);
+							sscanf_s(itemText, "%f", &editedPoint->Coordinate_X);
 							break;
 						case 1:
-							sscanf(itemText, "%f", &editedPoint->Coordinate_Y);
+							sscanf_s(itemText, "%f", &editedPoint->Coordinate_Y);
 							break;
 						case 2:
-							sscanf(itemText, "%f", &editedPoint->Coordinate_Z);
+							sscanf_s(itemText, "%f", &editedPoint->Coordinate_Z);
 							break;
 						case 3:
-							sscanf(itemText, "%f", &editedPoint->StayTime);
+							sscanf_s(itemText, "%f", &editedPoint->StayTime);
 							break;
 						default:
 							break;
@@ -324,23 +322,84 @@ void CGridView::OnBnClickedSchedulePath()
 void CGridView::OnBnClickedAssurePath()
 {
 	/***** Here we must send all the point to the server *****/
-	/********** Construct the content of the communication test command *********/
-	char command[102];
+	/***** First sort *****/
+	sort(path.begin(), path.end(), lowerSorter);
+	/********** Construct the content of the starting path sending command *********/
+	char command[2];
 	__int16 *c = (__int16 *)command;
-	c[0] = FNT_NETTESTTEXT;
+	c[0] = TPT_LOADPATHPOINT_START;
 
-	// memcpy(&(command[2]), content, content.GetLength());
-	// command[2 + content.GetLength()] = '\0';
+	/* First send the LOAD START command */
 	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
-	//netcln.SendSvr(command, 102);
-	cln->SendSvr(command, 102);
+	cln->SendSvr(command, sizeof(command));
 
-	/***** Set the global flag variable *****/
-
+	/* Here we just send the first point */
+	char pointCommand[34];
+	c = (__int16 *)pointCommand;
+	c[0] = TPT_LOADPATHPOINTS;
+	
+	memcpy(pointCommand + 2, (char *)(&path[0]), sizeof(path[0]));
+	cln->SendSvr(pointCommand, sizeof(pointCommand));	
 }
 
 
 void CGridView::schedulePath(void)
 {
 	// TODO: Â·¾¶¹æ»®
+}
+
+LRESULT CGridView::OnLoadReply(WPARAM w, LPARAM l)
+{
+	/*
+	 * A point sent before has been received, so be ready to send the next point
+	 */
+	(*received)++;
+	__int16 *c;
+
+	/* First send the LOAD START command */
+	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
+	if (*received == path.size()) {
+		char overCommand[2];
+		c = (__int16 *)overCommand;
+		c[0] = TPT_LOADPATHPOINT_STOP;
+		cln->SendSvr(overCommand, sizeof (overCommand));
+		return TRUE;
+	}
+	/* Here we just send one point */
+	char pointCommand[34];
+	c = (__int16 *)pointCommand;
+	c[0] = TPT_LOADPATHPOINTS;
+	
+	memcpy(pointCommand + 2, (char *)(&path[*received]), sizeof(path[*received]));
+	cln->SendSvr(pointCommand, sizeof(pointCommand));
+
+	return TRUE;
+}
+
+LRESULT CGridView::OnCheckReply(WPARAM w, LPARAM l)
+{
+	CSingleton *instance = CSingleton::getInstance();
+	static int version = 0;
+	CTime t = CTime::GetCurrentTime();  
+	CString timeString = t.Format("%Y-%m-%d");
+	CString verStr;	
+	if (*state) {
+		/***** Set the global flag variable *****/
+		instance->setIsPathSet(TRUE);
+		/* And need to save the data into the files */
+		verStr.Format(_T("-%d.fp"), version++);
+		timeString.Append(verStr);
+		instance->setRecentFPName(timeString);
+		std::ofstream ofs(timeString, std::ios::binary);
+		std::vector<PathPointData*>::iterator iter;
+		for (iter = path.begin(); iter != path.end(); iter++) {
+			ofs.write((char*)(*iter), sizeof(**iter));
+		}
+		ofs.close();
+	} else {
+		AfxMessageBox(_T("Failed to check the path"), MB_OK | MB_ICONSTOP);
+		instance->setIsPathSet(FALSE);
+	}
+
+	return TRUE;
 }

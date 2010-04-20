@@ -50,11 +50,14 @@
 #define TPT_LOADPATHPOINTS					0x0833				/*加载路径点指令						*/
 #define TPT_LOADPATHPOINTS_REPLY			0x0834				/*加载路径点回复指令					*/
 #define TPT_LOADPATHPOINTS_CHECK			0x0835				/*路径点检查返回指令					*/
+#define TPT_LOADHELIPARA			        0x0840				/*加载飞机参数指令					    */
+#define TPT_LOADCONTROLPARA			        0x0850				/*加载控制参数指令 					    */
+
 #define FOC_OPERATIONCOMMAND				0x0a00				/*操作控制二级子指令集					*/
 #define SFT_FLYING_TASK						0x0a10				/*飞行任务三级子指令集					*/
 #define TFT_STARTTASK						0x0a11				/*开始飞行任务指令						*/
 #define TFT_STARTTASKREPLY					0x0a12				/*开始飞行任务返回指令					*/
-#define TFT_STARTSTOP						0x0a13				/*结束飞行任务指令						*/
+#define TFT_STOPTASK						0x0a13				/*结束飞行任务指令						*/
 #define TFT_STARTSTOPREPLY					0x0a14				/*结束飞行任务返回指令					*/
 #define FIT_FLYINGSTATEDATA					0x0b00				/*飞行数据返回指令						*/
 #define FIT_FLYINGSTATEDATAACT				0x0c00				/*飞行数据返回确认指令					*/

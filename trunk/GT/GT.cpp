@@ -129,7 +129,7 @@ BOOL CGTApp::InitInstance()
 	 * we start up a thread here. However, we should set the port we listen firstly.
 	 * 33333 is a casual digit and can be changed through discussion.
 	 */
-	svr.port = 33333;
+	svr.port = 9919;
 	if (!svr.StartSvr()) {
 		AfxMessageBox(_T("The server for connection failed to start up"), MB_OK | MB_ICONWARNING);
 	}
@@ -137,11 +137,17 @@ BOOL CGTApp::InitInstance()
 	/*
 	 * We set up a single socket client point
 	 */
-	char *IP = "192.168.0.186";
-	// Initializing
-	/*if(cln.initCln(IP, 22222) == 0)
+	//char *IP = "169.254.46.106";
+	//// Initializing
+	//while(cln.initCln(IP, 8818) == 0)
+	//{
+	//	//AfxMessageBox("Failed to create a sending client", MB_OK | MB_ICONSTOP);	
+	//	Sleep(100);
+	//}
+	/*char *IP = "192.168.0.186";
+	if (cln.initCln(IP, 22222) == 0)
 	{
-		AfxMessageBox("Failed to create a sending client", MB_OK | MB_ICONSTOP);		
+		AfxMessageBox("Failed to create a sending client", MB_OK | MB_ICONSTOP);
 	}*/
 	// call DragAcceptFiles only if there's a suffix
 	//  In an SDI app, this should occur after ProcessShellCommand

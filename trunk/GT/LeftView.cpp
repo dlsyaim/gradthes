@@ -6,8 +6,8 @@
 #include "GT.h"
 #include "LeftView.h"
 #include "GTDoc.h"
-#include "GlobalExperimentData.h"
-
+#include "Singleton.h"
+#include "MsgType.h"
 
 // CLeftView
 
@@ -59,6 +59,9 @@ BEGIN_MESSAGE_MAP(CLeftView, CFormView)
 	ON_WM_ERASEBKGND()
 	ON_BN_CLICKED(IDC_FE_START, &CLeftView::OnBnClickedFEStart)
 	ON_BN_CLICKED(IDC_FE_STOP, &CLeftView::OnBnClickedFEStop)
+	ON_MESSAGE(START_TASK_REPLY_MSG, &CLeftView::OnStartTaskReply)
+	ON_MESSAGE(STOP_TASK_REPLY_MSG, &CLeftView::OnStopTaskReply)
+	ON_MESSAGE(FLYING_STATE_DATA_MSG, &CLeftView::OnFlyingStateData)
 END_MESSAGE_MAP()
 
 
@@ -105,48 +108,68 @@ void CLeftView::OnBnClickedFEStart()
 	/***** Here we start flight experiment *****/
 	
 	/***** First check all the configuration *****/
-	if (!GlobalExperimentData::isCommunicationTestPass ||
-		!GlobalExperimentData::isControlParameterSet || 
-		!GlobalExperimentData::isFlightPathSet ||
-		!GlobalExperimentData::isIMUTestPass ||
-		!GlobalExperimentData::isServoActorDemarcated) 
+	CSingleton* instance = CSingleton::getInstance();
+	if (!instance->isReady()) {
+		AfxMessageBox(_T("Some requirement not satisfied\n"), MB_OK | MB_ICONSTOP);
 		return;
-
-	/***** Then need to send the helicopter model to the server *****/
-	if (!GlobalExperimentData::std) {
-		// Then we need to read the servo actor configuration files
-		std::ifstream ifs("", std::ios::binary);
 	}
 
-	/***** Then need to send all the servo actor demarcated data to the server *****/
-	
+	/***** Gain the socket client *****/
 	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
+	
+	__int16* c;
+	/***** Then need to send the helicopter parameter to the server *****/
+	if (instance->getCurPHM()) {
+		char heliMod[100];
+		c = (__int16*)heliMod;
+		c[0] = TPT_LOADHELIPARA;
+		memcpy(heliMod + 2, (char*)(&instance->getCurPHM()->heliPara), sizeof(instance->getCurPHM()->heliPara));
+		cln->SendSvr(heliMod, sizeof(heliMod));
 
-	char servoData[162];
-	__int16 *c = (__int16 *)servoData;
-	c[0] = TAS_ACTORSET;
-	
-	//memcpy(servoData + 2, );
-	
+		/***** Then need to send all the servo actor demarcated data to the server *****/
+		char servoData[162];
+		c = (__int16 *)servoData;
+		c[0] = TAS_ACTORSET;
+		memcpy(servoData + 2, (char *)(&instance->getCurPHM()->sad), sizeof(instance->getCurPHM()->sad));
+		cln->SendSvr(servoData, sizeof(servoData));
+	}
 
 	/***** Finally send a command to the server *****/
 	char command[2];
-	__int16 *c1 = (__int16 *)command;
-	c1[0] = TFT_STARTTASK;
-	
-	
+	c = (__int16 *)command;
+	c[0] = TFT_STARTTASK;
 	cln->SendSvr(command, sizeof(command));
-
 }
 
 void CLeftView::OnBnClickedFEStop()
 {
 	char command[2];
 	__int16 *c = (__int16 *)command;
-	c[0] = TFT_STARTSTOP;
+	c[0] = TFT_STOPTASK;
 
 	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
-	cln->SendSvr(command, sizeof(command));
+	cln->SendSvr(command, sizeof(command));	
+}
 
-	
+
+LRESULT CLeftView::OnStartTaskReply(WPARAM w, LPARAM l)
+{
+	if(*isStart) {
+		AfxMessageBox(_T("Start task successfully"), MB_OK | MB_ICONSTOP);
+	}
+	return TRUE;
+}
+
+LRESULT CLeftView::OnStopTaskReply(WPARAM w, LPARAM l)
+{
+	if(*isStop) {
+		AfxMessageBox(_T("Stop task successfully"), MB_OK | MB_ICONSTOP);
+	}
+	return TRUE;
+}
+
+
+LRESULT CLeftView::OnFlyingStateData(WPARAM w, LPARAM l)
+{
+	return TRUE;
 }

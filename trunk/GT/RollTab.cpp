@@ -32,7 +32,7 @@ CRollTab::~CRollTab()
 
 void CRollTab::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	CTabPageSSL::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_ROLL_PWM_EDIT1, rollPWM1);
 	DDX_Text(pDX, IDC_ROLL_PWM_EDIT2, rollPWM2);
 	DDX_Text(pDX, IDC_ROLL_PWM_EDIT3, rollPWM3);
@@ -64,31 +64,31 @@ END_MESSAGE_MAP()
 
 void CRollTab::OnBnClickedRollPWMButton1()
 {
-	this->UpdateData();
+	this->UpdateData(TRUE);
 	sendTestData(rollPWM1);	
 }
 
 void CRollTab::OnBnClickedRollPWMButton2()
 {
-	this->UpdateData();
+	this->UpdateData(TRUE);
 	sendTestData(rollPWM2);	
 }
 
 void CRollTab::OnBnClickedRollPWMButton3()
 {
-	this->UpdateData();
+	this->UpdateData(TRUE);
 	sendTestData(rollPWM3);	
 }
 
 void CRollTab::OnBnClickedRollPWMButton4()
 {
-	this->UpdateData();
+	this->UpdateData(TRUE);
 	sendTestData(rollPWM4);	
 }
 
 void CRollTab::OnBnClickedRollPWMButton5()
 {
-	this->UpdateData();
+	this->UpdateData(TRUE);
 	sendTestData(rollPWM5);	
 }
 

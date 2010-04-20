@@ -10,7 +10,6 @@
 #include <GL/glaux.h>
 #include <vector>
 
-
 #include "GTDoc.h"
 #include "GTView.h"
 #include "GPSTestDialog.h"
@@ -100,13 +99,17 @@ void CGTView::OnDraw(CDC* /*pDC*/)
 	m_Renderer->setBase(base);
 
 	GetClientRect(&m_rect);
-	switch (renderMode) {
+	m_Renderer->draw(&m_rect, renderMode);
+	/*switch (renderMode) {
 		case FLIGHT_PATH_SET:
 			m_Renderer->draw(&m_rect, renderMode);
 			break;
+		case IMU_TEST:
+			
+			break;
 		default:
 			break;
-	}
+	}*/
 	//m_Renderer->draw(&m_rect, isExperiment, isGyro);
 	
 	// Swap the front and back framebuffer
@@ -549,5 +552,11 @@ void CGTView::OnGPSTest()
 void CGTView::updateIMUData(IMUTestData *itd)
 {
 	m_Renderer->updateAircraft(itd);
+	Invalidate();
+}
+
+void CGTView::updateOPTData(pOPTTRACETestData otd)
+{
+	m_Renderer->updateAircraft(otd);
 	Invalidate();
 }

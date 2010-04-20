@@ -1,22 +1,23 @@
 #include "stdafx.h"
 #include "NetSvrHeli.h"
-
+#include "ProtocolParser.h"
+#include "..\GSProtocolParser.h"
 
 CNetSvrHeli::CNetSvrHeli()
 {
-	parser = new CProtocolParser();
+	parser = new CGSProtocolParser();
 }
 
 CNetSvrHeli::~CNetSvrHeli()
 {
-	if (parser != NULL) {
+	if (parser) {
 		delete parser;
 	}
 }
 
 void CNetSvrHeli::OnDataRecv()
 {
-	if(parser != NULL)
+	if(parser)
 	{
 		parser->OnInsData(this->recvbuf, this->recvlen);
 	}

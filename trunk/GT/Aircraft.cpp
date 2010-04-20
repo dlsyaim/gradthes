@@ -38,14 +38,41 @@ void Aircraft::loadAircraft(char *filePath)
 	terrain->getTerrainTex()->loadTexture("..\\Instruments\\Textures\\Terrain.tga");
 }
 
-void Aircraft::draw(void)
+// Attention: This function needs to be consummated
+void Aircraft::drawWithAutoSize(LPRECT lpRect)
 {
+	// When the client area minimized, just return.
+	if (lpRect->right == 0 || lpRect->bottom == 0)
+		return;
+	/*
+	 * Because this LPRECT represents the client area's size, so upper-left cornor is (0, 0)
+	 */
+	static LONG originRight = lpRect->right;
+	static LONG originBottom = lpRect->bottom;
+
+	static float distance = -700.0f;
+	// Calculate the differences
+	float diff;
+	diff = max((float) originRight / lpRect->right, (float) originBottom / lpRect->bottom);
+	if (diff == 1.0f) {
+		diff = min ((float) originRight / lpRect->right, (float) originBottom / lpRect->bottom);
+	}
+	originRight = lpRect->right;
+	originBottom = lpRect->bottom;
+	distance = distance * diff;
+
 	glPushMatrix();
 	glDisable(GL_BLEND);
 	glColor3f(1.0f, 1.0f, 1.0f);
-	glTranslatef(0.0f, 0.0f, -600.0f);
-
-	glTranslatef(250.0f, -20.0f, 0.0f);
+	/*
+	 * Whe the client area's size changes, then the aircraft must update acoordingly.
+	 * And to accommplish this target, we just traslate deeper towards Z-axis negative direction to make
+	 * the aircaft smaller
+	 */
+	// First translate 600.0f towards Z-axis negative direction
+	glTranslatef(0.0f, 0.0f, distance);
+	// Then translate 50.0f towards Y-axis negative direction
+	glTranslatef(0.0f, -150.0f, 0.0f);
 
 	// To make the aircraft's head toward left
 	glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
@@ -89,58 +116,72 @@ void Aircraft::update(IMUTestData *itd)
 	zrot = itd->phi;
 }
 
-// Draw function.
-void Aircraft::draw(LPRECT lpRect)
+void Aircraft::update(pOPTTRACETestData otd)
 {
-	glPushMatrix();
+	/***** Attention this is a rad *****/
+	yrot = otd->psi * 180 / PI;
+	xrot = otd->theta * 180 / PI;
+	zrot = otd->phi * 180 / PI;
+}
+
+// Draw function.
+void Aircraft::draw(LPRECT lpRect, BOOL isTerrain/* = TRUE*/)
+{
+	if (isTerrain) {
 		glPushMatrix();
-		glTranslatef(0.0f, 0.0f, -5.0f);
-		glTranslatef(-1.0f, -1.0f, 0.0f);
-		glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
-		glRotatef(-xrot, 1.0f, 0.0f, 0.0f);
-		glRotatef(-yrot, 0.0f, 1.0f, 0.0f);
-		glRotatef(-zrot, 0.0f, 0.0f, 1.0f);
-		Scene::drawCoordinateSystem();
-		glPopMatrix();
+			glPushMatrix();
+			glTranslatef(0.0f, 0.0f, -5.0f);
+			glTranslatef(-1.0f, -1.0f, 0.0f);
+			glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
+			glRotatef(-xrot, 1.0f, 0.0f, 0.0f);
+			glRotatef(-yrot, 0.0f, 1.0f, 0.0f);
+			glRotatef(-zrot, 0.0f, 0.0f, 1.0f);
+			Scene::drawCoordinateSystem();
+			glPopMatrix();
 
-		// Render the terrain.
-		glPushMatrix();
-		glTranslatef(-512.0f, -20.0f, -512.0f);
-		terrain->RenderHeightMap();
-		glPopMatrix();
+			// Render the terrain.
+			glPushMatrix();
+			glTranslatef(-512.0f, -20.0f, -512.0f);
+			terrain->RenderHeightMap();
+			glPopMatrix();
 
-		// Render the skybox
-		glPushMatrix();
-		glTranslatef(x, y, z);
+			// Render the skybox
+			glPushMatrix();
+			glTranslatef(x, y, z);
 
-		glPopMatrix();
-		
-		glPushMatrix();
-		glDisable(GL_BLEND);
-		glColor3f(1.0f, 1.0f, 1.0f);
-		// -800.0f is an experienced value. 
-		//glTranslatef(0.0f, 0.0f, -800.0f);
-		glTranslatef(x, y, z);
-		// To make the aircraft's head toward left
-		glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
-		glRotatef(-xrot, 1.0f, 0.0f, 0.0f);
-		glRotatef(-yrot, 0.0f, 1.0f, 0.0f);
-		glRotatef(-zrot, 0.0f, 0.0f, 1.0f);
-		glBegin(GL_TRIANGLES);
-			for ( int i = 0; i < (int)meshes.size(); i++ ) {
-				for ( int j = 0; j < (int)meshes[i].numFaces; j++ ) {
-					glNormal3f(meshes[i].normals[(int) meshes[i].faces[j].x].x, meshes[i].normals[(int) meshes[i].faces[j].x].y, meshes[i].normals[(int) meshes[i].faces[j].x].z);
-					glVertex3f(meshes[i].vertices[(int) meshes[i].faces[j].x].x, meshes[i].vertices[(int) meshes[i].faces[j].x].y, meshes[i].vertices[(int) meshes[i].faces[j].x].z);
+			glPopMatrix();
+			
+			glPushMatrix();
+			glDisable(GL_BLEND);
+			glColor3f(1.0f, 1.0f, 1.0f);
+			// -800.0f is an experienced value. 
+			//glTranslatef(0.0f, 0.0f, -800.0f);
+			glTranslatef(x, y, z);
+			// To make the aircraft's head toward left
+			glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
+			glRotatef(-xrot, 1.0f, 0.0f, 0.0f);
+			glRotatef(-yrot, 0.0f, 1.0f, 0.0f);
+			glRotatef(-zrot, 0.0f, 0.0f, 1.0f);
+			glBegin(GL_TRIANGLES);
+				for ( int i = 0; i < (int)meshes.size(); i++ ) {
+					for ( int j = 0; j < (int)meshes[i].numFaces; j++ ) {
+						glNormal3f(meshes[i].normals[(int) meshes[i].faces[j].x].x, meshes[i].normals[(int) meshes[i].faces[j].x].y, meshes[i].normals[(int) meshes[i].faces[j].x].z);
+						glVertex3f(meshes[i].vertices[(int) meshes[i].faces[j].x].x, meshes[i].vertices[(int) meshes[i].faces[j].x].y, meshes[i].vertices[(int) meshes[i].faces[j].x].z);
 
-					glNormal3f(meshes[i].normals[(int) meshes[i].faces[j].y].x, meshes[i].normals[(int) meshes[i].faces[j].y].y, meshes[i].normals[(int) meshes[i].faces[j].y].z);
-					glVertex3f(meshes[i].vertices[(int) meshes[i].faces[j].y].x, meshes[i].vertices[(int) meshes[i].faces[j].y].y, meshes[i].vertices[(int) meshes[i].faces[j].y].z);
+						glNormal3f(meshes[i].normals[(int) meshes[i].faces[j].y].x, meshes[i].normals[(int) meshes[i].faces[j].y].y, meshes[i].normals[(int) meshes[i].faces[j].y].z);
+						glVertex3f(meshes[i].vertices[(int) meshes[i].faces[j].y].x, meshes[i].vertices[(int) meshes[i].faces[j].y].y, meshes[i].vertices[(int) meshes[i].faces[j].y].z);
 
-					glNormal3f(meshes[i].normals[(int) meshes[i].faces[j].z].x, meshes[i].normals[(int) meshes[i].faces[j].z].y, meshes[i].normals[(int) meshes[i].faces[j].z].z);
-					glVertex3f(meshes[i].vertices[(int) meshes[i].faces[j].z].x, meshes[i].vertices[(int) meshes[i].faces[j].z].y, meshes[i].vertices[(int) meshes[i].faces[j].z].z);
+						glNormal3f(meshes[i].normals[(int) meshes[i].faces[j].z].x, meshes[i].normals[(int) meshes[i].faces[j].z].y, meshes[i].normals[(int) meshes[i].faces[j].z].z);
+						glVertex3f(meshes[i].vertices[(int) meshes[i].faces[j].z].x, meshes[i].vertices[(int) meshes[i].faces[j].z].y, meshes[i].vertices[(int) meshes[i].faces[j].z].z);
+					}
 				}
-			}
-		glEnd();
-		glEnable(GL_BLEND);
+			glEnd();
+			glEnable(GL_BLEND);
+			glPopMatrix();
 		glPopMatrix();
-	glPopMatrix();
+	} else  {
+		// No terrain will be drawn
+		drawWithAutoSize(lpRect);
+
+	}
 }
