@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "NetSvrHeli.h"
-#include "ProtocolParser.h"
 #include "..\GSProtocolParser.h"
 
 CNetSvrHeli::CNetSvrHeli()

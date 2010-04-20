@@ -24,7 +24,7 @@
 
 #include "stdafx.h"
 #include "CurveCtrl.h"
-#include "MemDC.h"
+#include "CurveMemDC.h"
  
 #include <FLOAT.h>
 #include <math.h>
@@ -67,7 +67,8 @@ BOOL CCurve::IsPointNearCurve(const CPoint& point, int& iIndex)
 		return FALSE;
 	
 	// m_ArrPoint is already sorted
-	for (int iPt = 0; iPt < nCount; iPt++)
+	int iPt;
+	for (iPt = 0; iPt < nCount; iPt++)
 	{
 		if (point.x < m_ArrPoint[iPt].x)
 		{			
@@ -134,7 +135,7 @@ BOOL CCurve::IsPointNearCurve(const CPoint& point, int& iIndex)
 // in paramenter: pt1, pt2
 float CCurve::Distance(const CPoint& pt1, const CPoint& pt2)
 {
-	return (float)sqrt((pt1.x - pt2.x) * (pt1.x - pt2.x) + (pt1.y - pt2.y) * (pt1.y - pt2.y));
+	return (float)sqrt((float)(pt1.x - pt2.x) * (pt1.x - pt2.x) + (pt1.y - pt2.y) * (pt1.y - pt2.y));
 }
 
 /*=======================================================================================*/
@@ -249,7 +250,7 @@ BOOL CCurveCtrl::RegisterWindowClass()
 void CCurveCtrl::OnPaint() 
 {
 	CPaintDC dc(this); 
- 	CMemDC memdc(&dc); // use CMemDC to avoid flicker
+ 	CCurveMemDC memdc(&dc); // use CMemDC to avoid flicker
 
 	CRect rect;
 	GetClientRect(&rect);
@@ -604,7 +605,8 @@ int CCurveCtrl::InsertDataToCurve(CCurve* pCurve, float fHori, float fVert, CPoi
 	ASSERT(pCurve->m_fArrHoriValue.GetSize() == pCurve->m_fArrVertValue.GetSize());
 	ASSERT(pCurve->m_fArrHoriValue.GetSize() == pCurve->m_ArrPoint.GetSize());
 	
-	for (int iIndex = pCurve->m_fArrHoriValue.GetUpperBound(); iIndex >= 0; iIndex--)
+	int iIndex;
+	for (iIndex = pCurve->m_fArrHoriValue.GetUpperBound(); iIndex >= 0; iIndex--)
 	{
 		if (pCurve->m_fArrHoriValue[iIndex] < fHori)
 		{
@@ -1126,7 +1128,7 @@ void CCurveCtrl::CalculateVertRange(float fValue, BOOL bMax)
 	str.Format(_T("%.0f"), fabs(fValue));
 	// get integer digital count
 	int nEx   = str.GetLength() - 1;
- 	int ntemp = int(pow(10, nEx));
+ 	int ntemp = int(pow((float)10, (float)nEx));
 
 	if (bMax && (fValue + ntemp * 0.1) > m_fVertMax)
 	{		
@@ -1220,7 +1222,8 @@ void CCurveCtrl::OnLButtonDown(UINT nFlags, CPoint point)
 	CCurve*	 pCurentCur = NULL;
 	
 	// has any curve near point
-	for (int iIndex = 0; iIndex < m_ArrCurve.GetSize(); iIndex++)
+	int iIndex;
+	for (iIndex = 0; iIndex < m_ArrCurve.GetSize(); iIndex++)
 	{
 		if (m_ArrCurve[iIndex]->IsPointNearCurve(point, iPt))
 		{
@@ -1472,7 +1475,8 @@ void CCurveCtrl::OnRButtonDown(UINT nFlags, CPoint point)
 		// get the nearby curve
 		int			iPt = -1;
 		CCurve*		pCurentCur = NULL;
-		for (int iIndex = 0; iIndex < m_ArrCurve.GetSize(); iIndex++)
+		int iIndex;
+		for (iIndex = 0; iIndex < m_ArrCurve.GetSize(); iIndex++)
 		{
 			if (m_ArrCurve[iIndex]->IsPointNearCurve(point, iPt))
 			{
