@@ -32,7 +32,7 @@ CTailTab::~CTailTab()
 
 void CTailTab::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	CTabPageSSL::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_TAIL_PWM_EDIT1, tailPWM1);
 	DDX_Text(pDX, IDC_TAIL_PWM_EDIT2, tailPWM2);
 	DDX_Text(pDX, IDC_TAIL_PWM_EDIT3, tailPWM3);
@@ -64,31 +64,31 @@ END_MESSAGE_MAP()
 
 void CTailTab::OnBnClickedTailPWMButton1()
 {
-	this->UpdateData();
+	this->UpdateData(TRUE);
 	sendTestData(tailPWM1);
 }
 
 void CTailTab::OnBnClickedTailPWMButton2()
 {
-	this->UpdateData();
+	this->UpdateData(TRUE);
 	sendTestData(tailPWM2);
 }
 
 void CTailTab::OnBnClickedTailPWMButton3()
 {
-	this->UpdateData();
+	this->UpdateData(TRUE);
 	sendTestData(tailPWM3);
 }
 
 void CTailTab::OnBnClickedTailPWMButton4()
 {
-	this->UpdateData();
+	this->UpdateData(TRUE);
 	sendTestData(tailPWM4);
 }
 
 void CTailTab::OnBnClickedTailPWMButton5()
 {
-	this->UpdateData();
+	this->UpdateData(TRUE);
 	sendTestData(tailPWM5);
 }
 

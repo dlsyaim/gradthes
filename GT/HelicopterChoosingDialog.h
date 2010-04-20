@@ -49,4 +49,5 @@ public:
 	//afx_msg void OnEnChangeMainbladerpmEdit();
 	//afx_msg void OnEnChangeXinertiaEdit();
 	virtual BOOL OnInitDialog();
+	afx_msg void OnBnClickedCancel();
 };

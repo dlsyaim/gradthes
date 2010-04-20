@@ -244,10 +244,4 @@ typedef struct ControlPara
 	float	vf;
 }*pControlPara;
 
-
-
-
-
-
-
 #endif

@@ -1,6 +1,4 @@
 #pragma once
-
-
 #include "func\NetCln.h"
 // CIMUTestFormView ¥∞ÃÂ ”Õº
 class CGTDoc;
@@ -14,7 +12,6 @@ protected:
 
 public:
 	enum { IDD = IDD_IMU_TEST_FORMVIEW };
-public:
 	CGTDoc* GetDocument() const;
 #ifdef _DEBUG
 	virtual void AssertValid() const;
@@ -29,20 +26,17 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-	//double rollAngle;
-	//double rollAngleVel;
-	double headingAngle;
-	//double pitchAngleVel;
-	double pitchAngle;
-	//double headingAngleVel;
 	afx_msg void OnBnClickedIMUTestStart();
 	afx_msg void OnBnClickedIMUTestPass();
 	afx_msg void OnBnClickedIMUTestStop();
 	afx_msg void OnBnClickedIMUTestFailure();
+	afx_msg LRESULT OnTestDataReply(WPARAM w, LPARAM l);
 	void updateData(IMUTestData *itd);
 // Attributes
 	// The client point of the socket
 	CNetCln netcln;
+	double headingAngle;
+	double pitchAngle;
 	double rollAngle;
 	double n_x_Vel;
 	double e_y_Vel;

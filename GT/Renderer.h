@@ -45,6 +45,7 @@ public:
 
 	// Update the aircraft's data
 	void updateAircraft(IMUTestData* itd);
+	void updateAircraft(pOPTTRACETestData otd);
 
 	// Update the path data
 	inline void setPPath(std::vector<PathPointData*> *pPath) {this->pPath = pPath;}
@@ -67,6 +68,8 @@ private:
 	Aircraft* aircraft;
 	// Path data
 	std::vector<PathPointData*> *pPath;
+	// The size of the current view
+	LPRECT lpRect;
 
 // Operations
 private:

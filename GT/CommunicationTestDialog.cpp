@@ -5,12 +5,10 @@
 #include <fstream>
 #include "GT.h"
 #include "CommunicationTestDialog.h"
-
 #include "func\NetCln.h"
 #include "func\NetSvrHeli.h"
 #include "MsgType.h"
-#include "GlobalExperimentData.h"
-
+#include "Singleton.h"
 
 
 // CCommunicationTestDialog 对话框
@@ -53,15 +51,16 @@ void CCommunicationTestDialog::OnBnClickedCommunicationTestFailure()
 {
 	// TODO: Write the log files	
 	/*
-		std::ofstream of("communicationtest.log", std::ios::app);
+		std::ofstream ofs("communicationtest.log", std::ios::app);
 		char *buf = "通讯测试: 失败";
-		of.write(buf, sizeof buf);
-		of << std::endl;
-		of.close();
+		ofs.write(buf, sizeof buf);
+		ofs << std::endl;
+		ofs.close();
 	*/	
 
-	/********** Update the global experimental states **********/
-	GlobalExperimentData::isCommunicationTestPass = FALSE;
+	/********** Update the global flag variable **********/
+	CSingleton* instance = CSingleton::getInstance();
+	instance->setIsCommunicationTestPass(FALSE);
 }
 
 void CCommunicationTestDialog::OnBnClickedCommunicationTestPass()
@@ -69,15 +68,17 @@ void CCommunicationTestDialog::OnBnClickedCommunicationTestPass()
 	// TODO: Write the log files	
 	
 	/*
-		std::ofstream  of("communicationtest.log", std::ios::app);	
+		std::ofstream  ofs("communicationtest.log", std::ios::app);	
 		char *buf = "通讯测试: 成功";
-		of.write(buf, sizeof buf);
-		of << std::endl;	
-		of.close();
+		ofs.write(buf, sizeof buf);
+		ofs << std::endl;	
+		ofs.close();
 	*/
 
 	/********** Update the global experimental states **********/
-	GlobalExperimentData::isCommunicationTestPass = TRUE;
+	CSingleton* instance = CSingleton::getInstance();
+	instance->setIsCommunicationTestPass(TRUE);
+
 }
 
 void CCommunicationTestDialog::OnBnClickedDefaultTestButton()
@@ -89,8 +90,7 @@ void CCommunicationTestDialog::OnBnClickedDefaultTestButton()
 }
 
 void CCommunicationTestDialog::OnBnClickedCommunicationTestButton()
-{
-	
+{	
 	/********** First check if the user enter commands or not **********/
 	this->UpdateData(TRUE);
 	if (!commandEdit.GetLength()) {
@@ -103,6 +103,7 @@ void CCommunicationTestDialog::OnBnClickedCommunicationTestButton()
 
 LRESULT CCommunicationTestDialog::OnReplyMsgArrived(WPARAM w, LPARAM l)
 {
+	// The message returns
 	const CNetSvrHeli* svr = ((CGTApp*)AfxGetApp())->getSvr();
 	returnMessageDisplayer.Append((char *)svr->recvbuf + 2);
 	returnMessageDisplayer.Append(_T("\r\n"));
@@ -112,27 +113,22 @@ LRESULT CCommunicationTestDialog::OnReplyMsgArrived(WPARAM w, LPARAM l)
 
 void CCommunicationTestDialog::sendCommunicationTestCommand(CString content)
 {
-	/********** Firstly create a client to send commands **********/
-	
-	// The client point of the socket
-	CNetCln netcln;
-	// The server address
-	char *IP = "192.168.0.186";
-	// Initializing
-	if(netcln.initCln(IP, 22222) == 0)
-	{
-		AfxMessageBox("Failed to create a sending client", MB_OK | MB_ICONSTOP);
+	/***** Gain the client *****/
+	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
+	if (!cln){
+		AfxMessageBox("No client\n", MB_OK | MB_ICONSTOP);
 		return;
 	}
+		
 
 	/********** Construct the content of the communication test command *********/
 	char command[102];
 	__int16 *c = (__int16 *)command;
 	c[0] = FNT_NETTESTTEXT;
 
-	memcpy(&(command[2]), content, content.GetLength());
+	memcpy(&(command[2]), content.GetBuffer(0), content.GetLength());
 	command[2 + content.GetLength()] = '\0';
-	netcln.SendSvr(command, 102);
+	cln->SendSvr(command, 102);
 
 	/********** Update the "display list" *********/
 	commandDisplayer.Append(content + _T("\r\n"));

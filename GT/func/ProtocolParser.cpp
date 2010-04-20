@@ -1,16 +1,7 @@
 #include "stdafx.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <gl/glut.h>
-#include <vector>
-#include "..\GT.h"
-#include "..\GTView.h"
-#include "..\IMUTestFormView.h"
-#include "..\GTDoc.h"
-#include "..\MainFrm.h"
 #include "ProtocolParser.h"
-#include "..\MsgType.h"
-#include "..\CommunicationTestDialog.h"
 
 
 CProtocolParser::CProtocolParser()
@@ -58,7 +49,7 @@ bool CProtocolParser::OnInsData(void * Target,__int32 Len)
 			case TFT_STARTTASKREPLY:								/*开始飞行任务回复*/
 				this->OnStartTaskReply(Target,Len);
 				break;
-			case TFT_STARTSTOP:										/*结束飞行任务*/
+			case TFT_STOPTASK:										/*结束飞行任务*/
 				this->OnStopTask(Target,Len);
 				break;	
 			case TFT_STARTSTOPREPLY:								/*结束飞行任务回复*/
@@ -267,20 +258,19 @@ void CProtocolParser::OnComTestTReply(void * Target, __int32 Len)
 {
 	if(Len != 102)
 	{
-		printf("error ins para OnComTestTReply\n");
+		AfxMessageBox(_T("Error ins para OnComTestTReply"), MB_OK | MB_ICONSTOP);
 		return;
 	}
 	char * tmp = (char *)Target;
-	char * text = (tmp+2);
+	char * text = (tmp + 2);
 
-	printf("OnComTestTReply  text %s\n",text);
 	/***** Here the communication test dialog must be informed *****/
-	CGTApp* m_mainApp = (CGTApp*)AfxGetApp();
-	if (m_mainApp == NULL) {
-		AfxMessageBox("Failed to get the application", MB_OK | MB_ICONSTOP);
-	} else if (!m_mainApp->getCtd()->PostMessage(COMMUNICATION_TEST_REPLY_MSG, 0, 0)) {
-		AfxMessageBox("Failed to post messages", MB_OK | MB_ICONSTOP);
-	}
+	//CGTApp* m_mainApp = (CGTApp*)AfxGetApp();
+	//if (m_mainApp == NULL) {
+	//	AfxMessageBox("Failed to get the application pointer", MB_OK | MB_ICONSTOP);
+	//} else if (!m_mainApp->getCtd()->SendMessage(COMMUNICATION_TEST_REPLY_MSG, 0, 0)) {
+	//	AfxMessageBox("Failed to inform the communication test dialog", MB_OK | MB_ICONSTOP);
+	//}
 }
 
 void CProtocolParser::OnComTest(void * Target, __int32 Len)
@@ -363,20 +353,20 @@ void CProtocolParser::OnIMUTestData(void * Target, __int32 Len)
 {
 	if(Len != 54)
 	{
-		printf("error ins para OnIMUTestData\n");
+		AfxMessageBox("No IMU test data back", MB_OK | MB_ICONSTOP);
 		return;
 	}
 
 	/***** The IMUTestFormView and CGTView must be informed *****/
 
-	char * tmpc = (char *)Target;
+	/*char * tmpc = (char *)Target;
 	struct IMUTestData * tmp = (struct IMUTestData *)(tmpc+2);
 	CGTApp* m_mainApp = (CGTApp*)AfxGetApp();
 	CGTDoc* m_pDoc = m_mainApp->getDoc();
 	if (m_pDoc) {
 		m_pDoc->IMUView->updateData(tmp);
 		m_pDoc->lowerRightView->updateIMUData(tmp);
-	}
+	}*/
 	
 	/*printf("OnIMUTestData %d %f %f %f %f %f %f %f %f %f %f %f %f\n",tmp->IMUState,
 		tmp->N_Speed,tmp->E_Speed,tmp->D_Speed,
@@ -438,7 +428,14 @@ void CProtocolParser::OnOPTTTestData(void * Target, __int32 Len)
 		return;
 	}
 	char * tmpc = (char *)Target;
-	struct OPTTRACETestData * tmp = (struct OPTTRACETestData *)(tmpc+2);
+	struct OPTTRACETestData * tmp = (struct OPTTRACETestData *)(&(tmpc[2]));
+	/*CGTApp* m_mainApp = (CGTApp*)AfxGetApp();
+	CGTDoc* m_pDoc = m_mainApp->getDoc();
+	if (m_pDoc) {
+		m_pDoc->optView->updateData(tmp);
+		::SendMessage(m_pDoc->optView->m_hWnd, OPT_TEST_REPLY_MSG, 0, 0);
+		m_pDoc->lowerRightView->updateOPTData(tmp);
+	}*/
 	printf("OnOPTTTestData %d \n%f %f %f %f %f %f %f %f %f\n %f %f %f %f %f %f\n",tmp->OPTState,
 		tmp->N_Pos,tmp->E_Pos,tmp->D_Pos,
 		tmp->N_Speed,tmp->E_Speed,tmp->D_Speed,

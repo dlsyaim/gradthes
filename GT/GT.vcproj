@@ -286,6 +286,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GSProtocolParser.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GT.cpp"
 				>
 			</File>
@@ -367,6 +371,10 @@
 			</File>
 			<File
 				RelativePath=".\Node.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\OPTFormView.cpp"
 				>
 			</File>
 			<File
@@ -648,6 +656,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GSProtocolParser.h"
+				>
+			</File>
+			<File
 				RelativePath=".\GT.h"
 				>
 			</File>
@@ -737,6 +749,10 @@
 			</File>
 			<File
 				RelativePath=".\Node.h"
+				>
+			</File>
+			<File
+				RelativePath=".\OPTFormView.h"
 				>
 			</File>
 			<File

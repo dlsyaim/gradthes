@@ -38,6 +38,7 @@ void CHelicopterChoosingDialog::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CHelicopterChoosingDialog, CDialog)
 	ON_BN_CLICKED(IDOK, &CHelicopterChoosingDialog::OnBnClickedOk)
+	ON_BN_CLICKED(IDCANCEL, &CHelicopterChoosingDialog::OnBnClickedCancel)
 END_MESSAGE_MAP()
 
 
@@ -107,8 +108,9 @@ void CHelicopterChoosingDialog::OnBnClickedOk()
 	/***** Then use ofstream to save the helicopter model into the file. *****/
 	if (!isNew) {
 		// We need to read all the helicopter model from the file
-		// The temporary helicopter parameter struct		
 		CString tName;
+		// A boolean variable indicates if the helicopter name has been changed
+		BOOL isChanged = TRUE;
 		std::ifstream ifs("uh.hm", std::ios::binary);
 		int countRead, hmCount;
 		ifs.seekg(0, std::ios::end);
@@ -124,11 +126,19 @@ void CHelicopterChoosingDialog::OnBnClickedOk()
 			if (countRead != sizeof(temp[idx]))
 				break;
 			tName = temp[idx].helicopterName;
-			if (tName == m_bodyTab.helicopterName)
+			if (tName == m_bodyTab.helicopterName) {
 				temp[idx] = *pHM;
+				isChanged = FALSE;
+			}
 			idx++;
 		}
 		ifs.close();
+		
+		// Additional processing
+		if (isChanged) {
+			temp[idx++] = *pHM;
+		}
+
 		
 		// Then write the updated helicopter models into the file
 		std::ofstream ofs("uh.hm", std::ios::binary | std::ios::trunc);
@@ -142,13 +152,18 @@ void CHelicopterChoosingDialog::OnBnClickedOk()
 	} else {
 		/*
 		 * We just append the new helicopter model after the end of the file, so the last helicopter model is the newest.
+		 * No overriding warning
 		 */
 		std::ofstream ofs("uh.hm", std::ios::binary | std::ios::app);
 		ofs.write((char*)pHM, sizeof(*pHM));
 		ofs.close();
 	}
-		
 	
+	/* Update the helicopter model buffer */
+	CSingleton* instance = CSingleton::getInstance();
+	instance->updateBuffer(isNew, pHM);
+	/* Update the previous helicopter model buffer */
+	instance->updatePrePHM();
 
 	CDialog::OnOK();
 }
@@ -162,9 +177,11 @@ BOOL CHelicopterChoosingDialog::OnInitDialog()
     int nPageID = 0;
     m_bodyTab.Create(IDD_HELICOPTER_BODY_TAB, this);
     m_heliChosTab.AddSSLPage (_T("机体参数"), nPageID++, &m_bodyTab);
-    m_mainRotorTab.Create(IDD_MAIN_ROTOR_TAB, this);
+
+	m_mainRotorTab.Create(IDD_MAIN_ROTOR_TAB, this);
     m_heliChosTab.AddSSLPage(_T("主桨参数"), nPageID++, &m_mainRotorTab);
-    m_tailRotorTab.Create(IDD_TAIL_ROTOR_TAB, this);
+   
+	m_tailRotorTab.Create(IDD_TAIL_ROTOR_TAB, this);
     m_heliChosTab.AddSSLPage(_T("尾桨参数"), nPageID++, &m_tailRotorTab);
 
 	if (pHM->helicopterName[0] != '\0') {
@@ -240,3 +257,12 @@ void CHelicopterChoosingDialog::updateTabs(void)
 	}
 }
 
+
+void CHelicopterChoosingDialog::OnBnClickedCancel()
+{
+
+	CSingleton* instance = CSingleton::getInstance();
+	instance->rollBackCurPHM(isNew);
+
+	CDialog::OnCancel();
+}

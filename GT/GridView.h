@@ -1,8 +1,6 @@
 #pragma once
 #include <vector>
 #include "GridCtrl_src/GridCtrl.h"
-#include "func\NetCln.h"
-
 
 
 #define NUM_OF_ROW 10
@@ -22,6 +20,7 @@ public:
 	enum { IDD = IDD_FORMVIEW };
 	CGTDoc* GetDocument() const;
 	CGridCtrl *m_pGridCtrl;
+
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 #ifndef _WIN32_WCE
@@ -41,17 +40,20 @@ public:
 	afx_msg void OnGridEndEdit(NMHDR *pNotifyStruct, LRESULT* pResult);
 	afx_msg void OnGridStartEdit(NMHDR *pNotifyStruct, LRESULT* pResult);
 	afx_msg void OnGridClick(NMHDR *pNotifyStruct, LRESULT* pResult);
-
-public:
+	afx_msg LRESULT OnLoadReply(WPARAM w, LPARAM l);
+	afx_msg LRESULT OnCheckReply(WPARAM w, LPARAM l);
 	afx_msg void OnBnClickedSetPointCompleted();
 	afx_msg void OnBnClickedSchedulePath();
 	afx_msg void OnBnClickedAssurePath();
 
-// Operations
+	// Setter and getter
+	inline void setReceived(__int32 *received) {this->received = received;}
+	inline void setState(__int32 *state) {this->state = state;}
+
 private:
+// Operations
 	void schedulePath(void);
 // Attributes
-	CNetCln netcln;
 	// The origin path
 	std::vector<PathPointData*> path;
 	// The scheduled path
@@ -60,9 +62,10 @@ private:
 	PathPointData* selectedPathPoint;
 	// The state variable
 	BOOL isPathCompleted;
-	// This variable indicates if the cell is edit for the first time
-	BOOL isFirst[NUM_OF_ROW * NUM_OF_COL];
-
+	// The point index the server just received
+	__int32 *received;
+	// The state variable
+	__int32 *state;
 };
 
 #ifndef _DEBUG  // debug version in GridView.cpp

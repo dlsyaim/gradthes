@@ -5,7 +5,8 @@
 #include "GT.h"
 #include "IMUTestFormView.h"
 #include "GTDoc.h"
-#include "GlobalExperimentData.h"
+#include "Singleton.h"
+#include "MsgType.h"
 
 // CIMUTestFormView
 
@@ -13,12 +14,8 @@ IMPLEMENT_DYNCREATE(CIMUTestFormView, CFormView)
 
 CIMUTestFormView::CIMUTestFormView()
 	: CFormView(CIMUTestFormView::IDD)
-	//, rollAngle(0)
-	//, rollAngleVel(0)
 	, headingAngle(0)
-	//, pitchAngleVel(0)
 	, pitchAngle(0)
-	//, headingAngleVel(0)
 	, rollAngle(0)
 	, n_x_Vel(0)
 	, e_y_Vel(0)
@@ -37,12 +34,8 @@ CIMUTestFormView::~CIMUTestFormView()
 void CIMUTestFormView::DoDataExchange(CDataExchange* pDX)
 {
 	CFormView::DoDataExchange(pDX);
-	//DDX_Text(pDX, IDC_ROLL_ANGLE_EDIT, rollAngle);
-	//DDX_Text(pDX, IDC_ROLLANGLEVEL_EDIT, rollAngleVel);
 	DDX_Text(pDX, IDC_HEADINGANGLE_EDIT, headingAngle);
-	//DDX_Text(pDX, IDC_PITCHANGLEVEL_EDIT, pitchAngleVel);
 	DDX_Text(pDX, IDC_PITCHANGLE_EDIT, pitchAngle);
-	//DDX_Text(pDX, IDC_HEADINGANGLEVEL_EDIT, headingAngleVel);
 	DDX_Text(pDX, IDC_ROLL_ANGLE_EDIT, rollAngle);
 	DDX_Text(pDX, IDC_BODY_X_VEL_EDIT, n_x_Vel);
 	DDX_Text(pDX, IDC_BODY_Y_VEL_EDIT, e_y_Vel);
@@ -58,6 +51,7 @@ BEGIN_MESSAGE_MAP(CIMUTestFormView, CFormView)
 	ON_BN_CLICKED(IDC_IMU_TEST_PASS, &CIMUTestFormView::OnBnClickedIMUTestPass)
 	ON_BN_CLICKED(IDC_IMU_TEST_STOP, &CIMUTestFormView::OnBnClickedIMUTestStop)
 	ON_BN_CLICKED(IDC_IMU_TEST_FAILURE, &CIMUTestFormView::OnBnClickedIMUTestFailure)
+	ON_MESSAGE(IMU_TEST_REPLY_MSG, &CIMUTestFormView::OnTestDataReply)
 END_MESSAGE_MAP()
 
 
@@ -93,25 +87,16 @@ int CIMUTestFormView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	GetDocument()->IMUView = this;
 
-	/***** Initialize *****/
-	//// The server address
-	//char *IP = "192.168.0.186";
-	//// Initializing
-	//if(netcln.initCln(IP, 22222) == 0)
-	//{
-	//	TRACE("Can't create a sending client\n");
-	//}
-
 	return 0;
 }
 
 void CIMUTestFormView::OnBnClickedIMUTestStart()
 {
-	/********** Construct the content of the communication test command *********/
+	/********** Construct the content of the IMU test command *********/
 	char command[2];
 	__int16 *c = (__int16 *)command;
 	c[0] = TIT_IMUTEST_START;	
-	//netcln.SendSvr(command, 2);
+	
 	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
 	cln->SendSvr(command, 2);
 }
@@ -119,27 +104,29 @@ void CIMUTestFormView::OnBnClickedIMUTestStart()
 void CIMUTestFormView::OnBnClickedIMUTestPass()
 {
 	/***** Set the global flag variable *****/
-	GlobalExperimentData::isIMUTestPass = TRUE;
-}
-
-void CIMUTestFormView::OnBnClickedIMUTestStop()
-{
-	/********** Construct the content of the communication test command *********/
-	char command[2];
-	__int16 *c = (__int16 *)command;
-	c[0] = TIT_IMUTEST_STOP;	
-	//netcln.SendSvr(command, 2);
-
-	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
-	cln->SendSvr(command, 2);
+	CSingleton *instance = CSingleton::getInstance();
+	instance->setIsIMUTestPass(TRUE);
 }
 
 void CIMUTestFormView::OnBnClickedIMUTestFailure()
 {
 	/***** Set the global flag variable *****/
-	GlobalExperimentData::isIMUTestPass = FALSE;
-
+	CSingleton *instance = CSingleton::getInstance();
+	instance->setIsIMUTestPass(FALSE);
 }
+
+void CIMUTestFormView::OnBnClickedIMUTestStop()
+{
+	/********** Construct the content of the IMU test command *********/
+	char command[2];
+	__int16 *c = (__int16 *)command;
+	c[0] = TIT_IMUTEST_STOP;	
+
+	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
+	cln->SendSvr(command, 2);
+}
+
+
 
 void CIMUTestFormView::updateData(IMUTestData *itd)
 {
@@ -151,14 +138,16 @@ void CIMUTestFormView::updateData(IMUTestData *itd)
 	n_x_Acc = itd->N_Acc;
 	e_y_Acc = itd->E_Acc;
 	d_z_Acc = itd->D_Acc;
+
 	rollAngle = itd->phi;
-	//rollAngleVel = itd->phi_Acc;
-
 	pitchAngle = itd->psi;
-	//pitchAngleVel = itd->psi_Acc;
-
 	headingAngle = itd->theta;
-	//headingAngleVel = itd->theta_Acc;
 
+}
+
+
+LRESULT CIMUTestFormView::OnTestDataReply(WPARAM w, LPARAM l)
+{
 	UpdateData(FALSE);
+	return TRUE;
 }

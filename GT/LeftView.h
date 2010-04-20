@@ -4,6 +4,7 @@
 
 // CLeftView ´°ÌåÊÓÍ¼
 class CGTDoc;
+
 class CLeftView : public CFormView
 {
 	DECLARE_DYNCREATE(CLeftView)
@@ -28,8 +29,7 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
-	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+// Attributes
 	int feHour;
 	int feMinute;
 	int feSecond;
@@ -43,8 +43,24 @@ public:
 	double feHeadUpper;
 	double feHeadLower;
 	CString feFileName;
+// Operations
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg void OnBnClickedFEStart();
 	afx_msg void OnBnClickedFEStop();
+	afx_msg LRESULT OnStartTaskReply(WPARAM w, LPARAM l);
+	afx_msg LRESULT OnStopTaskReply(WPARAM w, LPARAM l);
+	afx_msg LRESULT OnFlyingStateData(WPARAM w, LPARAM l);
+
+	// Setters and getter
+	inline void setIsStart(__int32* tmp) {this->isStart = tmp;}
+	inline void setIsStop(__int32* tmp) {this->isStop = tmp;}
+
+private:
+// Attributes
+	__int32 *isStart;
+	__int32 *isStop;
+
 };
 
 #ifndef _DEBUG  // debug version in LeftView.cpp

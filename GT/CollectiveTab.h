@@ -5,11 +5,11 @@
 
 class CCollectiveTab : public CTabPageSSL
 {
-	//DECLARE_DYNAMIC(CCollectiveTab)
+	DECLARE_DYNAMIC(CCollectiveTab)
 
 public:
 	CCollectiveTab(CWnd* pParent = NULL);   // 标准构造函数
-	//virtual ~CCollectiveTab();
+	virtual ~CCollectiveTab();
 
 // 对话框数据
 	enum { IDD = IDD_COLLECTIVE_TAB };
@@ -19,7 +19,6 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
-	
 	double collectivePWM1;
 	double collectivePWM2;
 	double collectivePWM3;

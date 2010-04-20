@@ -50,7 +50,8 @@ public:
 		IMU_TEST,
 		FLIGHT_PATH_SET,
 		FLIGHT_EXPERIMENT,
-		DATA_PROCESS
+		DATA_PROCESS,
+		OPT_TEST
 	};
 
 	CGTDoc* GetDocument() const;
@@ -72,6 +73,7 @@ public:
 
 	// Update the data for the IMU test
 	void updateIMUData(IMUTestData* itd);
+	void updateOPTData(pOPTTRACETestData otd);
 
 protected:
 	// Setup pixel format.

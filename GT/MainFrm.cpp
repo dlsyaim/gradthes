@@ -4,7 +4,6 @@
 
 #include "stdafx.h"
 #include "GT.h"
-
 #include <gl/glut.h>
 #include <vector>
 #include <fstream>
@@ -22,9 +21,13 @@
 #include "IMUTestFormView.h"
 #include "DPLeftFormView.h"
 #include "DPUpperRightView.h"
+#include "OPTFormView.h"
 #include "GSDefinition.h"
 #include "Singleton.h"
 
+/*
+ * 48000 is an estimated number
+ */
 #define ID_HELICOPTER_BEGIN 48000
 
 #ifdef _DEBUG
@@ -61,6 +64,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_CONTROL_PARAMETER, &CMainFrame::OnControlParameter)
 	ON_COMMAND(ID_FLIGHT_EXPERIMENT, &CMainFrame::OnFlightExperiment)
 	ON_COMMAND(ID_DATA_PROCESS, &CMainFrame::OnDataProcess)
+	ON_COMMAND(ID_OPT_TEST, &CMainFrame::OnOptTest)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -280,6 +284,8 @@ void CMainFrame::OnNewModel()
 			AddName(mcd->m_bodyTab.helicopterName);
 			// Then update menu items
 			UpdateMenu();
+			// Set the window's title
+			this->SetWindowText(instance->getCurPHM()->helicopterName);
 			break;
 		case IDCANCEL:
 			break;
@@ -288,6 +294,7 @@ void CMainFrame::OnNewModel()
 	}	
 }
 
+// Deprecated
 void CMainFrame::AddMenu(CString message)
 {
 	CMenu* mainMenu = CMenu::FromHandle(m_wndMenuBar.GetDefaultMenu());
@@ -376,26 +383,26 @@ void CMainFrame::UpdateMenu(void)
 
 void CMainFrame::AddName(CString name)
 {
-	// First check if name exists
+	// Firstly check if name exists
 	DeleteName(name);
-	// Then make room for the newly arrived name
+	// Secondly make room for the newly arrived name
 	for (int i = MAX_NUM_HELICOPTER_NAME - 1; i > 0; i--) {
 		helicopterNames[i] = helicopterNames[i - 1];
 	}
 
 	// Thirdly ...
 	helicopterNames[0] = name;
-	//newestIdx = (newestIdx++) %  MAX_NUM_HELICOPTER_NAME;
-	//helicopterNames[newestIdx] = name;
 }
 
 void CMainFrame::DeleteName(CString name)
 {
 	int i; 
+	// First find it
 	for (i = 0; i < MAX_NUM_HELICOPTER_NAME; i++) {
 		if (helicopterNames[i] == name) 
 			break;
 	}
+	// Then delete it
 	for (int j = i; j < MAX_NUM_HELICOPTER_NAME - 1; j++) {
 		helicopterNames[j] = helicopterNames[j + 1];
 	}
@@ -444,7 +451,7 @@ void CMainFrame::OnSelectModel(int idx)
 		DeleteMenu(name);
 		CString meg;
 		meg.Format("No such a model: %s\n", name);
-		AfxMessageBox((LPCTSTR)meg);
+		AfxMessageBox((LPCTSTR)meg, MB_OK | MB_ICONSTOP);
 		return;
 	} else {
 		CHelicopterChoosingDialog *hcd = new CHelicopterChoosingDialog(this, FALSE, pHM);
@@ -454,6 +461,8 @@ void CMainFrame::OnSelectModel(int idx)
 				AddName(hcd->m_bodyTab.helicopterName);
 				// Then update menu items
 				UpdateMenu();
+				// Set the window's titles
+				this->SetWindowText(pHM->helicopterName);
 				break;
 			case IDCANCEL:
 				break;
@@ -461,10 +470,6 @@ void CMainFrame::OnSelectModel(int idx)
 				break;
 		}
 	}
-
-	
-  
-
 }
 
 void CMainFrame::DeleteMenu(CString name)
@@ -498,7 +503,7 @@ void CMainFrame::DeleteMenu(CString name)
 		}
 		if (popUpMenu != NULL) {
 			int pos = FindMenuItem(popUpMenu, name);
-			// Delete all the items from pos
+			// Delete all the items starting from pos
 			int j;
 			int originCount = popUpMenu->GetMenuItemCount();
 			for (j = pos; j < originCount; j++) {
@@ -527,8 +532,7 @@ int CMainFrame::FindMenuItem(CMenu* Menu, LPCTSTR MenuString)
      for (int i = 0; i < count; i++)
     {
 		CString str;
-        if (Menu->GetMenuString(i, str, MF_BYPOSITION) &&
-         str.Compare(MenuString) == 0)
+        if (Menu->GetMenuString(i, str, MF_BYPOSITION) && str.Compare(MenuString) == 0)
          return i;
      }
 
@@ -551,6 +555,7 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 	m_pSplitterWnd->AddView(LEFT_SIDE, RUNTIME_CLASS(CIMUTestFormView), pContext);
 	m_pSplitterWnd->AddView(LEFT_SIDE, RUNTIME_CLASS(CLeftView), pContext);
 	m_pSplitterWnd->AddView(LEFT_SIDE, RUNTIME_CLASS(CDPLeftFormView), pContext);
+	m_pSplitterWnd->AddView(LEFT_SIDE, RUNTIME_CLASS(COPTFormView), pContext);
 	
 	// Then split the right side horizontally
 	m_pSplitterWnd1 = m_pSplitterWnd->AddSubDivision(RIGHT_SIDE, NULL, NULL, pContext, false);
@@ -697,8 +702,21 @@ void CMainFrame::OnCommunicationTest()
 
 void CMainFrame::OnServoActorDemarcate()
 {
-	CServoActorDemarcateDialog sgtd;
-	sgtd.DoModal();
+	CSingleton *instance = CSingleton::getInstance();
+	if (!instance->getCurPHM())
+	{
+		AfxMessageBox(_T("Must choose a helicopter model first"), MB_OK | MB_ICONSTOP);
+		return;
+	}
+	CServoActorDemarcateDialog sadd;
+	switch (sadd.DoModal()) {
+		case IDOK:
+			break;
+		case IDCANCEL:
+			break;
+		default:
+			break;
+	}
 }
 
 void CMainFrame::OnGyroTest()
@@ -707,10 +725,17 @@ void CMainFrame::OnGyroTest()
 	if (m_pSplitterWnd->IsSideHidden(LEFT_SIDE))
 		m_pSplitterWnd->ToggleSide(LEFT_SIDE);
 	m_pSplitterWnd->SwitchToView(LEFT_SIDE, 1);
+
+	/***** Then toggle off the upper right side *****/
+	if (!m_pSplitterWnd1->IsSideHidden(TOP_SIDE)) {
+		m_pSplitterWnd1->ToggleSide(TOP_SIDE);
+	}
+
 	/***** Inform GTView to draw the static 3D helicopter model *****/
 	CGTView* pView = getLowerRightPane();	
-	if (pView != NULL) 
-		pView->setIsGryo(TRUE);
+	if (pView != NULL)  {
+		pView->setRenderMode(CGTView::IMU_TEST);
+	}
 }
 
 CGTView* CMainFrame::getLowerRightPane(void)
@@ -729,10 +754,15 @@ CGTView* CMainFrame::getLowerRightPane(void)
 
 void CMainFrame::OnFlightPathSet()
 {
-	/***** First toggle on the left side, then switch to GridView *****/
+	/***** First toggle on the left side, switch to GridView *****/
 	if (m_pSplitterWnd->IsSideHidden(LEFT_SIDE))
 		m_pSplitterWnd->ToggleSide(LEFT_SIDE);
 	m_pSplitterWnd->SwitchToView(LEFT_SIDE, 0);
+
+	/***** Then toggle off the upper right side *****/
+	if (!m_pSplitterWnd1->IsSideHidden(TOP_SIDE)) {
+		m_pSplitterWnd1->ToggleSide(TOP_SIDE);
+	}
 
 	if (getLowerRightPane()) {
 		getLowerRightPane()->setRenderMode(CGTView::FLIGHT_PATH_SET);
@@ -812,4 +842,23 @@ void CMainFrame::OnDataProcess()
 		m_pSplitterWnd1->ToggleSide(BOTTOM_SIDE);
 
 	m_pSplitterWnd1->SwitchToView(BOTTOM_SIDE, 0);
+}
+
+void CMainFrame::OnOptTest()
+{
+	/***** First toggle on the left side, then switch to IMUTestFormView *****/
+	if (m_pSplitterWnd->IsSideHidden(LEFT_SIDE))
+		m_pSplitterWnd->ToggleSide(LEFT_SIDE);
+	m_pSplitterWnd->SwitchToView(LEFT_SIDE, 4);
+
+	/***** Then toggle off the upper right side *****/
+	if (!m_pSplitterWnd1->IsSideHidden(TOP_SIDE)) {
+		m_pSplitterWnd1->ToggleSide(TOP_SIDE);
+	}
+
+	/***** Inform GTView to draw the static 3D helicopter model *****/
+	CGTView* pView = getLowerRightPane();	
+	if (pView != NULL)  {
+		pView->setRenderMode(CGTView::OPT_TEST);
+	}
 }

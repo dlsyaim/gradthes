@@ -11,6 +11,7 @@ class CGridView;
 class CIMUTestFormView;
 class CDPLeftFormView;
 class CDPUpperRightView;
+class COPTFormView;
 class CGTDoc : public CDocument
 {
 protected: // create from serialization only
@@ -26,6 +27,7 @@ public:
 	CIMUTestFormView* IMUView;
 	CDPLeftFormView* dpLeftView;
 	CDPUpperRightView* dpUpperRightView;
+	COPTFormView* optView;
 private:
 	// A CFile pointer to the file which contains the flying statistics
 	CFile *sharedFile;

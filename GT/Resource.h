@@ -49,6 +49,7 @@
 #define IDD_HELICOPTER_BODY_TAB         332
 #define IDD_MAIN_ROTOR_TAB              333
 #define IDD_TAIL_ROTOR_TAB              334
+#define IDD_OPTTRACE_FORMVIEW           335
 #define IDC_HELICOPTERNAME_EDIT         1000
 #define IDC_HELICOPTERMASS_EDIT         1001
 #define IDC_MAINBLADELENGHT_EDIT        1002
@@ -328,6 +329,19 @@
 #define IDC_TAU_MR                      1196
 #define IDC_SIGMA_MR                    1197
 #define IDC_RADIUS_TR                   1198
+#define IDC_OPT_ROLL_ANGLE_EDIT         1199
+#define IDC_OPT_PITCHANGLE_EDIT         1200
+#define IDC_OPT_HEADINGANGLE_EDIT       1201
+#define IDC_OPT_BODY_X_VEL_EDIT         1202
+#define IDC_OPT_BODY_Y_VEL_EDIT         1203
+#define IDC_OPT_BODY_Z_VEL_EDIT         1204
+#define IDC_OPT_BODY_X_ACC_EDIT         1205
+#define IDC_OPT_BODY_Y_ACC_EDIT         1206
+#define IDC_OPT_BODY_Z_ACC_EDIT         1207
+#define IDC_OPT_TEST_START              1208
+#define IDC_OPT_TEST_STOP               1209
+#define IDC_OPT_TEST_PASS               1210
+#define IDC_OPT_TEST_FAILURE            1211
 #define ID_32771                        32771
 #define ID_32772                        32772
 #define ID_32773                        32773
@@ -364,14 +378,16 @@
 #define ID_CONTROL_PARAMETER            32804
 #define ID_FLIGHT_EXPERIMENT            32805
 #define ID_DATA_PROCESS                 32806
+#define ID_32807                        32807
+#define ID_OPT_TEST                     32808
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        335
-#define _APS_NEXT_COMMAND_VALUE         32807
-#define _APS_NEXT_CONTROL_VALUE         1199
+#define _APS_NEXT_RESOURCE_VALUE        336
+#define _APS_NEXT_COMMAND_VALUE         32809
+#define _APS_NEXT_CONTROL_VALUE         1212
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif
