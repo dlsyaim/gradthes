@@ -1,9 +1,11 @@
 #pragma once
-
-
+#include <vector>
 
 // CLeftView ¥∞ÃÂ ”Õº
 class CGTDoc;
+class CCurveCtrl;
+
+typedef std::pair<float, float> float_pair;
 
 class CLeftView : public CFormView
 {
@@ -15,7 +17,6 @@ protected:
 
 public:
 	enum { IDD = IDD_LEFT_FORMVIEW };
-public:
 	CGTDoc* GetDocument() const;
 #ifdef _DEBUG
 	virtual void AssertValid() const;
@@ -43,6 +44,8 @@ public:
 	double feHeadUpper;
 	double feHeadLower;
 	CString feFileName;
+	// The curve control pointer
+	CCurveCtrl *m_pRollCurveCtrl, *m_pPitchCurveCtrl, *m_pHeadCurveCtrl;
 // Operations
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
@@ -55,11 +58,20 @@ public:
 	// Setters and getter
 	inline void setIsStart(__int32* tmp) {this->isStart = tmp;}
 	inline void setIsStop(__int32* tmp) {this->isStop = tmp;}
+	inline void setNewestFS(pFlyState newestFS) {this->newestFS = newestFS;}
 
 private:
 // Attributes
 	__int32 *isStart;
 	__int32 *isStop;
+	pFlyState newestFS;
+	std::vector<float> rollCurveData;
+	std::vector<float> pitchCurveData;
+	std::vector<float> headCurveData;
+	
+
+// Operations
+	void updateCurve(void);
 
 };
 

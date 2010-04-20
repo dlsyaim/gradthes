@@ -6,8 +6,6 @@
 #define socklen_t int
 #define RECVBUFLEN  10240
 
-
-
 class CNetSvr  
 {
 public:

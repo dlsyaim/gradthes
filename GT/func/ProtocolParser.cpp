@@ -6,12 +6,14 @@
 
 CProtocolParser::CProtocolParser()
 {
-	
 }
 
 CProtocolParser::~CProtocolParser()
 {
-	
+}
+
+void CProtocolParser::PreProcess(void * Target, __int32 Len)
+{
 }
 
 bool CProtocolParser::OnInsData(void * Target,__int32 Len)
@@ -20,8 +22,8 @@ bool CProtocolParser::OnInsData(void * Target,__int32 Len)
 	{
 		return false;
 	}
-	INSHEAD * inshead = (INSHEAD *)Target;
-	INSHEAD V = * inshead;
+	INSHEAD *inshead = (INSHEAD *)Target;
+	INSHEAD V = *inshead;
 	INSHEAD F = GetFirstIns(V);
 	INSHEAD S = GetSecondIns(V);
 	INSHEAD T = GetThirdIns(V);
@@ -29,7 +31,7 @@ bool CProtocolParser::OnInsData(void * Target,__int32 Len)
 	switch(F)
 	{
 	case FEM_EMERGENCY:			/*Ó¦¼±*/
-		this->OnEmergency(Target,Len);
+		this->OnEmergency(Target, Len);
 		break;
 	case FCT_NETCOMTEST:		/*ÍøÂçÍ¨ÐÅ²âÊÔ*/	
 		this->OnComTest(Target,Len);

@@ -5,12 +5,20 @@
 class CProtocolParser  
 {
 public:
-	void ParseError(INSHEAD V);
-	bool OnInsData(void * Target, __int32 Len);
 	CProtocolParser();
 	virtual ~CProtocolParser();
-
 	
+	void ParseError(INSHEAD V);
+
+// Virtual functions
+
+	/*
+	 * Because the recvbuf may be not pure any more, so we must split it according to the command header
+	 */
+	virtual void PreProcess(void * Target, __int32 Len);
+
+	virtual bool OnInsData(void * Target, __int32 Len);
+
 	virtual void OnEmergency(void * Target, __int32 Len);
 	virtual void OnErrorInsHead(void * Target, __int32 Len);
 	virtual void OnComTestT(void * Target, __int32 Len);
@@ -44,10 +52,6 @@ public:
 	virtual void OnLoadPathPointSerial(void * Target, __int32 Len);
 	virtual void OnPathPointState(void * Target, __int32 Len);
 	virtual void OnFlyingState(void * Target, __int32 Len);
-
-
-
-
 };
 
 #endif 

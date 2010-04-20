@@ -381,6 +381,10 @@
 #define ID_32807                        32807
 #define ID_OPT_TEST                     32808
 
+#define IDC_ROLL_CURVE_CONTROL			1300
+#define IDC_PITCH_CURVE_CONTROL			1301
+#define IDC_HEAD_CURVE_CONTROL			1302
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

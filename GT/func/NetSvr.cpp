@@ -1,9 +1,6 @@
 #include "stdafx.h"
 #include "NetSvr.h"
 
-
-
-
 CNetSvr::CNetSvr()
 {
 	recvlen = 0;
@@ -13,8 +10,6 @@ CNetSvr::~CNetSvr()
 {
 
 }
-
-
 
 int initAsSvr(void * p)
 {

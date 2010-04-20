@@ -234,6 +234,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CurveCtrl.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\DirectionalGyro.cpp"
 				>
 			</File>
@@ -585,6 +589,14 @@
 			</File>
 			<File
 				RelativePath=".\ControlPositionIndicator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CurveCtrl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CurveMemDC.h"
 				>
 			</File>
 			<File
