@@ -1,9 +1,9 @@
 #pragma once
 
 
-
 // CDPLeftFormView ¥∞ÃÂ ”Õº
 class CGTDoc;
+
 class CDPLeftFormView : public CFormView
 {
 	DECLARE_DYNCREATE(CDPLeftFormView)
@@ -43,6 +43,7 @@ public:
 	double dpHead;
 	double dpHeadUpper;
 	double dpHeadLower;
+
 	afx_msg void OnBnClickedDPStart();
 	afx_msg void OnBnClickedDPPause();
 	afx_msg void OnBnClickedDPStop();

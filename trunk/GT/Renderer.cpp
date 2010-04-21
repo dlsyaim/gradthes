@@ -16,28 +16,31 @@
 #endif
 
 #ifndef ANGLE_LABEL_WIDTH 
-#define ANGLE_LABEL_WIDTH 0.25f
+#define ANGLE_LABEL_WIDTH 65.0f
 #endif
 
 #ifndef ANGLE_VALUE_WIDTH
-#define ANGLE_VALUE_WIDTH 0.25f
+#define ANGLE_VALUE_WIDTH 50.0f
 #endif
 
 #ifndef RATE_LABEL_WIDTH
-#define RATE_LABEL_WIDTH 0.1f
+#define RATE_LABEL_WIDTH 25.0f
 #endif
 
 #ifndef RATE_VALUE_WIDTH
-#define RATE_VALUE_WIDTH 0.25f
+#define RATE_VALUE_WIDTH 25.0f
 #endif
 
 #ifndef UNIT_WIDTH
-#define UNIT_WIDTH 0.2f
+#define UNIT_WIDTH 100.0f
 #endif
 
 #ifndef LETTER_WIDTH
-#define LETTER_WIDTH 0.1f
+#define LETTER_WIDTH 20.0f
 #endif
+
+#define LEFT_MARGIN 2.0f
+#define TOP_MARGIN 20.0f
 
 //#define RADIAN_TO_ANGLE()
 
@@ -96,12 +99,22 @@ Renderer::~Renderer(void)
 	    delete aircraft;
 }
 
-
+/*
+ * Draw funtions with drawing instruments
+ */
 void Renderer::draw(void)
 {
 	if (!panel)
 		return;
 
+
+	/*
+	 * First when we draw the text, we use the gluOrtho2D
+	 */
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0, lpRect->right, 0, lpRect->bottom);
+	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	camera->Look();
@@ -111,10 +124,21 @@ void Renderer::draw(void)
 
 	glDisable(GL_DEPTH_TEST);
 	// Draw instruments
-	panel->draw();
+	panel->draw(lpRect);
 
+
+	/*
+	 * Then when we draw the 3-D model , we use the gluPerspective
+	 */
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(60.0, (GLdouble) lpRect->right / (GLdouble) lpRect->bottom, 1.0, 100000.0);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	camera->Look();
 	// Draw aircraft
-	aircraft->draw(lpRect);
+	aircraft->draw(lpRect, FALSE);
 }
 
 // Initialize the illumination and material
@@ -151,12 +175,11 @@ void Renderer::initializeIlluminationAndMaterial(void)
 	glEnable(GL_LIGHT0);
 }
 
-// Update the instruments' data.
+/*
+ * Update the instruments' data.
+ */
 void Renderer::updateInstrumentsData()
 {
-	if (!stat || length <= 0)
-		return;
-
 	// And here we just update heading, pitch and roll
 	// Heading
 	panel->updateDirectonalGyro(stat[0]);
@@ -164,57 +187,57 @@ void Renderer::updateInstrumentsData()
 	panel->updateAttitudeGyro(stat[1], TRUE);
 	// Roll
 	panel->updateAttitudeGyro(stat[2], FALSE);
-
-	// Aircraft model also should update xrot, yrot, zrot
-	aircraft->update(stat);
 }
 
-BOOL Renderer::updateInstrumentsData(CString aLine)
+
+/*
+ * Update stat array by FlyState, IMUTestData and OPTTRACETestData
+ */
+void Renderer::updateStat(pFlyState fs) 
 {
-	if (aLine.IsEmpty() || !getFlyStatistics(aLine, stat, length)) 
-		return FALSE;
+	/*
+	 * Should transform radian into angle
+	 */
+	stat[0] = fs->psi / PI * 180.0;
+	stat[1] = fs->theta / PI * 180.0;
+	stat[2] = fs->phi / PI * 180.0;
+	
+	stat[3] = fs->N_Speed;
+	stat[4] = fs->E_Speed;
+	stat[5] = fs->D_Speed;
 
-	// And here we just update heading, pitch and roll
-	// Heading
-	panel->updateDirectonalGyro(stat[0]);
-	// Pitch
-	panel->updateAttitudeGyro(stat[1], TRUE);
-	// Roll
-	panel->updateAttitudeGyro(stat[2], FALSE);
-
-	// Aircraft model also should update xrot, yrot, zrot
-	aircraft->update(stat);
-
-	return TRUE;
+	stat[6] = fs->N_Speed_ACC;
+	stat[7] = fs->E_Speed_ACC;
+	stat[8] = fs->D_Speed_ACC;
 }
 
-// Update the instruments' data.
-void Renderer::updateInstrumentsData(FlyState *fs)
+void Renderer::updateStat(pIMUTestData itd)
 {
-	if (!fs) {
-		return;
-	}
-	// First update stat array
-	updateStat(fs);
-	// Then we update the instruments' data
-	updateInstrumentsData();
+	stat[0] = itd->psi / PI * 180.0;
+	stat[1] = itd->theta / PI * 180.0;
+	stat[2] = itd->phi / PI * 180.0;
+	
+	stat[3] = itd->N_Speed;
+	stat[4] = itd->E_Speed;
+	stat[5] = itd->D_Speed;
+
+	stat[6] = itd->N_Acc;
+	stat[7] = itd->E_Acc;
+	stat[8] = itd->D_Acc;
 }
-
-// Update stat array by fs
-void Renderer::updateStat(FlyState* fs) 
+void Renderer::updateStat(pOPTTRACETestData otd)
 {
-	// Should transform radian into angle
-	//stat[0] = fs->BODY_ANG_PSI / PI * 180.0;
-	//stat[1] = fs->BODY_ANG_THETA / PI * 180.0;
-	//stat[2] = fs->BODY_ANG_PHI / PI * 180.0;
-	//
-	//stat[3] = fs->BODY_ANG_P;
-	//stat[4] = fs->BODY_ANG_Q;
-	//stat[5] = fs->BODY_ANG_R;
+	stat[0] = otd->psi / PI * 180.0;
+	stat[1] = otd->theta / PI * 180.0;
+	stat[2] = otd->phi / PI * 180.0;
+	
+	stat[3] = otd->N_Speed;
+	stat[4] = otd->E_Speed;
+	stat[5] = otd->D_Speed;
 
-	//stat[6] = fs->BODY_ACC_X;
-	//stat[7] = fs->BODY_ACC_Y;
-	//stat[8] = fs->BODY_ACC_Z;
+	stat[6] = otd->N_Acc;
+	stat[7] = otd->E_Acc;
+	stat[8] = otd->D_Acc;
 }
 
 void Renderer::updateCamera(void)
@@ -247,24 +270,27 @@ void Renderer::drawFonts()
 	/*
 	 * Because this LPRECT represents the client area's size, so upper-left cornor is (0, 0)
 	 */
-	static LONG originRight = lpRect->right;
-	static LONG originBottom = lpRect->bottom;
-
 	/*
-	 * We just handle the X-axis' coordinate and Y-axis' coordinate
+	 * The following codes is commented for the using gluOrtho2D
 	 */
-	static float xPos = -1.6f;
-	static float yPos = 1.1f;
-	// Calculate the difference
-	float xDiff, yDiff;
-	xDiff = float(originRight - lpRect->right)/ originRight * abs(xPos);
-	yDiff = float(originBottom - lpRect->bottom) / originBottom * abs(yPos);
-	
-	originRight = lpRect->right;
-	originBottom = lpRect->bottom;
-	
-	xPos = xPos + xDiff; 
-	yPos = yPos - yDiff;
+	//static LONG originRight = lpRect->right;
+	//static LONG originBottom = lpRect->bottom;
+
+	///*
+	// * We just handle the X-axis' coordinate and Y-axis' coordinate
+	// */
+	float xPos = LEFT_MARGIN;
+	float yPos = lpRect->bottom - TOP_MARGIN;
+	//// Calculate the difference
+	//float xDiff, yDiff;
+	//xDiff = float(originRight - lpRect->right)/ originRight * abs(xPos);
+	//yDiff = float(originBottom - lpRect->bottom) / originBottom * abs(yPos);
+	//
+	//originRight = lpRect->right;
+	//originBottom = lpRect->bottom;
+	//
+	//xPos = xPos + xDiff; 
+	//yPos = yPos - yDiff;
 
 	glPushAttrib(GL_COLOR_BUFFER_BIT);	
 	glDisable(GL_LIGHTING);	
@@ -275,47 +301,51 @@ void Renderer::drawFonts()
 	 * And make the 0.25f the width of angles
 	 */
 
+	///*
+	// * Testing codes
+	// */
+	//glRasterPos3f(lpRect->right / 2, lpRect->bottom / 2, 0.0f);
+	//glPrint(base, "Here we are");
+
 	/*
 	 * The angle column
 	 */
-	glRasterPos3f(xPos, yPos - LETTER_WIDTH, -2.0f);
+	glRasterPos3f(xPos, yPos - LETTER_WIDTH, 0.0f);
 	glPrint(base, "Heading");
-	glRasterPos3f(xPos, yPos - LETTER_WIDTH * 2, -2.0f);
+	glRasterPos3f(xPos, yPos - LETTER_WIDTH * 2, 0.0f);
 	glPrint(base, "Pitch");
-	glRasterPos3f(xPos, yPos - LETTER_WIDTH * 3, -2.0f);
+	glRasterPos3f(xPos, yPos - LETTER_WIDTH * 3, 0.0f);
 	glPrint(base, "Roll");
 	TRACE(_T("xPos: %f\n"), xPos);
 	/*
 	 * Rate column
 	 */
 	float rateX = xPos + ANGLE_LABEL_WIDTH + ANGLE_VALUE_WIDTH;
-	glRasterPos3f(rateX, yPos, -2.0f);
+	glRasterPos3f(rateX, yPos, 0.0f);
 	glPrint(base, "Rate(dec/sec)");
-	glRasterPos3f(rateX, yPos - LETTER_WIDTH, -2.0f);
+	glRasterPos3f(rateX, yPos - LETTER_WIDTH, 0.0f);
 	glPrint(base, "X");
-	glRasterPos3f(rateX, yPos - LETTER_WIDTH * 2, -2.0f);
+	glRasterPos3f(rateX, yPos - LETTER_WIDTH * 2, 0.0f);
 	glPrint(base, "Y");
-	glRasterPos3f(rateX, yPos - LETTER_WIDTH * 3, -2.0f);
+	glRasterPos3f(rateX, yPos - LETTER_WIDTH * 3, 0.0f);
 	glPrint(base, "Z");
 	
 	/*
 	 * Acceleration(g) column
 	 */
 	float accX = xPos + ANGLE_LABEL_WIDTH + ANGLE_VALUE_WIDTH + RATE_LABEL_WIDTH + RATE_VALUE_WIDTH + UNIT_WIDTH;
-	glRasterPos3f(accX, yPos, -2.0f);
+	glRasterPos3f(accX, yPos, 0.0f);
 	glPrint(base, "Acceleration(g)");
 	
-	
-
 	for (int i = 0; i < length; i++) {
 		if (i >= 0 && i <= 2) {
-			glRasterPos3f(xPos + ANGLE_LABEL_WIDTH, yPos - LETTER_WIDTH * (i % 3 + 1), -2.0f);
+			glRasterPos3f(xPos + ANGLE_LABEL_WIDTH, yPos - LETTER_WIDTH * (i % 3 + 1), 0.0f);
 			glPrint(base, "%3.2f", stat[i]);
 		} else if (i >= 3 && i <= 5) {
-			glRasterPos3f(rateX + RATE_LABEL_WIDTH, yPos - LETTER_WIDTH * (i % 3 + 1), -2.0f);
+			glRasterPos3f(rateX + RATE_LABEL_WIDTH, yPos - LETTER_WIDTH * (i % 3 + 1), 0.0f);
 			glPrint(base, "%3.1f", stat[i]);
 		} else if (i >= 6 && i <= 8) {
-			glRasterPos3f(accX, yPos - LETTER_WIDTH * (i % 3 + 1), -2.0f);
+			glRasterPos3f(accX, yPos - LETTER_WIDTH * (i % 3 + 1), 0.0f);
 			glPrint(base, "%3.3f", stat[i]);
 		}
 	}
@@ -502,6 +532,8 @@ void Renderer::draw(LPRECT lpRect, int renderMode)
 			case CGTView::OPT_TEST:
 				drawWithoutInstruments();
 				break;
+			case CGTView::FLIGHT_EXPERIMENT:
+				draw();
 			default:
 				break;
 		}
@@ -509,31 +541,50 @@ void Renderer::draw(LPRECT lpRect, int renderMode)
 }
 
 /*
- * This function will be invoked when IMU test starts
+ * This function will be invoked when IMU or OPT test starts
  */
 void Renderer::drawWithoutInstruments(void)
 {
+	/*
+	 * First when we draw the text, we use the gluOrtho2D
+	 */
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0, lpRect->right, 0, lpRect->bottom);
+	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	camera->Look();
 
-	// Draw fonts
+	/*
+	 * Test codes
+	 */
+	/*int sideLength = 400;
+	glBegin(GL_QUADS);
+		glVertex3f(lpRect->right / 2 - sideLength / 2, lpRect->bottom / 2 - sideLength / 2, -1.0f);
+		glVertex3f(lpRect->right / 2 + sideLength / 2, lpRect->bottom / 2 - sideLength / 2, -1.0f);
+		glVertex3f(lpRect->right / 2 + sideLength / 2, lpRect->bottom / 2 + sideLength / 2, -1.0f);
+		glVertex3f(lpRect->right / 2 - sideLength / 2, lpRect->bottom / 2 + sideLength / 2, -1.0f);
+	glEnd();*/
+	// Draw text
 	drawFonts();
+
+	/*
+	 * After drawing text, we use gluPerspective
+	 */
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(60.0, (GLdouble) lpRect->right / (GLdouble) lpRect->bottom, 1.0, 100000.0);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	camera->Look();
 
 	glDisable(GL_DEPTH_TEST);
 	// Draw aircraft without terrains
 	aircraft->draw(lpRect, FALSE);
 }
 
-void Renderer::updateAircraft(IMUTestData* itd)
-{
-	aircraft->update(itd);
-}
-
-void Renderer::updateAircraft(pOPTTRACETestData otd)
-{
-	aircraft->update(otd);
-}
 
 void Renderer::drawPath(void)
 {
@@ -552,4 +603,48 @@ void Renderer::drawPath(void)
 		}
 		glEnd();
 	}
+}
+
+void Renderer::updateData(void)
+{
+	updateInstrumentsData();
+
+	aircraft->update(stat);
+}
+
+void Renderer::updateData(CString aLine)
+{
+	if (aLine.IsEmpty() || !getFlyStatistics(aLine, stat, length)) 
+		return;
+
+	updateInstrumentsData();
+
+	aircraft->update(stat);
+
+}
+
+void Renderer::updateData(pFlyState fs)
+{
+	aircraft->update(fs);
+
+	/*
+	 * We should update the stat first
+	 */
+	updateStat(fs);
+
+	updateInstrumentsData();
+}
+
+void Renderer::updateData(pIMUTestData itd)
+{
+	aircraft->update(itd);
+
+	updateStat(itd);
+}
+
+void Renderer::updateData(pOPTTRACETestData otd)
+{
+	aircraft->update(otd);
+	
+	updateStat(otd);
 }

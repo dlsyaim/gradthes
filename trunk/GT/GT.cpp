@@ -144,11 +144,11 @@ BOOL CGTApp::InitInstance()
 	//	//AfxMessageBox("Failed to create a sending client", MB_OK | MB_ICONSTOP);	
 	//	Sleep(100);
 	//}
-	char *IP = "192.168.0.186";
-	if (cln.initCln(IP, 22222) == 0)
-	{
-		AfxMessageBox("Failed to create a sending client", MB_OK | MB_ICONSTOP);
-	}
+	//char *IP = "192.168.0.186";
+	//if (cln.initCln(IP, 22222) == 0)
+	//{
+	//	AfxMessageBox("Failed to create a sending client", MB_OK | MB_ICONSTOP);
+	//}
 	// call DragAcceptFiles only if there's a suffix
 	//  In an SDI app, this should occur after ProcessShellCommand
 	return TRUE;

@@ -15,39 +15,33 @@ public:
 	// Load configuration
 	BOOL loadConfiguration();
 
-	// Draw function
-	//void draw(LPRECT lpRect, BOOL isExperiment = FALSE, BOOL isGyro = FALSE);
-	// Draw function
+	/*
+	 * Draw functions
+	 */
 	void draw(LPRECT lpRect, int renderMode);
 	// Draw fonts
 	void drawFonts(void);	
 	
-	// Update the instruments' data.
-	void updateInstrumentsData();
-	void updateInstrumentsData(FlyState *fs);
-	BOOL updateInstrumentsData(CString aLine);
-	
 	// Update camera
 	void updateCamera(void);
-	// Update camera
 	void updateCamera(int virtualKey);	
 	void updateCamera(LPPOINT lpPoint);
 
-	// Setter and getter
+	// Setters and getters
 	inline void setBase(GLuint base) {this->base = base;}
 	inline GLuint getBase(void){return base;}
-	// Setter and getter
 	inline void setStat(double *stat) {this->stat = stat;}
 	inline double* getStat(void) {return stat;}
-	// Setter and getter
 	inline void setIsMultiport(BOOL isMultiport) {this->isMultiport = isMultiport;}
 	inline BOOL getIsMultiport(void) {return isMultiport;}
 
-	// Update the aircraft's data
-	void updateAircraft(IMUTestData* itd);
-	void updateAircraft(pOPTTRACETestData otd);
+	void updateData(void);
+	void updateData(CString aLine);
+	void updateData(pIMUTestData itd);
+	void updateData(pOPTTRACETestData otd);
+	void updateData(pFlyState fs);
 
-	// Update the path data
+	// Update the flight path data
 	inline void setPPath(std::vector<PathPointData*> *pPath) {this->pPath = pPath;}
 
 // Attributes
@@ -72,16 +66,20 @@ private:
 	LPRECT lpRect;
 
 // Operations
-private:
-	// Draw function
+	// Draw function with drawing instruments
 	void draw(void);
 	// Draw flight path
 	void drawPath(void);
-	// Initialize the illumination and material
-	void initializeIlluminationAndMaterial(void);
-	// Update stat array
-	void updateStat(FlyState* fs);
 	// Draw function without drawing instruments
 	void drawWithoutInstruments(void);
+	// Initialize the illumination and material
+	void initializeIlluminationAndMaterial(void);
+	
+	// Update stat array by FlyState, IMUTestData and OPTTRACETestData
+	void updateStat(pFlyState fs);
+	void updateStat(pIMUTestData itd);
+	void updateStat(pOPTTRACETestData otd);
 
+	// Update the instruments' data by FlyState, One-line-of-file
+	void updateInstrumentsData(void);
 };

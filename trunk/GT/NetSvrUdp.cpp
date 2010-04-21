@@ -119,7 +119,7 @@ void CNetSvrUdp::OnDataRecv(void)
 	{
 		memcpy(&fs, this->recvbuf, sizeof(FlyState));
 		// First we update instruments' data
-		renderer->updateInstrumentsData(&fs);
+		//renderer->updateInstrumentsData(&fs);
 		// Then we notify the view class to redraw
 		POSITION pos = doc->GetFirstViewPosition();
 		doc->GetNextView(pos)->Invalidate(FALSE);

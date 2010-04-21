@@ -2,7 +2,6 @@
 #include <windows.h>
 #include <GL/glut.h>
 #include <vector>
-
 #include "RPM.h"
 #include "AttitudeGyro.h"
 #include "DirectionalGyro.h"
@@ -57,12 +56,35 @@ void Panel::setBg(std::string bg)
 	}
 }
 
-// Draw function.
-void Panel::draw(void)
+/*
+ * Draw function for the instruments
+ */
+void Panel::draw(LPRECT lpRect)
 {
+
+	// When the client area minimized, just return.
+	if (lpRect->right == 0 || lpRect->bottom == 0)
+		return;
+	/*
+	 * Because this LPRECT represents the client area's size, so upper-left cornor is (0, 0)
+	 */
+	static LONG originRight = lpRect->right;
+	static LONG originBottom = lpRect->bottom;
+
+	static float distance = -535.0f;
+	// Calculate the differences
+	float diff;
+	diff = max((float) originRight / lpRect->right, (float) originBottom / lpRect->bottom);
+	if (diff == 1.0f) {
+		diff = min ((float) originRight / lpRect->right, (float) originBottom / lpRect->bottom);
+	}
+	originRight = lpRect->right;
+	originBottom = lpRect->bottom;
+	distance = distance * diff;
+
 	glPushMatrix();
 	glEnable(GL_TEXTURE_2D);
-	glTranslatef(0.0f, 0.0f, -635.0f);	
+	glTranslatef(0.0f, 0.0f, distance);	
 	glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
 
 	// First render the background
@@ -77,7 +99,7 @@ void Panel::draw(void)
 		glEnd();
 	}
 	
-	// Render each Instrument.
+	// Render each instrument.
 	for (int i = 0; i < (int)inLi->size(); i++) {		
 		(*inLi)[i]->draw();
 	}

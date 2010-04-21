@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+#include <fstream>
 #include "GT.h"
 #include "DPLeftFormView.h"
 #include "GTDoc.h"
@@ -90,7 +91,13 @@ void CDPLeftFormView::Dump(CDumpContext& dc) const
 
 void CDPLeftFormView::OnBnClickedDPStart()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	/*
+	 * Here we only need to read the fly state file
+	 */
+	std::ifstream ifs(".fs", std::ios::binary);
+
+	ifs.close();
+
 }
 
 void CDPLeftFormView::OnBnClickedDPPause()

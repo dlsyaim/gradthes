@@ -56,24 +56,21 @@ public:
 
 	CGTDoc* GetDocument() const;
 private:
-	// Flag indicates whether start gyro test or not
-	BOOL isGyro;
-	// Flag indicates whether the flight experiment starts or not
-	BOOL isExperiment;
-	// Mode
+	// Rendering mode
 	RENDER_MODE renderMode;
 
 // Operations
 public:
 	// Setters and getters
-	inline void setIsGryo(BOOL isGyro) {this->isGyro = isGyro; Invalidate();}
-	inline void setIsExperiment(BOOL isExperiment) {this->isExperiment = isExperiment;this->Invalidate(FALSE);}
 	inline void setRenderMode(RENDER_MODE m) {this->renderMode = m; Invalidate(FALSE);}
 	inline void setPath(std::vector<PathPointData*> *pPath) {m_Renderer->setPPath(pPath); this->Invalidate(FALSE);}
 
 	// Update the data for the IMU test
 	void updateIMUData(IMUTestData* itd);
+	// Update the data for the OPT test
 	void updateOPTData(pOPTTRACETestData otd);
+	// Update the data for the flying state
+	void updateFS(pFlyState fs);
 
 protected:
 	// Setup pixel format.
