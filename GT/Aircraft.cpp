@@ -50,7 +50,7 @@ void Aircraft::drawWithAutoSize(LPRECT lpRect)
 	static LONG originRight = lpRect->right;
 	static LONG originBottom = lpRect->bottom;
 
-	static float distance = -700.0f;
+	static float distance = -600.0f;
 	// Calculate the differences
 	float diff;
 	diff = max((float) originRight / lpRect->right, (float) originBottom / lpRect->bottom);
@@ -104,21 +104,22 @@ void Aircraft::update(double *stat) {
 }
 
 void Aircraft::update(FlyState *fs) {
-	//yrot = fs->BODY_ANG_PSI;
-	//xrot = fs->BODY_ANG_THETA;
-	//zrot = fs->BODY_ANG_PHI;
+	/***** Attention this is a radian *****/
+	yrot = fs->psi * 180 / PI;
+	xrot = fs->theta * 180 / PI;
+	zrot = fs->phi * 180 / PI;
 }
 
 void Aircraft::update(IMUTestData *itd)
 {
-	yrot = itd->psi;
-	xrot = itd->theta;
-	zrot = itd->phi;
+	yrot = itd->psi * 180 / PI;
+	xrot = itd->theta * 180 / PI;
+	zrot = itd->phi * 180 / PI;
 }
 
 void Aircraft::update(pOPTTRACETestData otd)
 {
-	/***** Attention this is a rad *****/
+	/***** Attention this is a radian *****/
 	yrot = otd->psi * 180 / PI;
 	xrot = otd->theta * 180 / PI;
 	zrot = otd->phi * 180 / PI;
@@ -182,6 +183,5 @@ void Aircraft::draw(LPRECT lpRect, BOOL isTerrain/* = TRUE*/)
 	} else  {
 		// No terrain will be drawn
 		drawWithAutoSize(lpRect);
-
 	}
 }

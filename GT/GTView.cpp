@@ -55,8 +55,6 @@ END_MESSAGE_MAP()
 
 CGTView::CGTView()
 {
-	isGyro = FALSE;
-	isExperiment = FALSE;
 }
 
 CGTView::~CGTView()
@@ -100,18 +98,7 @@ void CGTView::OnDraw(CDC* /*pDC*/)
 
 	GetClientRect(&m_rect);
 	m_Renderer->draw(&m_rect, renderMode);
-	/*switch (renderMode) {
-		case FLIGHT_PATH_SET:
-			m_Renderer->draw(&m_rect, renderMode);
-			break;
-		case IMU_TEST:
-			
-			break;
-		default:
-			break;
-	}*/
-	//m_Renderer->draw(&m_rect, isExperiment, isGyro);
-	
+
 	// Swap the front and back framebuffer
 	SwapBuffers(wglGetCurrentDC());
 }
@@ -223,7 +210,8 @@ int CGTView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (m_Port.InitPort(this, m_nCom, m_nBaud, m_cParity, m_nDatabits, m_nStopbits, m_dwCommEvents, 512)) {
 		m_Port.StartMonitoring();
 	} else {
-		AfxMessageBox(_T("Could not found a com number"));
+		//AfxMessageBox(_T("Could not found a com port"), MB_OK | MB_ICONINFORMATION);
+		TRACE(_T("Could not found a com port"));
 	}
 
 	if (!cSetupPixelFormat())
@@ -243,17 +231,16 @@ int CGTView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	if (GetDocument() != NULL) {
 		GetDocument()->lowerRightView = this;
-		pSvrSock = new CNetSvrUdp(m_Renderer, GetDocument());
+		//pSvrSock = new CNetSvrUdp(m_Renderer, GetDocument());
 
 		// 5518 is the port we monitor
-		pSvrSock->port = 5518;
-		if (!pSvrSock->StartSvr()) {
-			AfxMessageBox(_T("UDP can't establish"), MB_OK | MB_ICONSTOP);
-		}
+		//pSvrSock->port = 5518;
+		//if (!pSvrSock->StartSvr()) {
+		//	AfxMessageBox(_T("UDP can't establish"), MB_OK | MB_ICONSTOP);
+		//}
 	}
 
 	//OnStartTimer();
-
 	return 0;
 }
 
@@ -301,7 +288,7 @@ void CGTView::OnDestroy()
 
 	OnAHRSStop();
 	delete m_Renderer;
-	delete pSvrSock;
+	//delete pSvrSock;
 }
 
 // 
@@ -334,7 +321,7 @@ void CGTView::OnTimer(UINT_PTR nIDEvent)
 	}
 
 	// Then we could update the intruments' data.
-	m_Renderer->updateInstrumentsData();
+	m_Renderer->updateData();
 	Invalidate(FALSE);
 
 	CView::OnTimer(nIDEvent);
@@ -347,8 +334,8 @@ void CGTView::OnMouseMove(UINT nFlags, CPoint point)
 	CPoint middlePoint(rec.right >> 1, rec.bottom >> 1);
 	ClientToScreen(&middlePoint);
 	if (rbDown) {
-			m_Renderer->updateCamera(&middlePoint);
-			Invalidate(FALSE);
+		m_Renderer->updateCamera(&middlePoint);
+		Invalidate(FALSE);
 	}
 
 	CView::OnMouseMove(nFlags, point);
@@ -441,10 +428,9 @@ long CGTView::OnCommunication(WPARAM ch, LPARAM port)
 		if (!m_Renderer)
 			return - 1;
 	
-		// TODO: We just need 9 floats or doubles
-		if (!m_Renderer->updateInstrumentsData(aLine))
-			return -1;
-
+		// We just need 9 floats or doubles
+		m_Renderer->updateData(aLine);
+		
 		// Restore the aLine
 		aLine = _T("");
 		Invalidate(FALSE);
@@ -544,19 +530,27 @@ BOOL CGTView::cBuildFont(void)
 
 void CGTView::OnGPSTest()
 {
-	// TODO: 
 	CGPSTestDialog gtd;
 	gtd.DoModal();
 }
 
 void CGTView::updateIMUData(IMUTestData *itd)
 {
-	m_Renderer->updateAircraft(itd);
+	m_Renderer->updateData(itd);
 	Invalidate();
 }
 
 void CGTView::updateOPTData(pOPTTRACETestData otd)
 {
-	m_Renderer->updateAircraft(otd);
+	m_Renderer->updateData(otd);
+	Invalidate();
+}
+
+void CGTView::updateFS(pFlyState fs)
+{
+	/*
+	 * Because under FLIGHT_EXPERIMENT rendering mode, the instruments also need to be updated and drawn
+	 */
+	m_Renderer->updateData(fs);
 	Invalidate();
 }

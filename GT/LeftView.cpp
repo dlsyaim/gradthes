@@ -168,31 +168,31 @@ void CLeftView::OnBnClickedFEStart()
 	/***** Here we start flight experiment *****/
 	
 	/***** First check all the configuration *****/
-	//CSingleton* instance = CSingleton::getInstance();
-	//if (!instance->isReady()) {
-	//	AfxMessageBox(_T("Some requirement not satisfied\n"), MB_OK | MB_ICONSTOP);
-	//	return;
-	//}
+	CSingleton* instance = CSingleton::getInstance();
+	if (!instance->isReady()) {
+		AfxMessageBox(_T("Some requirement not satisfied\n"), MB_OK | MB_ICONSTOP);
+		return;
+	}
 
 	///***** Gain the socket client *****/
 	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
 	//
 	__int16* c;
-	///***** Then need to send the helicopter parameter to the server *****/
-	//if (instance->getCurPHM()) {
-	//	char heliMod[100];
-	//	c = (__int16 *)heliMod;
-	//	c[0] = TPT_LOADHELIPARA;
-	//	memcpy(heliMod + 2, (char*)(&instance->getCurPHM()->heliPara), sizeof(instance->getCurPHM()->heliPara));
-	//	cln->SendSvr(heliMod, sizeof(heliMod));
+	/***** Then need to send the helicopter parameter to the server *****/
+	if (instance->getCurPHM()) {
+		char heliMod[100];
+		c = (__int16 *)heliMod;
+		c[0] = TPT_LOADHELIPARA;
+		memcpy(heliMod + 2, (char*)(&instance->getCurPHM()->heliPara), sizeof(instance->getCurPHM()->heliPara));
+		cln->SendSvr(heliMod, sizeof(heliMod));
 
-	//	/***** Then need to send all the servo actor demarcated data to the server *****/
-	//	char servoData[162];
-	//	c = (__int16 *)servoData;
-	//	c[0] = TAS_ACTORSET;
-	//	memcpy(servoData + 2, (char *)(&instance->getCurPHM()->sad), sizeof(instance->getCurPHM()->sad));
-	//	cln->SendSvr(servoData, sizeof(servoData));
-	//}
+		/***** Then need to send all the servo actor demarcated data to the server *****/
+		char servoData[162];
+		c = (__int16 *)servoData;
+		c[0] = TAS_ACTORSET;
+		memcpy(servoData + 2, (char *)(&instance->getCurPHM()->sad), sizeof(instance->getCurPHM()->sad));
+		cln->SendSvr(servoData, sizeof(servoData));
+	}
 
 	/***** Finally send a command to the server *****/
 	char command[2];
@@ -257,6 +257,16 @@ LRESULT CLeftView::OnFlyingStateData(WPARAM w, LPARAM l)
 	
 	updateCurve();
 
+	/*
+	 * Update the instruments and the 3-d helicopter model
+	 */
+	GetDocument()->lowerRightView->updateFS(newestFS);
+
+
+	/*
+	 * Finally we should store the fly state into files
+	 */
+	std::ofstream(".fs", std::ios::binary);
 
 	UpdateData(FALSE);
 

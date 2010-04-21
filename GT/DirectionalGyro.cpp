@@ -19,9 +19,8 @@ void DirectionalGyro::updateHeading(double heading)
 	transformationList* tl = compassRose->getTl();
 	Transformation *tf = (*tl)[0];
 	
-	// Because the heading is the absolute angle, not the incremental.
-	//double offset = tf->getOffset();
-	//offset += (delta * tf->getScale());
+	/*
+	 * Because the heading is the absolute angle, not the incremental.
+	 */
 	tf->setOffset(heading);
-
 }

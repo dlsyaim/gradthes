@@ -32,7 +32,7 @@ public:
 	void updateDirectonalGyro(double heading);
 
 	// Draw function.
-	void draw(void);
+	void draw(LPRECT lpRect);
 private:
 	instrumentList* inLi;
 	// Position
