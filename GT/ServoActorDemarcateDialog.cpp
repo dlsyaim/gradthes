@@ -126,16 +126,14 @@ void CServoActorDemarcateDialog::OnBnClickedServoActorTestPass(void)
 	curPHM->sad.a4MeansureAng[4] = (float)m_tabTail.tailAngle5;
 
 	/********** Construct the content of the servo actor demarcated data *********/
-	/****** ATTENTION 162 is not enough ******/
-	char command[162];
+	char command[sizeof(ServoActorData) + 2];
 	__int16 *c = (__int16 *)command;
 	c[0] = TAS_ACTORSET;
 
 	memcpy(&(command[2]), (char*)&curPHM->sad, sizeof(curPHM->sad));
-	command[2 + sizeof(curPHM->sad)] = '\0';
 	
 	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
-	cln->SendSvr(command, 162);
+	cln->SendSvr(command, sizeof(command));
 
 
 	/***** Must save all of the test data into the files *****/

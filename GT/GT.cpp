@@ -41,6 +41,8 @@ CGTApp::CGTApp()
 
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
+
+	//_CrtSetBreakAlloc(1099); 
 }
 
 // The one and only CGTApp object
@@ -134,16 +136,17 @@ BOOL CGTApp::InitInstance()
 		AfxMessageBox(_T("The server for connection failed to start up"), MB_OK | MB_ICONWARNING);
 	}
 
+
 	/*
 	 * We set up a single socket client point
 	 */
-	//char *IP = "169.254.46.106";
-	//// Initializing
-	//while(cln.initCln(IP, 8818) == 0)
-	//{
-	//	//AfxMessageBox("Failed to create a sending client", MB_OK | MB_ICONSTOP);	
-	//	Sleep(100);
-	//}
+	char *IP = "127.0.0.1";
+	// Initializing
+	while(cln.initCln(IP, 8818) == 0)
+	{
+		//AfxMessageBox("Failed to create a sending client", MB_OK | MB_ICONSTOP);	
+		Sleep(100);
+	}
 	//char *IP = "192.168.0.186";
 	//if (cln.initCln(IP, 22222) == 0)
 	//{

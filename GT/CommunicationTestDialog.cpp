@@ -61,6 +61,8 @@ void CCommunicationTestDialog::OnBnClickedCommunicationTestFailure()
 	/********** Update the global flag variable **********/
 	CSingleton* instance = CSingleton::getInstance();
 	instance->setIsCommunicationTestPass(FALSE);
+
+	CDialog::OnOK();
 }
 
 void CCommunicationTestDialog::OnBnClickedCommunicationTestPass()
@@ -79,6 +81,7 @@ void CCommunicationTestDialog::OnBnClickedCommunicationTestPass()
 	CSingleton* instance = CSingleton::getInstance();
 	instance->setIsCommunicationTestPass(TRUE);
 
+	CDialog::OnOK();
 }
 
 void CCommunicationTestDialog::OnBnClickedDefaultTestButton()
@@ -122,13 +125,12 @@ void CCommunicationTestDialog::sendCommunicationTestCommand(CString content)
 		
 
 	/********** Construct the content of the communication test command *********/
-	char command[102];
+	char command[COM_TEXT_LENGTH + INSTRUCTION_LENGTH];
 	__int16 *c = (__int16 *)command;
 	c[0] = FNT_NETTESTTEXT;
 
 	memcpy(&(command[2]), content.GetBuffer(0), content.GetLength());
-	command[2 + content.GetLength()] = '\0';
-	cln->SendSvr(command, 102);
+	cln->SendSvr(command, sizeof(command));
 
 	/********** Update the "display list" *********/
 	commandDisplayer.Append(content + _T("\r\n"));

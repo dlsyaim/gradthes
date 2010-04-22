@@ -82,6 +82,8 @@ private:
 	void createRecentHMMenuItems(void);
 	// Get the GTView pointer
 	CGTView* getLowerRightPane(void);
+//Attributes
+	CMenu* popUpMenu;
 	
 protected:
 	virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);

@@ -160,8 +160,8 @@ void CPIDCPDialog::OnBnClickedOk()
 	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
 
 	/***** Construct the command's data *****/
-	char command[34];
-	__int32* c = (__int32*)command;
+	char command[sizeof(ControlPara) + 2];
+	__int16* c = (__int16*)command;
 	c[0] = TPT_LOADCONTROLPARA;
 
 
@@ -243,6 +243,7 @@ void CPIDCPDialog::OnBnClickedOk()
 	std::ofstream ofs(timeString, std::ios::binary);
 	ofs.write((char*) &cp, sizeof(cp));
 	ofs.close();
+	
 	OnOK();
 }
 
@@ -250,5 +251,6 @@ void CPIDCPDialog::OnBnClickedCancel()
 {
 	CSingleton* instance = CSingleton::getInstance();
 	instance->setIsControlParameterSet(FALSE);
+
 	OnCancel();
 }

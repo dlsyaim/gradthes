@@ -16,7 +16,17 @@ Panel::Panel(void)
 Panel::~Panel(void)
 {
 	if (inLi)
+	{
+		std::vector<Instrument*>::iterator iter;
+		for (iter = inLi->begin(); iter != inLi->end(); iter++)
+		{
+			delete *iter;
+		}
 		delete inLi;
+	}
+
+	if (background)
+		delete background;
 }
 
 void Panel::updateRPM(double thelta)

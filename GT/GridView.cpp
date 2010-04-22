@@ -107,10 +107,12 @@ int CGridView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		// Create the Gridctrl window
 		CRect rect;
 		GetClientRect(rect);
+		rect.bottom /= 2;
 		m_pGridCtrl->Create(rect, this, IDC_GRID);
 
 		// Fill it up with stuff
 		m_pGridCtrl->SetEditable(TRUE);
+		m_pGridCtrl->GetDefaultCell(FALSE, FALSE)->SetBackClr(RGB(0xFF, 0xFF, 0xE0));
 		m_pGridCtrl->EnableDragAndDrop(TRUE);
 		
 		try {
@@ -179,7 +181,7 @@ int CGridView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}	
 
 	/* Currently we just assume the max size is 10 */
-	path.resize(10);
+	//path.resize(10);
 	return 0;
 }
 
@@ -274,9 +276,13 @@ void CGridView::OnGridClick(NMHDR *pNotifyStruct, LRESULT* /*pResult*/)
 			}
 			// Change the text
 			m_pGridCtrl->SetItemText(pItem->iRow, pItem->iColumn, "Update");
+			m_pGridCtrl->Invalidate();
 			// Insert			
-			path.insert(path.begin() + pItem->iRow - 1, ppd);
+			//path.insert(path.begin() + pItem->iRow - 1, ppd);
+			path.push_back(ppd);
 		} else if (label == "Update") {
+			// Sorting before update
+			sort(path.begin(), path.end(), lowerSorter);
 			// Update a path point
 			PathPointData* editedPoint = path[pItem->iRow - 1];
 			if (editedPoint != NULL) {
@@ -322,7 +328,10 @@ void CGridView::OnBnClickedSchedulePath()
 void CGridView::OnBnClickedAssurePath()
 {
 	/***** Here we must send all the point to the server *****/
-	/***** First sort *****/
+	if (path.size() == 0) 
+		return;
+
+	/***** First sort the path *****/
 	sort(path.begin(), path.end(), lowerSorter);
 	/********** Construct the content of the starting path sending command *********/
 	char command[2];
@@ -334,7 +343,7 @@ void CGridView::OnBnClickedAssurePath()
 	cln->SendSvr(command, sizeof(command));
 
 	/* Here we just send the first point */
-	char pointCommand[34];
+	char pointCommand[sizeof(PathPointData) + 2];
 	c = (__int16 *)pointCommand;
 	c[0] = TPT_LOADPATHPOINTS;
 	

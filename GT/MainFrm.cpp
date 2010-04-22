@@ -79,12 +79,17 @@ static UINT indicators[] =
 
 CMainFrame::CMainFrame()
 {
-	// TODO: add member initialization code here
+	// add member initialization code here
 	numberOfMenu = 0;
+
+	popUpMenu = NULL;
+
 }
 
 CMainFrame::~CMainFrame()
 {
+	if (popUpMenu)
+		delete popUpMenu;
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -332,7 +337,7 @@ void CMainFrame::UpdateMenu(void)
 	CMenu* mainMenu = CMenu::FromHandle(m_wndMenuBar.GetDefaultMenu());
 	if (mainMenu != NULL) {
 		CMenu *subMenu = NULL;
-		CMenu *popUpMenu = NULL;
+		//CMenu *popUpMenu = NULL;
 		MENUITEMINFO info;
 		info.cbSize = sizeof (MENUITEMINFO); // Must fill up this field
 		info.fMask = MIIM_SUBMENU;
@@ -562,14 +567,19 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 	// Add views
 	m_pSplitterWnd1->AddView(TOP_SIDE, RUNTIME_CLASS(CUpperRightView), pContext);
 	m_pSplitterWnd1->AddView(TOP_SIDE, RUNTIME_CLASS(CDPUpperRightView), pContext);
-	if (m_pSplitterWnd1->AddView(BOTTOM_SIDE, RUNTIME_CLASS(CGTView), pContext) == -1) {
-		AfxMessageBox("Can't create CGTView class", MB_OK | MB_ICONSTOP);
-	}
-	m_pSplitterWnd1->ToggleSide(TOP_SIDE);
+	m_pSplitterWnd1->AddView(BOTTOM_SIDE, RUNTIME_CLASS(CGTView), pContext);
+
+	m_pSplitterWnd1->SetInitialStatus();
+	m_pSplitterWnd->SetInitialStatus();
+
+	if (!m_pSplitterWnd1->IsSideHidden(TOP_SIDE))
+		m_pSplitterWnd1->ToggleSide(TOP_SIDE);
+	if (m_pSplitterWnd1->IsSideHidden(BOTTOM_SIDE))
+		m_pSplitterWnd1->ToggleSide(BOTTOM_SIDE);
 	
 	/***** This line of code must be placed here not somewhere above *****/
-	m_pSplitterWnd->ToggleSide(LEFT_SIDE);
-	m_pSplitterWnd->SetInitialStatus();
+	if (!m_pSplitterWnd->IsSideHidden(LEFT_SIDE))
+		m_pSplitterWnd->ToggleSide(LEFT_SIDE);
 
 	return TRUE;
 }
@@ -614,7 +624,7 @@ void CMainFrame::createRecentHMMenuItems(void)
 	CMenu* mainMenu = CMenu::FromHandle(m_wndMenuBar.GetDefaultMenu());
 	if (mainMenu != NULL) {
 		CMenu *subMenu = NULL;
-		CMenu *popUpMenu = NULL;
+		/*CMenu *popUpMenu = NULL;*/
 		MENUITEMINFO info;
 		info.cbSize = sizeof (MENUITEMINFO); // Must fill up this field
 		info.fMask = MIIM_SUBMENU;             
@@ -688,6 +698,12 @@ void CMainFrame::OnDestroy()
 		RegSetValueEx(hk,res,0, REG_SZ,(PBYTE)buf, helicopterNames[i].GetLength() + 1);
 	}
 	
+
+	if (m_pSplitterWnd)
+		delete m_pSplitterWnd;
+	if (m_pSplitterWnd1)
+		delete m_pSplitterWnd1;
+
 	// We have finished with the registry,
 	// so liberate the resources we were using		
 	RegCloseKey(hk);
@@ -842,6 +858,10 @@ void CMainFrame::OnDataProcess()
 		m_pSplitterWnd1->ToggleSide(BOTTOM_SIDE);
 
 	m_pSplitterWnd1->SwitchToView(BOTTOM_SIDE, 0);
+
+	// Change the render mode
+	if (getLowerRightPane())
+		getLowerRightPane()->setRenderMode(CGTView::DATA_PROCESS);
 }
 
 void CMainFrame::OnOptTest()

@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-
+#include "GSDefinition.h"
 // CLeftView ´°ÌåÊÓÍ¼
 class CGTDoc;
 class CCurveCtrl;
@@ -17,6 +17,10 @@ protected:
 
 public:
 	enum { IDD = IDD_LEFT_FORMVIEW };
+	enum FE_STATE {
+		STOPED,
+		STARTED
+	};
 	CGTDoc* GetDocument() const;
 #ifdef _DEBUG
 	virtual void AssertValid() const;
@@ -58,21 +62,33 @@ public:
 	// Setters and getter
 	inline void setIsStart(__int32* tmp) {this->isStart = tmp;}
 	inline void setIsStop(__int32* tmp) {this->isStop = tmp;}
-	inline void setNewestFS(pFlyState newestFS) {this->newestFS = newestFS;}
+	inline void setNewestFSG(pFlyStateGroup newestFSG) {this->newestFSG = newestFSG;}
 
 private:
 // Attributes
 	__int32 *isStart;
 	__int32 *isStop;
-	pFlyState newestFS;
+	// The newest coming fly state group
+	pFlyStateGroup newestFSG;
 	std::vector<float> rollCurveData;
 	std::vector<float> pitchCurveData;
 	std::vector<float> headCurveData;
 	
+	// Buffer for the fly state group
+	std::vector<FlyStateGroup> bufFSG;
+
+	// The serial of the fly state group we expect to arrive
+	unsigned short expect;
+	// Start time and end time
+	CTime startTime, endTime;
+	// Experiment data
+	ExperimentData ed;
 
 // Operations
 	void updateCurve(void);
 
+	// Serialize the fly state group
+	void serialize(BOOL isForce = FALSE);
 };
 
 #ifndef _DEBUG  // debug version in LeftView.cpp
