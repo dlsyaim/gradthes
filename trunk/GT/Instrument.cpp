@@ -18,7 +18,13 @@ Instrument::Instrument(void):x(0), y(0), width(0), height(0)
 Instrument::~Instrument(void)
 {
 	if (ll)
+	{
+		std::vector<Layer*>::iterator iter;
+		for (iter = ll->begin(); iter != ll->end(); iter++) {
+			delete *iter;
+		}
 		delete ll;
+	}
 }
 
 void Instrument::draw(void)

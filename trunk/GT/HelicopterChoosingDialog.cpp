@@ -162,7 +162,7 @@ void CHelicopterChoosingDialog::OnBnClickedOk()
 	/* Update the helicopter model buffer */
 	CSingleton* instance = CSingleton::getInstance();
 	instance->updateBuffer(isNew, pHM);
-	/* Update the previous helicopter model buffer */
+	/* Update the previous helicopter model */
 	instance->updatePrePHM();
 
 	CDialog::OnOK();
@@ -262,6 +262,7 @@ void CHelicopterChoosingDialog::OnBnClickedCancel()
 {
 
 	CSingleton* instance = CSingleton::getInstance();
+	// Roll back the current helicopter model pointer
 	instance->rollBackCurPHM(isNew);
 
 	CDialog::OnCancel();

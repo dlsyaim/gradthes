@@ -102,7 +102,7 @@ void CTabPageSSL::sendTestData(double value)
 {
 	/********** Construct the content of the servo actor demarcated command *********/
 	/***** Attention 10 is not enough *****/
-	char command[10];
+	char command[sizeof(ServoActorTstInsData) + 2];
 	__int16 *c = (__int16 *)command;
 	c[0] = SAT_SERVOACTOR_TST;
 
@@ -111,7 +111,6 @@ void CTabPageSSL::sendTestData(double value)
 	satid.SetPWM = (float)value;
 
 	memcpy(&(command[2]), (char*)&satid, sizeof(satid));
-	command[2 + sizeof(satid)] = '\0';
 	if (!cln)
 		AfxMessageBox(_T("No client"), MB_OK | MB_ICONSTOP);
 	else

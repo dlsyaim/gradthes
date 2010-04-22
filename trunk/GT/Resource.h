@@ -85,6 +85,7 @@
 #define IDC_BUTTON3                     1039
 #define IDC_IMU_TEST_PASS               1039
 #define IDC_ASSURE_PATH                 1039
+#define IDC_OPEN_EXP_FILE_BTN           1039
 #define IDC_XVALUE_EDIT                 1040
 #define IDC_COLLECTIVE_PWM_BUTTON4      1040
 #define IDC_PITCH_PWM_BUTTON3           1040
@@ -342,6 +343,9 @@
 #define IDC_OPT_TEST_STOP               1209
 #define IDC_OPT_TEST_PASS               1210
 #define IDC_OPT_TEST_FAILURE            1211
+#define IDC_ROLL_CURVE_CONTROL          1300
+#define IDC_PITCH_CURVE_CONTROL         1301
+#define IDC_HEAD_CURVE_CONTROL          1302
 #define ID_32771                        32771
 #define ID_32772                        32772
 #define ID_32773                        32773
@@ -380,10 +384,6 @@
 #define ID_DATA_PROCESS                 32806
 #define ID_32807                        32807
 #define ID_OPT_TEST                     32808
-
-#define IDC_ROLL_CURVE_CONTROL			1300
-#define IDC_PITCH_CURVE_CONTROL			1301
-#define IDC_HEAD_CURVE_CONTROL			1302
 
 // Next default values for new objects
 // 

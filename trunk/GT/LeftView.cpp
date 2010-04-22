@@ -4,8 +4,11 @@
 #include "stdafx.h"
 #include <fstream>
 #include <math.h>
+#include <vector>
+#include <GL/glut.h>
 #include "GT.h"
 #include "LeftView.h"
+#include "GTView.h"
 #include "GTDoc.h"
 #include "Singleton.h"
 #include "MsgType.h"
@@ -24,6 +27,8 @@
 #define PITCH_CURVE_NAME "pitch"
 #define ROLL_CURVE_NAME "roll"
 #define HEAD_CURVE_NAME "head"
+
+#define MAX_BUFFER_NUM 1000
 
 // CLeftView
 
@@ -46,6 +51,14 @@ CLeftView::CLeftView()
 	, feFileName(_T(""))
 {
 	m_pRollCurveCtrl = m_pPitchCurveCtrl = m_pHeadCurveCtrl = NULL;
+
+	newestFSG = NULL;
+
+	// Because the server says it starts from 1
+	expect = 1;
+
+	// The experiment data
+	memset(&ed, 0, sizeof(ed));
 }
 
 CLeftView::~CLeftView()
@@ -117,7 +130,6 @@ int CLeftView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 	GetDocument()->leftView = this;
-	CString curveName;
 	
 	m_pRollCurveCtrl = new CCurveCtrl;
 	m_pRollCurveCtrl->Create(CRect(FIRST_LEFT, FIRST_UPPER, FIRST_LEFT + CURVE_WIDTH, FIRST_UPPER + CURVE_HEIGHT), this, 
@@ -173,32 +185,43 @@ void CLeftView::OnBnClickedFEStart()
 		AfxMessageBox(_T("Some requirement not satisfied\n"), MB_OK | MB_ICONSTOP);
 		return;
 	}
+	
+	UpdateData(TRUE);
+	if (feFileName.GetLength() == 0) {
+		AfxMessageBox(_T("Experiment file name required"), MB_OK | MB_ICONSTOP);
+		return;
+	}
 
-	///***** Gain the socket client *****/
+	/***** Gain the socket client *****/
 	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
-	//
-	__int16* c;
-	/***** Then need to send the helicopter parameter to the server *****/
+	
+	__int16* c;	
 	if (instance->getCurPHM()) {
-		char heliMod[100];
-		c = (__int16 *)heliMod;
+		/***** Firstly send the helicopter parameters to the server *****/
+		char heliPara[sizeof(HelicopterPara) + 2];
+		c = (__int16 *)heliPara;
 		c[0] = TPT_LOADHELIPARA;
-		memcpy(heliMod + 2, (char*)(&instance->getCurPHM()->heliPara), sizeof(instance->getCurPHM()->heliPara));
-		cln->SendSvr(heliMod, sizeof(heliMod));
+		memcpy(heliPara + 2, (char*)(&instance->getCurPHM()->heliPara), sizeof(instance->getCurPHM()->heliPara));
+		cln->SendSvr(heliPara, sizeof(heliPara));
 
-		/***** Then need to send all the servo actor demarcated data to the server *****/
-		char servoData[162];
+		/***** Secondly send the servo actor demarcated data to the server *****/
+		char servoData[sizeof(ServoActorData) + 2];
 		c = (__int16 *)servoData;
 		c[0] = TAS_ACTORSET;
 		memcpy(servoData + 2, (char *)(&instance->getCurPHM()->sad), sizeof(instance->getCurPHM()->sad));
 		cln->SendSvr(servoData, sizeof(servoData));
-	}
 
-	/***** Finally send a command to the server *****/
-	char command[2];
-	c = (__int16 *)command;
-	c[0] = TFT_STARTTASK;
-	cln->SendSvr(command, sizeof(command));
+		/***** Finally send a start-command to the server *****/
+		char startCommand[2];
+		c = (__int16 *)startCommand;
+		c[0] = TFT_STARTTASK;
+		cln->SendSvr(startCommand, sizeof(startCommand));
+
+		/* Make the button unable */
+		CButton* startBtn = (CButton*)GetDlgItem(IDC_FE_START);
+		startBtn->EnableWindow(FALSE);
+	}	
+
 }
 
 void CLeftView::OnBnClickedFEStop()
@@ -216,7 +239,28 @@ LRESULT CLeftView::OnStartTaskReply(WPARAM w, LPARAM l)
 {
 	if(*isStart) {
 		AfxMessageBox(_T("Start task successfully"), MB_OK | MB_ICONSTOP);
+	
+		CSingleton* instance = CSingleton::getInstance();
+		// Base file name
+		static CString baseFileName = feFileName;
+		static int version = -1;
+		version++;
+		CString verStr;
+		if (version != 0) {
+			verStr.Format("%d", version);		
+			feFileName = baseFileName + verStr;
+			UpdateData(FALSE);
+		}
+
+		// Get the start time
+		startTime = CTime::GetCurrentTime();
+		memcpy(ed.startTime, startTime.Format("%Y-%m-%d %H:%M:%S").GetBuffer(0), startTime.Format("%Y-%m-%d %H:%M:%S").GetLength());
+		
 	} else {
+		/* Make the button able */
+		CButton* startBtn = (CButton*)GetDlgItem(IDC_FE_START);
+		startBtn->EnableWindow(TRUE);
+
 		AfxMessageBox(_T("Failed to start task"), MB_OK | MB_ICONSTOP);
 	}
 	return TRUE;
@@ -226,6 +270,14 @@ LRESULT CLeftView::OnStopTaskReply(WPARAM w, LPARAM l)
 {
 	if(*isStop) {
 		AfxMessageBox(_T("Stop task successfully"), MB_OK | MB_ICONSTOP);
+		endTime = CTime::GetCurrentTime();
+		
+		CTimeSpan tof = endTime - startTime;
+		ed.tof = tof.GetTotalSeconds();
+		
+		/* Force to serialize */
+		serialize(TRUE);
+
 	} else {
 		AfxMessageBox(_T("Failed to stop task"), MB_OK | MB_ICONSTOP);
 	}
@@ -236,37 +288,57 @@ LRESULT CLeftView::OnStopTaskReply(WPARAM w, LPARAM l)
 LRESULT CLeftView::OnFlyingStateData(WPARAM w, LPARAM l)
 {
 	/*
-	 * First check the newest fly state
+	 * First check the newest fly state group
 	 */
-	if (!newestFS)
-	{
-		AfxMessageBox("No fly state", MB_OK | MB_ICONSTOP);
+	if (!newestFSG)	{
+		AfxMessageBox("No fly state group coming", MB_OK | MB_ICONSTOP);
 		return TRUE;
 	}
 
+	// Get the client
+	CNetCln *cln = ((CGTApp*)AfxGetApp())->getCln();
+
 	/* 
-	 * Update the edit control
+	 * Check the serial number of the newest fly state group
 	 */
-	fePitch = newestFS->theta;
-	feRoll = newestFS->phi;
-	feHead = newestFS->psi;
+	char com[6];
+	__int16 *inst = (__int16 *)com;
+	inst[0] = FIT_FLYINGSTATEDATAACT;
+
+	__int32 *rpy = (__int32 *)(com + 2);
+	if (newestFSG->serial == expect) {    // Make it
+		rpy[0] = newestFSG->serial;
+
+		cln->SendSvr(com, sizeof(com));
+
+		expect++;
+	} else {
+		rpy[0] = expect - 1;
+		cln->SendSvr(com, sizeof(com));
+		return TRUE;
+	}
 
 	/*
-	 * Update the curve
+	 * Update the edit control
 	 */
+	fePitch = newestFSG->states[FLYSTATEGROUPNUMBER - 1].theta;
+	feHead = newestFSG->states[FLYSTATEGROUPNUMBER - 1].psi;
+	feRoll = newestFSG->states[FLYSTATEGROUPNUMBER - 1].phi;
 	
+	// Then we can update the curve now
 	updateCurve();
 
 	/*
 	 * Update the instruments and the 3-d helicopter model
 	 */
-	GetDocument()->lowerRightView->updateFS(newestFS);
+	GetDocument()->lowerRightView->updateFS(&(newestFSG->states[FLYSTATEGROUPNUMBER - 1]));
 
 
 	/*
-	 * Finally we should store the fly state into files
+	 * Finally we should store the fly state into files when the buffer is full
 	 */
-	std::ofstream(".fs", std::ios::binary);
+	serialize();
+	
 
 	UpdateData(FALSE);
 
@@ -348,6 +420,61 @@ void CLeftView::updateCurve(void)
 		m_pPitchCurveCtrl->AddData(PITCH_CURVE_NAME, fX, fY);
 	}*/
 
-	m_pPitchCurveCtrl->Invalidate();
+	
+	fX = 0.1f;
+	for (iter = rollCurveData.begin(); iter != rollCurveData.end(); iter++) {
+		fY = *iter;
+		m_pRollCurveCtrl->AddData(ROLL_CURVE_NAME, fX, fY);
+		fX += 0.1f;
+	}
 
+	fX = 0.1f;
+	for (iter = headCurveData.begin(); iter != headCurveData.end(); iter++) {
+		fY = *iter;
+		m_pHeadCurveCtrl->AddData(HEAD_CURVE_NAME, fX, fY);
+		fX += 0.1f;
+	}
+	
+	m_pPitchCurveCtrl->Invalidate();
+	m_pRollCurveCtrl->Invalidate();
+	m_pHeadCurveCtrl->Invalidate();
+}
+
+void CLeftView::serialize(BOOL isForce/* = FALSE*/)
+{
+	if (!isForce) {
+		bufFSG.push_back(*newestFSG);
+
+		CString fullFileName;
+		fullFileName = feFileName + _T(".fs");
+
+		if (bufFSG.size() == MAX_BUFFER_NUM) {
+			std::ofstream ofs(fullFileName, std::ios::binary || std::ios::app);
+			/* Calculate the file size */
+			ofs.seekp(0, std::ios::end);
+			int endSize = ofs.tellp();
+			
+			std::vector<FlyStateGroup>::iterator iter;
+			for (iter = bufFSG.begin(); iter != bufFSG.end(); iter++) {
+				ofs.write((char*) &(*iter), sizeof(*iter));
+			}
+			ofs.close();
+			bufFSG.clear();
+		}	
+	} else {
+		CString fullFileName;
+		fullFileName = feFileName + _T(".fs");
+
+		std::ofstream ofs(fullFileName, std::ios::binary || std::ios::app);
+		/* Calculate the file size */
+		ofs.seekp(0, std::ios::end);
+		int endSize = ofs.tellp();
+
+		std::vector<FlyStateGroup>::iterator iter;
+		for (iter = bufFSG.begin(); iter != bufFSG.end(); iter++) {
+			ofs.write((char*) &(*iter), sizeof(*iter));
+		}
+		ofs.close();
+		bufFSG.clear();
+	}
 }

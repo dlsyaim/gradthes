@@ -63,5 +63,8 @@
 #define FIT_FLYINGSTATEDATAACT				0x0c00				/*飞行数据返回确认指令					*/
 ///////////////////////////////////////////////////////////////////////
 
+#define INSTRUCTION_LENGTH                  2
+#define COM_TEXT_LENGTH 100
+
 #endif
 

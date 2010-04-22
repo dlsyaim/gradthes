@@ -534,6 +534,10 @@ void Renderer::draw(LPRECT lpRect, int renderMode)
 				break;
 			case CGTView::FLIGHT_EXPERIMENT:
 				draw();
+				break;
+			case CGTView::DATA_PROCESS:
+				draw();
+				break;
 			default:
 				break;
 		}

@@ -25,3 +25,17 @@ typedef struct _HelicopterModel
 //{
 //
 //};
+
+/*
+ * The experiments' data files:
+ *     Start time: %Y-%m-%d %H:%M:%S)
+ *     tof: time of flight  
+ *     subExperimentData: store the file name of the fly state which exceeds a required size
+ */
+
+typedef struct _ExperimentData
+{
+	char startTime[100];
+	long tof;
+	char subExperimentData[100];
+}ExperimentData, PExperimentData;
