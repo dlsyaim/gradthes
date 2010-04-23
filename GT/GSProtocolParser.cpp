@@ -207,7 +207,7 @@ bool CGSProtocolParser::OnInsData(void *tmpTarget, __int32 Len)
 
 	while (curPos < (Len - 1)) {
 		// Parse the instruction header
-		INSHEAD *inshead = (INSHEAD *)(buf + curPos);
+		INSHEAD *inshead = (INSHEAD *)(Target + curPos);
 		INSHEAD V = *inshead;
 		INSHEAD F = GetFirstIns(V);
 		INSHEAD S = GetSecondIns(V);
@@ -215,90 +215,42 @@ bool CGSProtocolParser::OnInsData(void *tmpTarget, __int32 Len)
 
 		switch(F)
 		{
-		case FEM_EMERGENCY:			/* 应急 */
-			this->OnEmergency(buf + curPos, 4);
+
+		case FEM_EMERGENCY:
+			this->OnEmergency(Target + curPos, 4);
 			curPos += 4;
 			break;
-		case FCT_NETCOMTEST:		/* 网络通信测试 */	
-			this->OnComTest(buf + curPos, INSTRUCTION_LENGTH);
+	//////////////////////////////////////////////////////////////////////
+		case FCT_NETCOMTEST:
+			this->OnComTest(Target + curPos, INSTRUCTION_LENGTH);
 			curPos += INSTRUCTION_LENGTH;
 			break;
-		case FCT_NETCOMTESTREPLY:	/* 网络通信测试应答 */
-			this->OnComTestReply(buf + curPos, INSTRUCTION_LENGTH);
+	/////////////////////////////////////////////////////////////////////
+		case FCT_NETCOMTESTREPLY:
+			this->OnComTestReply(Target + curPos, INSTRUCTION_LENGTH);
 			curPos += INSTRUCTION_LENGTH;
 			break;
-		case FOC_OPERATIONCOMMAND:	/* 操作命令 */
+	/////////////////////////////////////////////////////////////////////
+		case FOC_OPERATIONCOMMAND:
 			switch(S)
 			{
-			case SFT_FLYING_TASK:					/*飞行任务*/
+			case SFT_FLYING_TASK:
 				switch(T)
 				{
-				case TFT_STARTTASK:										/*开始飞行任务*/
-					this->OnStartTask(buf + curPos, INSTRUCTION_LENGTH);
+				case TFT_STARTTASK:
+					this->OnStartTask(Target + curPos, INSTRUCTION_LENGTH);
 					curPos += INSTRUCTION_LENGTH;
 					break;
-				case TFT_STARTTASKREPLY:								/*开始飞行任务回复*/
-					this->OnStartTaskReply(buf + curPos, 6);
+				case TFT_STARTTASKREPLY:
+					this->OnStartTaskReply(Target + curPos, 6);
 					curPos += 6;
 					break;
-				case TFT_STOPTASK:										/*结束飞行任务*/
-					this->OnStopTask(buf + curPos, INSTRUCTION_LENGTH);
-					curPos += INSTRUCTION_LENGTH;
-					break;	
-				case TFT_STARTSTOPREPLY:								/*结束飞行任务回复*/
-					this->OnStopTaskReply(buf + curPos, 6);
-					curPos += 6;
-					break;
-				default:
-					ParseError(V);
-					break;
-				}
-				break;
-			case SAS_ACTORSET_TASK:					/*舵机设置*/
-				switch (T)
-				{
-				case TAS_ACTORSET:										/*舵机设置*/
-					this->OnServoActorSet(buf + curPos, sizeof(ServoActorData) + INSTRUCTION_LENGTH);
-					curPos += (sizeof(ServoActorData) + INSTRUCTION_LENGTH);
-					break;
-				default:
-					ParseError(V);
-					break;
-				}
-				break;
-			case STS_TILTDISCSET_TASK:				/*倾斜盘设置*/
-				switch (T)
-				{
-				case TTS_TILTDISCSET:									/*倾斜盘设置*/
-					this->OnTileDiscSet(buf + curPos, sizeof(TiltDiscData) + INSTRUCTION_LENGTH);
-					curPos += (sizeof(TiltDiscData) + INSTRUCTION_LENGTH);
-					break;
-				default:
-					ParseError(V);
-					break;
-				}
-				break;
-			case SPT_PATH_TASK:						/*路径设置*/
-				switch (T)
-				{
-				case TPT_LOADPATHPOINT_START:							/*开始路径设置*/
-					this->OnLoadPathPointStart(buf + curPos, INSTRUCTION_LENGTH);
+				case TFT_STOPTASK:
+					this->OnStopTask(Target + curPos, INSTRUCTION_LENGTH);
 					curPos += INSTRUCTION_LENGTH;
 					break;
-				case TPT_LOADPATHPOINT_STOP:							/*结束路径设置*/
-					this->OnLoadPathPointStop(buf + curPos, INSTRUCTION_LENGTH);
-					curPos += INSTRUCTION_LENGTH;
-					break;
-				case TPT_LOADPATHPOINTS:								/*路径点设置数据*/
-					this->OnLoadPathPoint(buf + curPos, sizeof(PathPointData) + INSTRUCTION_LENGTH);
-					curPos += (sizeof(PathPointData) + INSTRUCTION_LENGTH);
-					break;
-				case TPT_LOADPATHPOINTS_REPLY:							/*路径点设置回复*/
-					this->OnLoadPathPointSerial(buf + curPos, 6);
-					curPos += 6;
-					break;
-				case TPT_LOADPATHPOINTS_CHECK:							/*开始路径设置检测*/
-					this->OnPathPointState(buf + curPos, 6);
+				case TFT_STOPTASKREPLY:
+					this->OnStopTaskReply(Target + curPos, 6);
 					curPos += 6;
 					break;
 				default:
@@ -311,102 +263,183 @@ bool CGSProtocolParser::OnInsData(void *tmpTarget, __int32 Len)
 				break;
 			}
 			break;
-		case FIT_FLYINGSTATEDATA:	/*飞行数据*/
-			this->OnFlyingState(buf + curPos, sizeof(FlyStateGroup) + INSTRUCTION_LENGTH);
-			curPos += (sizeof(FlyStateGroup) + INSTRUCTION_LENGTH);
-			break;
-		case FIE_INSPARSEERR:		/*指令解析错误*/
-			this->OnErrorInsHead(buf + curPos, 4);
-			curPos += 4;
-			break;
-		case FET_EQUIPMENTTEST:		/*设备测试*/
+	/////////////////////////////////////////////////////////////////////
+		case FTS_TASK_SET:
 			switch(S)
 			{
-			case SAT_SERVOACTOR_TST:				/*舵机测试*/
-				this->OnServoActorTest(buf + curPos, sizeof(ServoActorTstInsData) + INSTRUCTION_LENGTH);
-				curPos += (sizeof(ServoActorTstInsData) + INSTRUCTION_LENGTH);
+			case TPT_LOADHELIPARA:
+			{
+				this->OnLoadHeliPara(Target + curPos, sizeof(HelicopterPara) + INSTRUCTION_LENGTH);
+				curPos += sizeof(HelicopterPara) + INSTRUCTION_LENGTH;
 				break;
-			case STT_THROTTLE_TST:					/*油门测试*/
-				this->OnThrottleTest(buf + curPos, sizeof(ThrottleTstInsData) + INSTRUCTION_LENGTH);
-				curPos += (sizeof(ThrottleTstInsData) + INSTRUCTION_LENGTH);
+			}
+			case TPT_LOADCONTROLPARA:
+			{
+				this->OnLoadCtlPara(Target + curPos, sizeof(ControlPara) + INSTRUCTION_LENGTH);
+				curPos += sizeof(ControlPara) + INSTRUCTION_LENGTH;
 				break;
-			case STT_TILTDISC_TST:					/*倾斜盘测试*/
-				this->OnTiltDiscTest(buf + curPos, sizeof(TiltDiscTstInsData) + INSTRUCTION_LENGTH);
-				curPos += (sizeof(TiltDiscTstInsData) + INSTRUCTION_LENGTH);
-				break;
-			case SIT_IMU_TST:						/*IMU测试*/
-				switch(T)
+			}
+			case SAS_ACTORSET_TASK:
+				switch (T)
 				{
-				case TIT_IMUTEST_START:									/*开始IMU测试*/
-					this->OnIMUTestStart(buf + curPos, INSTRUCTION_LENGTH);
-					curPos += INSTRUCTION_LENGTH;
-					break;
-				case TIT_IMUTEST_STOP:									/*结束IMU测试*/
-					this->OnIMUTestStop(buf + curPos, INSTRUCTION_LENGTH);
-					curPos += INSTRUCTION_LENGTH;
-					break;
-				case TIT_IMUTEST_DATA:									/*IMU测试数据*/
-					this->OnIMUTestData(buf + curPos, sizeof(IMUTestData) + INSTRUCTION_LENGTH);
-					curPos += (sizeof(IMUTestData) + INSTRUCTION_LENGTH);
+				case TAS_ACTORSET:
+					this->OnServoActorSet(Target + curPos, sizeof(ServoActorData) + INSTRUCTION_LENGTH);
+					curPos += sizeof(ServoActorData) + INSTRUCTION_LENGTH;
 					break;
 				default:
 					ParseError(V);
 					break;
 				}
 				break;
-			case SGT_GPS_TST:						/*GPS测试*/
-				switch(T)
+			case STS_TILTDISCSET_TASK:
+				switch (T)
 				{
-				case TGT_GPSTEST_START:									/*开始GPS测试*/
-					this->OnGPSTestStart(buf + curPos, INSTRUCTION_LENGTH);
-					curPos += INSTRUCTION_LENGTH;
-					break;
-				case TGT_GPSTEST_STOP:									/*结束GPS测试*/
-					this->OnGPSTestStop(buf + curPos, INSTRUCTION_LENGTH);
-					curPos += INSTRUCTION_LENGTH;
-					break;
-				case TGT_GPSTEST_DATA:									/*GPS测试数据*/
-					this->OnGPSTestData(buf + curPos, sizeof(GPSTestData) + INSTRUCTION_LENGTH);
-					curPos += (sizeof(GPSTestData) + INSTRUCTION_LENGTH);
+				case TTS_TILTDISCSET:
+					this->OnTileDiscSet(Target + curPos, sizeof(TiltDiscData) + INSTRUCTION_LENGTH);
+					curPos += sizeof(TiltDiscData) + INSTRUCTION_LENGTH;
 					break;
 				default:
 					ParseError(V);
 					break;
 				}
 				break;
-			case SOT_OPTTRACE_TST:					/*光学追踪系统测试*/
-				switch(T)
+			case SPT_PATH_TASK:
+				switch (T)
 				{
-				case TOT_OPTTRACETEST_START:							/*开始光学追踪系统测试*/
-					this->OnOPTTTestStart(buf + curPos, INSTRUCTION_LENGTH);
+				case TPT_LOADPATHPOINT_START:
+					this->OnLoadPathPointStart(Target + curPos, INSTRUCTION_LENGTH);
 					curPos += INSTRUCTION_LENGTH;
 					break;
-				case TOT_OPTTRACETEST_STOP:								/*结束光学追踪系统测试*/
-					this->OnOPTTTestStop(buf + curPos, INSTRUCTION_LENGTH);
+				case TPT_LOADPATHPOINT_STOP:
+					this->OnLoadPathPointStop(Target + curPos, INSTRUCTION_LENGTH);
 					curPos += INSTRUCTION_LENGTH;
 					break;
-				case TOT_OPTTRACETEST_DATA:								/*光学追踪系统测试数据*/
-					this->OnOPTTTestData(buf + curPos, sizeof(OPTTRACETestData) + INSTRUCTION_LENGTH);
-					curPos += (sizeof(OPTTRACETestData) + INSTRUCTION_LENGTH);
-					break; 
+				case TPT_LOADPATHPOINTS:
+					this->OnLoadPathPoint(Target + curPos, sizeof(PathPointData) + INSTRUCTION_LENGTH);
+					curPos += sizeof(PathPointData) + INSTRUCTION_LENGTH;
+					break;
+				case TPT_LOADPATHPOINTS_REPLY:
+					this->OnLoadPathPointSerial(Target + curPos, 6);
+					curPos += 6;
+					break;
+				case TPT_LOADPATHPOINTS_CHECK:
+					this->OnPathPointState(Target + curPos, 6);
+					curPos += 6;
+					break;
 				default:
 					ParseError(V);
 					break;
 				}
 				break;
-			case SAT_ALTIMETER_TST:					/*高度计测试*/
+			default:
+				ParseError(V);
+				break;
+			}
+			break;
+	/////////////////////////////////////////////////////////////////////
+		case FIT_FLYINGSTATEDATA:
+			this->OnFlyingState(Target + curPos, sizeof(FlyStateGroup) + INSTRUCTION_LENGTH);
+			curPos += sizeof(FlyStateGroup) + INSTRUCTION_LENGTH;
+			break;
+	/////////////////////////////////////////////////////////////////////
+		case FIT_FLYINGSTATEDATAACT:
+			this->OnFlyingStateAct(Target + curPos, 6);
+			curPos += 6;
+			break;
+	/////////////////////////////////////////////////////////////////////
+		case FIE_INSPARSEERR:
+			this->OnErrorInsHead(Target + curPos, 4);
+			curPos += 4;
+			break;
+	/////////////////////////////////////////////////////////////////////
+		case FET_EQUIPMENTTEST:
+			switch(S)
+			{
+			case SAT_SERVOACTOR_TST:
+				this->OnServoActorTest(Target + curPos, sizeof(ServoActorTstInsData) + INSTRUCTION_LENGTH);
+				curPos += sizeof(ServoActorTstInsData) + INSTRUCTION_LENGTH;
+				break;
+			case STT_THROTTLE_TST:
+				this->OnThrottleTest(Target + curPos, sizeof(ThrottleTstInsData) + INSTRUCTION_LENGTH);
+				curPos += sizeof(ThrottleTstInsData) + INSTRUCTION_LENGTH;
+				break;
+			case STT_TILTDISC_TST:
+				this->OnTiltDiscTest(Target + curPos, sizeof(TiltDiscTstInsData) + INSTRUCTION_LENGTH);
+				curPos += sizeof(TiltDiscTstInsData) + INSTRUCTION_LENGTH;
+				break;
+			case SIT_IMU_TST:
 				switch(T)
 				{
-				case TAT_ALTIMETERTEST_START:							/*开始高度计测试*/
-					this->OnAltiTestStart(buf + curPos, INSTRUCTION_LENGTH);
+				case TIT_IMUTEST_START:
+					this->OnIMUTestStart(Target + curPos, INSTRUCTION_LENGTH);
 					curPos += INSTRUCTION_LENGTH;
 					break;
-				case TAT_ALTIMETERTEST_STOP:							/*结束高度计测试*/
-					this->OnAltiTestStop(buf + curPos, INSTRUCTION_LENGTH);
+				case TIT_IMUTEST_STOP:
+					this->OnIMUTestStop(Target + curPos, INSTRUCTION_LENGTH);
 					curPos += INSTRUCTION_LENGTH;
 					break;
-				case TAT_ALTIMETERTEST_DATA:							/*光学高度计测试数据*/
-					this->OnAltiTestData(buf + curPos, INSTRUCTION_LENGTH);
+				case TIT_IMUTEST_DATA:
+					this->OnIMUTestData(Target + curPos, INSTRUCTION_LENGTH + sizeof(IMUTestData));
+					curPos += INSTRUCTION_LENGTH + sizeof(IMUTestData);
+					break;
+				default:
+					ParseError(V);
+					break;
+				}
+				break;
+			case SGT_GPS_TST:
+				switch(T)
+				{
+				case TGT_GPSTEST_START:
+					this->OnGPSTestStart(Target + curPos, INSTRUCTION_LENGTH);
+					curPos += INSTRUCTION_LENGTH;
+					break;
+				case TGT_GPSTEST_STOP:
+					this->OnGPSTestStop(Target + curPos, INSTRUCTION_LENGTH);
+					curPos += INSTRUCTION_LENGTH;
+					break;
+				case TGT_GPSTEST_DATA:
+					this->OnGPSTestData(Target + curPos, INSTRUCTION_LENGTH + sizeof(GPSTestData));
+					curPos += INSTRUCTION_LENGTH + sizeof(GPSTestData);
+					break;
+				default:
+					ParseError(V);
+					break;
+				}
+				break;
+			case SOT_OPTTRACE_TST:
+				switch(T)
+				{
+				case TOT_OPTTRACETEST_START:
+					this->OnOPTTTestStart(Target + curPos, INSTRUCTION_LENGTH);
+					curPos += INSTRUCTION_LENGTH;
+					break;
+				case TOT_OPTTRACETEST_STOP:
+					this->OnOPTTTestStop(Target + curPos, INSTRUCTION_LENGTH);
+					curPos += INSTRUCTION_LENGTH;
+					break;
+				case TOT_OPTTRACETEST_DATA:
+					this->OnOPTTTestData(Target + curPos, INSTRUCTION_LENGTH + sizeof(OPTTRACETestData));
+					curPos += INSTRUCTION_LENGTH + sizeof(OPTTRACETestData);
+					break;
+				default:
+					ParseError(V);
+					break;
+				}
+				break;
+			case SAT_ALTIMETER_TST:
+				switch(T)
+				{
+				case TAT_ALTIMETERTEST_START:
+					this->OnAltiTestStart(Target + curPos, INSTRUCTION_LENGTH);
+					curPos += INSTRUCTION_LENGTH;
+					break;
+				case TAT_ALTIMETERTEST_STOP:
+					this->OnAltiTestStop(Target + curPos, INSTRUCTION_LENGTH);
+					curPos += INSTRUCTION_LENGTH;
+					break;
+				case TAT_ALTIMETERTEST_DATA:
+					this->OnAltiTestData(Target + curPos, INSTRUCTION_LENGTH);
 					curPos += INSTRUCTION_LENGTH;
 					break;
 				default:
@@ -419,15 +452,18 @@ bool CGSProtocolParser::OnInsData(void *tmpTarget, __int32 Len)
 				break;
 			}
 			break;
-		case FNT_NETTESTTEXT:		/*网络通信测试带文本*/
-			this->OnComTestT(buf + curPos, COM_TEXT_LENGTH + INSTRUCTION_LENGTH);
-			curPos += (COM_TEXT_LENGTH + INSTRUCTION_LENGTH);
+	/////////////////////////////////////////////////////////////////////
+		case FNT_NETTESTTEXT:
+			this->OnComTestT(Target + curPos, COM_TEXT_LENGTH + INSTRUCTION_LENGTH);
+			curPos += COM_TEXT_LENGTH + INSTRUCTION_LENGTH;
 			break;
-		case FNT_NETTESTTEXTREPLY:	/*网络通信测试带文本回复*/
-			this->OnComTestTReply(buf + curPos, COM_TEXT_LENGTH + INSTRUCTION_LENGTH);
-			curPos += (COM_TEXT_LENGTH + INSTRUCTION_LENGTH);
+	/////////////////////////////////////////////////////////////////////
+		case FNT_NETTESTTEXTREPLY:
+			this->OnComTestTReply(Target + curPos, COM_TEXT_LENGTH + INSTRUCTION_LENGTH);
+			curPos += COM_TEXT_LENGTH + INSTRUCTION_LENGTH;
 			break;
-		default :					/*无定义*/
+	/////////////////////////////////////////////////////////////////////
+		default :
 			ParseError(V);
 		}
 	} // end while loop

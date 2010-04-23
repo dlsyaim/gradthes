@@ -13,16 +13,12 @@ public:
 	inline void setMeshes(std::vector<Mesh> meshes) {this->meshes = meshes;}
 	inline std::vector<Mesh> getMeshes(void) {return meshes;}
 
-	// 
+	// Load aircraft
 	void loadAircraft(void);
-
-	// 
 	void loadAircraft(char* filePath);
 
-
-
 	// Draw function.
-	void draw(LPRECT lpRect, BOOL isTerrain = TRUE);
+	void draw(LPRECT lpRect, BOOL isTerrain = TRUE, BOOL isInstr = FALSE);
 
 	// Setters and getters
 	inline void setXrot(double xrot) {this->xrot = xrot;}
@@ -58,9 +54,14 @@ private:
 
 // Operations
 	/*
-	 * Whe the client area's size changes, then the aircraft must update acoordingly.
+	 * When the client area's size changes, then the aircraft must update acoordingly.
 	 */
 	void drawWithAutoSize(LPRECT lpRect);
+
+	/*
+	 * When the instruments are drawn, so the aircraft must adjust its position
+	 */
+	void drawWithInstruments(LPRECT lpRect);
 
 
 };

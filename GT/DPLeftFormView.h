@@ -1,5 +1,4 @@
 #pragma once
-#include "afxcmn.h"
 
 
 // CDPLeftFormView ¥∞ÃÂ ”Õº
@@ -82,9 +81,18 @@ private:
 // Operations 
 	void readFSFile(void);
 	// Update the buf
-	void updateBuf(void);
+	void updateBuf(int seconds);
 	// Restore the buf
 	void restoreBuf(void);
+
+	// Get the fly state according to the elapsed
+	pFlyState getFlyState(void);
+
+	std::vector<float> rollCurveData;
+	std::vector<float> pitchCurveData;
+	std::vector<float> headCurveData;
+
+	void updateCurve(void);
 
 public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);

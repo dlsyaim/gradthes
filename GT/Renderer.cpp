@@ -107,7 +107,6 @@ void Renderer::draw(void)
 	if (!panel)
 		return;
 
-
 	/*
 	 * First when we draw the text, we use the gluOrtho2D
 	 */
@@ -122,11 +121,6 @@ void Renderer::draw(void)
 	// Draw fonts
 	drawFonts();
 
-	glDisable(GL_DEPTH_TEST);
-	// Draw instruments
-	panel->draw(lpRect);
-
-
 	/*
 	 * Then when we draw the 3-D model , we use the gluPerspective
 	 */
@@ -137,8 +131,14 @@ void Renderer::draw(void)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	camera->Look();
+	
+
+	glDisable(GL_DEPTH_TEST);
+	// Draw instruments
+	panel->draw(lpRect);
+
 	// Draw aircraft
-	aircraft->draw(lpRect, FALSE);
+	aircraft->draw(lpRect, FALSE, TRUE);
 }
 
 // Initialize the illumination and material

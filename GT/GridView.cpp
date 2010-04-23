@@ -253,6 +253,7 @@ void CGridView::OnGridClick(NMHDR *pNotifyStruct, LRESULT* /*pResult*/)
 		if (label == "Add") {
 			// Contruct a new path point
 			PathPointData *ppd = new PathPointData();
+			memset(ppd, 0, sizeof(PathPointData));
 			// Set the serial number
 			ppd->serial = pItem->iRow - 1;
 			for (int i = 1; i <= NUM_OF_COL - 1; i++) {
@@ -346,8 +347,8 @@ void CGridView::OnBnClickedAssurePath()
 	char pointCommand[sizeof(PathPointData) + 2];
 	c = (__int16 *)pointCommand;
 	c[0] = TPT_LOADPATHPOINTS;
-	
-	memcpy(pointCommand + 2, (char *)(&path[0]), sizeof(path[0]));
+
+	memcpy(pointCommand + 2, (char *)path[0], sizeof(PathPointData));
 	cln->SendSvr(pointCommand, sizeof(pointCommand));	
 }
 
@@ -367,7 +368,7 @@ LRESULT CGridView::OnLoadReply(WPARAM w, LPARAM l)
 
 	/* First send the LOAD START command */
 	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
-	if (*received == path.size()) {
+	if ((*received) == path.size()) {
 		char overCommand[2];
 		c = (__int16 *)overCommand;
 		c[0] = TPT_LOADPATHPOINT_STOP;
@@ -375,11 +376,11 @@ LRESULT CGridView::OnLoadReply(WPARAM w, LPARAM l)
 		return TRUE;
 	}
 	/* Here we just send one point */
-	char pointCommand[34];
+	char pointCommand[sizeof(PathPointData) + INSTRUCTION_LENGTH];
 	c = (__int16 *)pointCommand;
 	c[0] = TPT_LOADPATHPOINTS;
 	
-	memcpy(pointCommand + 2, (char *)(&path[*received]), sizeof(path[*received]));
+	memcpy(pointCommand + 2, (char *)(path[*received]), sizeof(PathPointData));
 	cln->SendSvr(pointCommand, sizeof(pointCommand));
 
 	return TRUE;

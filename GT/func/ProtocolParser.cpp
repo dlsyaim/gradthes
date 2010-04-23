@@ -54,7 +54,7 @@ bool CProtocolParser::OnInsData(void * Target,__int32 Len)
 			case TFT_STOPTASK:										/*结束飞行任务*/
 				this->OnStopTask(Target,Len);
 				break;	
-			case TFT_STARTSTOPREPLY:								/*结束飞行任务回复*/
+			case TFT_STOPTASKREPLY:								/*结束飞行任务回复*/
 				this->OnStopTaskReply(Target,Len);
 				break;
 			default:
@@ -217,7 +217,7 @@ bool CProtocolParser::OnInsData(void * Target,__int32 Len)
 
 void CProtocolParser::ParseError(INSHEAD V)
 {
-	printf("%x\n",V);
+	TRACE("Unable parsed instruction %x\n",V);
 }
 
 void CProtocolParser::OnEmergency(void * Target, __int32 Len)
@@ -597,6 +597,21 @@ void CProtocolParser::OnPathPointState(void * Target, __int32 Len)
 }
 
 void CProtocolParser::OnFlyingState(void * Target, __int32 Len)
+{
+	printf("OnFlyingState no defined correctly\n");
+}
+
+void CProtocolParser::OnLoadHeliPara(void * Target, __int32 Len)
+{
+	printf("OnFlyingState no defined correctly\n");
+}
+
+void CProtocolParser::OnLoadCtlPara(void * Target, __int32 Len)
+{
+	printf("OnFlyingState no defined correctly\n");
+}
+
+void CProtocolParser::OnFlyingStateAct(void * Target, __int32 Len)
 {
 	printf("OnFlyingState no defined correctly\n");
 }

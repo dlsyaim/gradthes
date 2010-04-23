@@ -13,6 +13,7 @@
 #include "Singleton.h"
 #include "MsgType.h"
 #include "CurveCtrl.h"
+#include "UpperRightView.h"
 
 #define CURVE_WIDTH 280
 #define CURVE_HEIGHT 110
@@ -333,6 +334,10 @@ LRESULT CLeftView::OnFlyingStateData(WPARAM w, LPARAM l)
 	 */
 	GetDocument()->lowerRightView->updateFS(&(newestFSG->states[FLYSTATEGROUPNUMBER - 1]));
 
+	/*
+	 * We still need to update the GPS
+	 */
+	GetDocument()->upperRightView->updateFS(&(newestFSG->states[FLYSTATEGROUPNUMBER - 1]));
 
 	/*
 	 * Finally we should store the fly state into files when the buffer is full
@@ -474,6 +479,12 @@ void CLeftView::serialize(BOOL isForce/* = FALSE*/)
 		for (iter = bufFSG.begin(); iter != bufFSG.end(); iter++) {
 			ofs.write((char*) &(*iter), sizeof(*iter));
 		}
+
+		/*
+		 * And we must serialize ed into the file's header
+		 */
+		ofs.seekp(0, std::ios::beg);
+		ofs.write((char *)&ed, sizeof(ed));
 		ofs.close();
 		bufFSG.clear();
 	}

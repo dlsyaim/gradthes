@@ -5,11 +5,15 @@
 #include <fstream>
 #include <math.h>
 #include <vector>
+#include <algorithm>
+#include <GL/glut.h>
 #include "GT.h"
 #include "DPLeftFormView.h"
 #include "GTDoc.h"
 #include "CurveCtrl.h"
 #include "GSDefinition.h"
+#include "DPUpperRightView.h"
+#include "GTView.h"
 
 // CDPLeftFormView
 
@@ -22,12 +26,19 @@
 #define LABEL_HEIGHT 50
 
 #define MAX_NUMBER_POINTS 20 
+#define BUF_SIZE   1000
 
 #define PITCH_CURVE_NAME "dp_pitch"
 #define ROLL_CURVE_NAME "dp_roll"
 #define HEAD_CURVE_NAME "dp_head"
 
 #define TIMER_IDENTIFIER_ONE 1
+
+int operator== (const FlyStateGroup &p1, const FlyStateGroup &p2)
+{
+	return p1.serial == p2.serial;
+}
+
 
 IMPLEMENT_DYNCREATE(CDPLeftFormView, CFormView)
 
@@ -62,6 +73,9 @@ CDPLeftFormView::CDPLeftFormView()
 
 	// Default is 0
 	elapsed = 0;
+
+	// Default is 0
+	size = 0;
 }
 
 CDPLeftFormView::~CDPLeftFormView()
@@ -94,6 +108,7 @@ void CDPLeftFormView::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_DP_HEAD_UPPER_EDIT, dpHeadUpper);
 	DDX_Text(pDX, IDC_DP_HEAD_LOWER_EDIT, dpHeadLower);
 	DDX_Control(pDX, IDC_DP_SLIDER, m_SliderCtrl);
+	DDV_MinMaxInt(pDX, dpFPS, 20, INT_MAX);
 }
 
 BEGIN_MESSAGE_MAP(CDPLeftFormView, CFormView)
@@ -289,7 +304,7 @@ void CDPLeftFormView::readFSFile(void)
 		reserve.open(ed.subExperimentData, std::ios::binary);
 		reserve.read((char *)&ed, sizeof(ed));
 		reserve.seekg(0, std::ios::end);
-		totalSize = ifs.tellg();
+		totalSize = reserve.tellg();
 		size += ((totalSize - sizeof(ExperimentData)) / sizeof(FlyStateGroup));
 		reserve.close();
 	}
@@ -301,7 +316,7 @@ void CDPLeftFormView::readFSFile(void)
 	ifs.seekg(sizeof(ExperimentData), std::ios::beg);
 	FlyStateGroup fsg;
 	int bytesRead;
-	while (TRUE) {
+	while (TRUE && buf.size() != BUF_SIZE) {
 		ifs.read((char *)&fsg, sizeof(fsg));
 		bytesRead = ifs.gcount();
 		if (bytesRead != sizeof(fsg))
@@ -322,21 +337,60 @@ void CDPLeftFormView::OnTimer(UINT_PTR nIDEvent)
 {
 	// Update elapsed
 	elapsed += dpFPS;
+	if (elapsed == tof)
+	{
+		KillTimer(m_nTimer);
+		elapsed = 0;
+		m_SliderCtrl.SetPos(m_SliderCtrl.GetRangeMin());
+		
+		buf.clear();
+
+	}
+	
 	// Calculate the seconds
-	int seconds = elapsed / 60;
+	int seconds = elapsed / 1000;
 
 	m_SliderCtrl.SetPos(seconds);
 
 	// We must get the data
-	//curPos 
+	pFlyState fs = getFlyState();
+
+	/*
+	 * Need to update all the views
+	 */
+	dpPitch = fs->theta;
+	dpRoll = fs->phi;
+	dpHead = fs->psi;
+	updateCurve();
+
+	// Update the GPS
+	GetDocument()->dpUpperRightView->updateFS(fs);
+
+	// Update the instruments and 3-d models
+	GetDocument()->lowerRightView->updateFS(fs);
+	
+	UpdateData(FALSE);
 
 	CFormView::OnTimer(nIDEvent);
 }
 
 
-void CDPLeftFormView::updateBuf(void)
+void CDPLeftFormView::updateBuf(int seconds)
 {
-
+	// Position the file pointer correctly
+	std::ifstream ifs(dpFileName, std::ios::binary);
+	ifs.seekg(sizeof(ExperimentData) + (seconds - 1) * sizeof(FlyStateGroup));
+	// Start to read the data
+	int bytesRead;
+	FlyStateGroup fsg;
+	while (buf.size() != BUF_SIZE) {
+		ifs.read((char *)&fsg, sizeof(fsg));
+		bytesRead = ifs.gcount();
+		if (bytesRead != sizeof(fsg))
+			break;
+		buf.push_back(fsg);
+	}
+	ifs.close();
 }
 
 void CDPLeftFormView::restoreBuf(void)
@@ -349,4 +403,124 @@ void CDPLeftFormView::OnDestroy()
 
 	// Any way, kill the timer
 	KillTimer(m_nTimer);
+}
+
+pFlyState CDPLeftFormView::getFlyState(void)
+{
+	int seconds = elapsed / 1000;
+	int milliSeconds = elapsed - seconds;
+
+	if (buf.size() == 0)
+		return NULL;
+	/*
+	 * First get the fly state group according to seconds
+	 */
+	FlyStateGroup fsg;
+	fsg.serial = seconds;
+	std::vector<FlyStateGroup>::iterator iter = std::find(buf.begin(), buf.end(), fsg);
+	if (iter == buf.end()) {
+		// No found, so need to update the buf
+		updateBuf(seconds);
+		// After update, the needed fly state group must be in the begin
+		iter == buf.end();
+	}
+
+	int milliIdx = milliSeconds / 20;
+	return &((*iter).states[milliIdx]);
+	
+}
+
+void CDPLeftFormView::updateCurve(void)
+{
+	/*
+	 * Update the curve
+	 */
+	float fX, fY;
+
+	if (dpPitch <= dpPitchLower)
+		fY = (float)dpPitchLower;
+	else if (dpPitch >= dpPitchUpper)
+		fY = (float)dpPitchUpper;
+	else 
+		fY = (float)dpPitch;
+
+	if (pitchCurveData.size() == MAX_NUMBER_POINTS) {
+		/*
+		 * So we need to update the vector
+		 */
+		pitchCurveData.erase(pitchCurveData.begin());
+		pitchCurveData.push_back(fY);
+	} else {
+		pitchCurveData.push_back(fY);
+	}
+
+	if (dpRoll <= dpRollLower)
+		fY = (float)dpRollLower;
+	else if (dpRoll >= dpRollUpper)
+		fY = (float)dpRollUpper;
+	else 
+		fY = (float)dpRoll;
+
+	if (rollCurveData.size() == MAX_NUMBER_POINTS) {
+		/*
+		 * So we need to update the vector
+		 */
+		rollCurveData.erase(rollCurveData.begin());
+		rollCurveData.push_back(fY);
+	} else {
+		rollCurveData.push_back(fY);
+	}
+
+	if (dpHead <= dpHeadLower)
+		fY = (float)dpHeadLower;
+	else if (dpHead >= dpHeadUpper)
+		fY = (float)dpHeadUpper;
+	else 
+		fY = (float)dpHead;
+
+	if (headCurveData.size() == MAX_NUMBER_POINTS) {
+		/*
+		 * So we need to update the vector
+		 */
+		headCurveData.erase(headCurveData.begin());
+		headCurveData.push_back(fY);
+	} else {
+		headCurveData.push_back(fY);
+	}
+	
+	/*
+	 * After update the data, then should update the curve
+	 */
+	std::vector<float>::iterator iter;
+	fX = 0.1f;
+	for (iter = pitchCurveData.begin(); iter != pitchCurveData.end(); iter++) {		
+		fY = *iter;
+		m_pPitchCurveCtrl->AddData(PITCH_CURVE_NAME, fX, fY);
+		fX += 0.1f;
+	}
+	/*for (float f = 0.0f; f < 6.28f; f += 0.1f)
+	{
+		fX = f;
+		fY = 100.0 *  (sin(f));
+		m_pPitchCurveCtrl->AddData(PITCH_CURVE_NAME, fX, fY);
+	}*/
+
+	
+	fX = 0.1f;
+	for (iter = rollCurveData.begin(); iter != rollCurveData.end(); iter++) {
+		fY = *iter;
+		m_pRollCurveCtrl->AddData(ROLL_CURVE_NAME, fX, fY);
+		fX += 0.1f;
+	}
+
+	fX = 0.1f;
+	for (iter = headCurveData.begin(); iter != headCurveData.end(); iter++) {
+		fY = *iter;
+		m_pHeadCurveCtrl->AddData(HEAD_CURVE_NAME, fX, fY);
+		fX += 0.1f;
+	}
+	
+	m_pPitchCurveCtrl->Invalidate();
+	m_pRollCurveCtrl->Invalidate();
+	m_pHeadCurveCtrl->Invalidate();
 }
