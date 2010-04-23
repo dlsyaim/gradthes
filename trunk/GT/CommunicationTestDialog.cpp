@@ -128,9 +128,17 @@ void CCommunicationTestDialog::sendCommunicationTestCommand(CString content)
 	char command[COM_TEXT_LENGTH + INSTRUCTION_LENGTH];
 	__int16 *c = (__int16 *)command;
 	c[0] = FNT_NETTESTTEXT;
-
-	memcpy(&(command[2]), content.GetBuffer(0), content.GetLength());
+	int len = content.GetLength();
+	if(len >99)
+	{
+		len =99;
+	}
+	memcpy(&(command[2]), content.GetBuffer(0), len);
+	command[2+len] = '\0';
+	
+	
 	cln->SendSvr(command, sizeof(command));
+	
 
 	/********** Update the "display list" *********/
 	commandDisplayer.Append(content + _T("\r\n"));

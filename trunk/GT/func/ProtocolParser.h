@@ -52,6 +52,9 @@ public:
 	virtual void OnLoadPathPointSerial(void * Target, __int32 Len);
 	virtual void OnPathPointState(void * Target, __int32 Len);
 	virtual void OnFlyingState(void * Target, __int32 Len);
+	virtual void OnLoadHeliPara(void * Target, __int32 Len);
+	virtual void OnLoadCtlPara(void * Target, __int32 Len);
+	virtual void OnFlyingStateAct(void * Target, __int32 Len);
 };
 
 #endif 

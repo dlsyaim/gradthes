@@ -8,6 +8,8 @@
 #include "Texture.h"
 #include "Panel.h"
 
+#define Y_OFFSET 100.0f
+
 Panel::Panel(void)
 {
 	inLi = new instrumentList();
@@ -94,11 +96,11 @@ void Panel::draw(LPRECT lpRect)
 
 	glPushMatrix();
 	glEnable(GL_TEXTURE_2D);
-	glTranslatef(0.0f, 0.0f, distance);	
+	glTranslatef(0.0f, Y_OFFSET, distance);	
 	glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
 
 	// First render the background
-	if (background) {
+	/*if (background) {
 		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 		glBindTexture(GL_TEXTURE_2D, background->getTexId());
 		glBegin(GL_POLYGON);
@@ -107,7 +109,7 @@ void Panel::draw(LPRECT lpRect)
 			glTexCoord2f(background->getX2(), background->getY2()); glVertex3f(0.0f, 40.0f, 0.0f);
 			glTexCoord2f(background->getX1(), background->getY2()); glVertex3f(-635.0f, 40.0f, 0.0f);
 		glEnd();
-	}
+	}*/
 	
 	// Render each instrument.
 	for (int i = 0; i < (int)inLi->size(); i++) {		

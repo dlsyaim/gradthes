@@ -1,9 +1,12 @@
 #pragma once
+#include <vector>
 
-
-
+class CCurveCtrl;
 // CDPUpperRightView ¥∞ÃÂ ”Õº
 class CGTDoc;
+
+typedef std::pair<float, float> FPOINT;
+
 class CDPUpperRightView : public CFormView
 {
 	DECLARE_DYNCREATE(CDPUpperRightView)
@@ -32,6 +35,17 @@ public:
 	double dpYCoor;
 	afx_msg void OnBnClickedDPZoomIn();
 	afx_msg void OnBnClickedDPZoomOut();
+	// The curve of the helicopter model's spatial position
+	CCurveCtrl *m_pSpatialCurveCtrl;
+
+	// Update the data
+	void updateFS(pFlyState fs);
+	// Update the curve
+	void updateCurve(void);
+private:
+// Attributes
+	std::vector<FPOINT> mapData;
+
 };
 
 #ifndef _DEBUG  // debug version in DPUpperRightView.cpp

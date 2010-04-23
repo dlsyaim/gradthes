@@ -5,6 +5,15 @@
 #include "GT.h"
 #include "DPUpperRightView.h"
 #include "GTDoc.h"
+#include "CurveCtrl.h"
+
+#define FIRST_LEFT 2
+#define FIRST_UPPER 25
+#define CURVE_HEIGHT 180
+#define CURVE_WIDTH 280
+
+
+#define SPATIAL_NAME "spatial_curve"
 
 // CDPUpperRightView
 
@@ -15,7 +24,7 @@ CDPUpperRightView::CDPUpperRightView()
 	, dpXCoor(0)
 	, dpYCoor(0)
 {
-
+	m_pSpatialCurveCtrl = NULL;
 }
 
 CDPUpperRightView::~CDPUpperRightView()
@@ -68,6 +77,18 @@ int CDPUpperRightView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// TODO:  在此添加您专用的创建代码
 	GetDocument()->dpUpperRightView = this;
+
+	m_pSpatialCurveCtrl = new CCurveCtrl;
+	m_pSpatialCurveCtrl->Create(CRect(FIRST_LEFT, FIRST_UPPER, FIRST_LEFT + CURVE_WIDTH, FIRST_UPPER + CURVE_HEIGHT), this, 
+		IDC_ROLL_CURVE_CONTROL);
+	/*
+	 * In method SetMargin, the CRect object's four coodinates don't have the actual meaning, they
+	 * just represent the margin in LEFT/TOP/RIGHT/BOTTOM direction respectively
+	 */
+	m_pSpatialCurveCtrl->SetMargin(CRect(1, 1, 1, 1));
+	// Add the curve
+	int idx = m_pSpatialCurveCtrl->AddCurve(SPATIAL_NAME, RGB(0, 0, 0));
+	m_pSpatialCurveCtrl->GetCurve(idx)->ShowCurve();
 	return 0;
 }
 
@@ -79,4 +100,26 @@ void CDPUpperRightView::OnBnClickedDPZoomIn()
 void CDPUpperRightView::OnBnClickedDPZoomOut()
 {
 	// TODO: 在此添加控件通知处理程序代码
+}
+
+void CDPUpperRightView::updateFS(pFlyState fs)
+{
+	dpXCoor = fs->N_Pos;
+	dpYCoor = fs->E_Pos;
+
+	mapData.push_back(FPOINT(dpXCoor, dpYCoor));
+
+	updateCurve();
+
+	UpdateData(FALSE);
+}
+
+void CDPUpperRightView::updateCurve(void)
+{
+	std::vector<FPOINT>::iterator iter;
+	for (iter = mapData.begin(); iter != mapData.end(); iter++) {
+		m_pSpatialCurveCtrl->AddData(SPATIAL_NAME, (*iter).first, (*iter).second);
+	}
+
+	m_pSpatialCurveCtrl->Invalidate();
 }

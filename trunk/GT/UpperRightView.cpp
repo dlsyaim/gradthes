@@ -5,8 +5,16 @@
 #include "GT.h"
 #include "UpperRightView.h"
 #include "GTDoc.h"
+#include "CurveCtrl.h"
 
 // CUpperRightView
+
+#define FIRST_LEFT 2
+#define FIRST_UPPER 25
+#define CURVE_HEIGHT 180
+#define CURVE_WIDTH 280
+
+#define SPATIAL_NAME "spatial_curve"
 
 IMPLEMENT_DYNCREATE(CUpperRightView, CFormView)
 
@@ -15,7 +23,7 @@ CUpperRightView::CUpperRightView()
 	, feXCoor(0)
 	, feYCoor(0)
 {
-
+	m_pSpatialCurveCtrl = NULL;
 }
 
 CUpperRightView::~CUpperRightView()
@@ -66,8 +74,19 @@ int CUpperRightView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CFormView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	// TODO:  在此添加您专用的创建代码
 	GetDocument()->upperRightView = this;
+
+	m_pSpatialCurveCtrl = new CCurveCtrl;
+	m_pSpatialCurveCtrl->Create(CRect(FIRST_LEFT, FIRST_UPPER, FIRST_LEFT + CURVE_WIDTH, FIRST_UPPER + CURVE_HEIGHT), this, 
+		IDC_ROLL_CURVE_CONTROL);
+	/*
+	 * In method SetMargin, the CRect object's four coodinates don't have the actual meaning, they
+	 * just represent the margin in LEFT/TOP/RIGHT/BOTTOM direction respectively
+	 */
+	m_pSpatialCurveCtrl->SetMargin(CRect(1, 1, 1, 1));
+	// Add the curve
+	int idx = m_pSpatialCurveCtrl->AddCurve(SPATIAL_NAME, RGB(0, 0, 0));
+	m_pSpatialCurveCtrl->GetCurve(idx)->ShowCurve();
 
 	return 0;
 }
@@ -87,4 +106,27 @@ void CUpperRightView::OnBnClickedFEZoomIn()
 void CUpperRightView::OnBnClickedFEZoomOut()
 {
 	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void CUpperRightView::updateFS(pFlyState fs)
+{
+	feXCoor = fs->N_Pos;
+	feYCoor = fs->E_Pos;
+
+	mapData.push_back(FPOINT(feXCoor, feYCoor));
+
+	updateCurve();
+
+	UpdateData(FALSE);
+}
+
+void CUpperRightView::updateCurve(void)
+{
+	std::vector<FPOINT>::iterator iter;
+	for (iter = mapData.begin(); iter != mapData.end(); iter++) {
+		m_pSpatialCurveCtrl->AddData(SPATIAL_NAME, (*iter).first, (*iter).second);
+	}
+
+	m_pSpatialCurveCtrl->Invalidate();
 }

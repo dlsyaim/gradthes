@@ -97,6 +97,67 @@ void Aircraft::drawWithAutoSize(LPRECT lpRect)
 	glPopMatrix();
 }
 
+// Attention: This function needs to be consummated
+void Aircraft::drawWithInstruments(LPRECT lpRect)
+{
+	// When the client area minimized, just return.
+	if (lpRect->right == 0 || lpRect->bottom == 0)
+		return;
+	/*
+	 * Because this LPRECT represents the client area's size, so upper-left cornor is (0, 0)
+	 */
+	static LONG originRight = lpRect->right;
+	static LONG originBottom = lpRect->bottom;
+
+	const float x_offset = 300.0f;
+	const float y_offset = -50.0f;
+
+	static float distance = -600.0f;
+	// Calculate the differences
+	float diff;
+	diff = max((float) originRight / lpRect->right, (float) originBottom / lpRect->bottom);
+	if (diff == 1.0f) {
+		diff = min ((float) originRight / lpRect->right, (float) originBottom / lpRect->bottom);
+	}
+	originRight = lpRect->right;
+	originBottom = lpRect->bottom;
+	distance = distance * diff;
+
+	glPushMatrix();
+	glDisable(GL_BLEND);
+	glColor3f(1.0f, 1.0f, 1.0f);
+	/*
+	 * Whe the client area's size changes, then the aircraft must update acoordingly.
+	 * And to accommplish this target, we just traslate deeper towards Z-axis negative direction to make
+	 * the aircaft smaller
+	 */
+	// First translate 600.0f towards Z-axis negative direction
+	glTranslatef(x_offset, y_offset, distance);
+
+
+	// To make the aircraft's head toward left
+	glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
+	glRotatef(-xrot, 1.0f, 0.0f, 0.0f);
+	glRotatef(-yrot, 0.0f, 1.0f, 0.0f);
+	glRotatef(-zrot, 0.0f, 0.0f, 1.0f);
+	glBegin(GL_TRIANGLES);
+		for ( int i = 0; i < (int)meshes.size(); i++ ) {
+			for ( int j = 0; j < (int)meshes[i].numFaces; j++ ) {
+				glNormal3f(meshes[i].normals[(int) meshes[i].faces[j].x].x, meshes[i].normals[(int) meshes[i].faces[j].x].y, meshes[i].normals[(int) meshes[i].faces[j].x].z);
+				glVertex3f(meshes[i].vertices[(int) meshes[i].faces[j].x].x, meshes[i].vertices[(int) meshes[i].faces[j].x].y, meshes[i].vertices[(int) meshes[i].faces[j].x].z);
+
+				glNormal3f(meshes[i].normals[(int) meshes[i].faces[j].y].x, meshes[i].normals[(int) meshes[i].faces[j].y].y, meshes[i].normals[(int) meshes[i].faces[j].y].z);
+				glVertex3f(meshes[i].vertices[(int) meshes[i].faces[j].y].x, meshes[i].vertices[(int) meshes[i].faces[j].y].y, meshes[i].vertices[(int) meshes[i].faces[j].y].z);
+
+				glNormal3f(meshes[i].normals[(int) meshes[i].faces[j].z].x, meshes[i].normals[(int) meshes[i].faces[j].z].y, meshes[i].normals[(int) meshes[i].faces[j].z].z);
+				glVertex3f(meshes[i].vertices[(int) meshes[i].faces[j].z].x, meshes[i].vertices[(int) meshes[i].faces[j].z].y, meshes[i].vertices[(int) meshes[i].faces[j].z].z);
+			}
+		}
+	glEnd();
+	glEnable(GL_BLEND);
+	glPopMatrix();
+}
+
 void Aircraft::update(double *stat) {
 	yrot = stat[0];
 	xrot = stat[1];
@@ -126,7 +187,7 @@ void Aircraft::update(pOPTTRACETestData otd)
 }
 
 // Draw function.
-void Aircraft::draw(LPRECT lpRect, BOOL isTerrain/* = TRUE*/)
+void Aircraft::draw(LPRECT lpRect, BOOL isTerrain/* = TRUE*/, BOOL isInstr/* = FALSE*/)
 {
 	if (isTerrain) {
 		glPushMatrix();
@@ -180,7 +241,10 @@ void Aircraft::draw(LPRECT lpRect, BOOL isTerrain/* = TRUE*/)
 			glEnable(GL_BLEND);
 			glPopMatrix();
 		glPopMatrix();
-	} else  {
+	} else if (isInstr) {
+		// Adjust the aircraft's position
+		drawWithInstruments(lpRect);
+	} else {
 		// No terrain will be drawn
 		drawWithAutoSize(lpRect);
 	}

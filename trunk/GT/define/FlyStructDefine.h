@@ -129,9 +129,10 @@ typedef struct FlyState
 typedef struct FlyStateGroup
 {	
 	unsigned short	serial;
-	struct FlyState states[FLYSTATEGROUPNUMBER];
+	struct FlyState states[FLYSTATEGROUPNUMBER];	
 }*pFlyStateGroup;
 
+int operator== (FlyStateGroup &fsg1, FlyStateGroup &fsg2);
 
 
 typedef struct HeliBodyPara
