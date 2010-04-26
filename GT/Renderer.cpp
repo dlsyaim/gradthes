@@ -10,6 +10,7 @@
 #include "DirectionalGyro.h"
 #include "Terrain.h"
 #include "GTView.h"
+#include "Scene.h"
 
 #ifndef PI
 #define PI 3.14159265359
@@ -517,11 +518,7 @@ void Renderer::draw(LPRECT lpRect, int renderMode)
 		gluPerspective(60.0, (GLdouble) lpRect->right / (GLdouble) lpRect->bottom, 1.0, 100000.0);
 		// Clear the depth buffer.
 		glClear(GL_DEPTH_BUFFER_BIT);
-		//if (isExperiment) {
-		//	draw();
-		//} else if(isGyro) {
-		//	drawWithoutInstruments();
-		//}
+		
 		switch (renderMode) {
 			case CGTView::FLIGHT_PATH_SET:
 				drawPath();
@@ -595,18 +592,36 @@ void Renderer::drawPath(void)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	camera->Look();
-	glTranslatef(0.0f, 0.0f, -5.0f);
-	// Draw path
+	glTranslatef(0.0f, 0.0f, -100.0f);
+	glRotatef( 30.0f, 1.0f, 0.0f, 0.0f);
+	glRotatef( -45.0f, 0.0f, 1.0f, 0.0f);
+	Scene::drawCoordinateSystem(lpRect);
+	glDisable(GL_LIGHTING);
 	if (pPath) {
+		glPushAttrib(GL_POINT_BIT | GL_COLOR_BUFFER_BIT);
+		glColor3f(1.0f, 1.0f, 1.0f);
+
 		std::vector<PathPointData*>::iterator iter;
-		glBegin(GL_LINES);
+		// Draw lines
+		glBegin(GL_LINE_STRIP);
 		for (iter = pPath->begin(); iter != pPath->end(); iter++) {
 			if (*iter) {
 				glVertex3f((*iter)->Coordinate_X, (*iter)->Coordinate_Y, (*iter)->Coordinate_Z);
 			}
 		}
 		glEnd();
+		// Draw points
+		glPointSize(5.0f);
+		glBegin(GL_POINTS);
+		for (iter = pPath->begin(); iter != pPath->end(); iter++) {
+			if (*iter) {
+				glVertex3f((*iter)->Coordinate_X, (*iter)->Coordinate_Y, (*iter)->Coordinate_Z);
+			}
+		}
+		glEnd();
+		glPopAttrib();
 	}
+	glEnable(GL_LIGHTING);
 }
 
 void Renderer::updateData(void)

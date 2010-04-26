@@ -6,11 +6,11 @@
 #pragma once
 #include "Renderer.h"
 #include "SerialPort.h"
-#include "NetSvrUdp.h"
-
+//#include "NetSvrUdp.h"
 
 #define FLY_STATISTICS 9
 class CGTDoc;
+
 class CGTView : public CView
 {
 protected: // create from serialization only
@@ -43,7 +43,7 @@ public:
 	int m_nStopbits;     //Stop bits
 	
 	// Socket to receive the flight state statistics
-	CNetSvrUdp* pSvrSock;
+	//CNetSvrUdp* pSvrSock;
 
 	// Mode
 	enum RENDER_MODE {
@@ -58,6 +58,8 @@ public:
 private:
 	// Rendering mode
 	RENDER_MODE renderMode;
+	// Left mouse button's state
+	int lbState;
 
 // Operations
 public:
@@ -101,8 +103,6 @@ public:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 
-protected:
-
 // Generated message map functions
 protected:
 	afx_msg void OnFilePrintPreview();
@@ -123,6 +123,7 @@ public:
 	afx_msg LONG OnCommunication(WPARAM ch, LPARAM port);
 	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnGPSTest();
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 };
 
 #ifndef _DEBUG  // debug version in GTView.cpp

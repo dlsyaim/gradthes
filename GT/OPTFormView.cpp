@@ -22,6 +22,12 @@ COPTFormView::COPTFormView()
 	, N_Acc(0)
 	, E_Acc(0)
 	, D_Acc(0)
+	, opt_n_coord(0)
+	, opt_e_coord(0)
+	, opt_d_coord(0)
+	, opt_roll_vel(0)
+	, opt_pitch_vel(0)
+	, opt_head_vel(0)
 {
 
 }
@@ -42,6 +48,12 @@ void COPTFormView::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_OPT_BODY_X_ACC_EDIT, N_Acc);
 	DDX_Text(pDX, IDC_OPT_BODY_Y_ACC_EDIT, E_Acc);
 	DDX_Text(pDX, IDC_OPT_BODY_Z_ACC_EDIT, D_Acc);
+	DDX_Text(pDX, IDC_OPT_X_COOR, opt_n_coord);
+	DDX_Text(pDX, IDC_OPT_Y_COOR, opt_e_coord);
+	DDX_Text(pDX, IDC_OPT_Z_COOR, opt_d_coord);
+	DDX_Text(pDX, IDC_OPT_ROLL_VEL, opt_roll_vel);
+	DDX_Text(pDX, IDC_OPT_PITCH_VEL, opt_pitch_vel);
+	DDX_Text(pDX, IDC_OPT_HEAD_VEL, opt_head_vel);
 }
 
 BEGIN_MESSAGE_MAP(COPTFormView, CFormView)
@@ -115,7 +127,7 @@ void COPTFormView::OnBnClickedOPTTestPass()
 {
 	/***** Set the global flag variable *****/
 	CSingleton *instance = CSingleton::getInstance();
-	instance->setIsOPTTestPass(FALSE);
+	instance->setIsOPTTestPass(TRUE);
 }
 
 void COPTFormView::OnBnClickedOPTTestFailure()
@@ -139,17 +151,18 @@ void COPTFormView::updateData (pOPTTRACETestData d)
 	E_Acc = d->E_Acc;
 	D_Acc = d->D_Acc;
 
-	//UpdateData(FALSE);
+	opt_n_coord = d->N_Pos;
+	opt_e_coord = d->E_Pos;
+	opt_d_coord = d->D_Pos;
+
+	opt_roll_vel = d->phi_Acc;
+	opt_pitch_vel = d->theta_Acc;
+	opt_head_vel = d->psi_Acc;
+
 }
 
 LRESULT COPTFormView::OnReplyMsgArrived(WPARAM w, LPARAM l)
 {
-	//// The message returns
-	//const CNetSvrHeli* svr = ((CGTApp*)AfxGetApp())->getSvr();
-	//returnMessageDisplayer.Append((char *)svr->recvbuf + 2);
-	//returnMessageDisplayer.Append(_T("\r\n"));
-	//this->UpdateData(FALSE);
-	//return TRUE;
 	UpdateData(FALSE);
 	return TRUE;
 }

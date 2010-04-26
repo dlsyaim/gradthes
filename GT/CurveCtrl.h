@@ -82,6 +82,9 @@ public:
 	void	SetCurveWidth(int nWidth)       { m_nWidth = nWidth;  };
 	int		GetCurveWidth()                 { return m_nWidth;    };
 
+	// Clear the curve
+	BOOL Clear(void);
+
 protected:
 	BOOL		m_bSelected;	
 	BOOL		m_bVisible;		
@@ -128,6 +131,7 @@ public:
 //	BOOL	DeleteDatabyIndex(CString& strName, int iIndex);
 //	BOOL	DeleteDatabyIndex(CCurve* pCurve, int iIndex);
 //	BOOL	DeleteDatabyVertValue(CString& strName, float fVert);
+
 
 	// get curve object pointer
 	CCurve* GetCurve(int iIndex);

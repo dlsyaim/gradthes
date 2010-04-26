@@ -49,12 +49,15 @@ BEGIN_MESSAGE_MAP(CGTView, CView)
 	ON_MESSAGE(WM_COMM_RXCHAR, &CGTView::OnCommunication)
 	ON_WM_RBUTTONDOWN()	
 	ON_COMMAND(ID_32777, &CGTView::OnGPSTest)
+	ON_WM_LBUTTONDOWN()
 END_MESSAGE_MAP()
 
 // CGTView construction/destruction
 
 CGTView::CGTView()
 {
+	// Default not down state is 0
+	lbState = 0;
 }
 
 CGTView::~CGTView()
@@ -199,7 +202,6 @@ int CGTView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_pDC = new CClientDC(this);
 	ASSERT(m_pDC != NULL);
 
-	// TODO: Add extra initialization here
 	m_nBaud=115200;
 	m_nCom=1;
 	m_cParity='N';
@@ -553,4 +555,31 @@ void CGTView::updateFS(pFlyState fs)
 	 */
 	m_Renderer->updateData(fs);
 	Invalidate();
+}
+void CGTView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	if (renderMode != CGTView::FLIGHT_PATH_SET) 
+		return;
+	
+	lbState = 1;
+
+	// Un Project
+	GLint viewport[4];
+	GLdouble mvmatrix[16], projmatrix[16];
+
+	GLint realy;  /* OpenGL y coordinate position */
+	GLdouble wx, wy, wz; /* Returned world x, y, z coords */
+
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	glGetDoublev(GL_MODELVIEW_MATRIX, mvmatrix);
+	glGetDoublev(GL_PROJECTION_MATRIX, projmatrix);
+	/* Note viewport[3] is height of window in pixels */
+	realy = /*viewport[3] -(GLint)point.y - 1*/point.y;
+
+	gluUnProject((GLdouble)point.x, realy, 0.0, mvmatrix, projmatrix, viewport, &wx, &wy, &wz);
+
+	TRACE(_T("Coordinates at cursor are (%d, %d)\n"), point.x, realy);
+	TRACE(_T("World coords at z = 0.0 are(%f, %f, %f)\n"), wx, wy, wz);
+
+	CView::OnLButtonDown(nFlags, point);
 }

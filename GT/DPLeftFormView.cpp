@@ -17,22 +17,22 @@
 
 // CDPLeftFormView
 
-#define CURVE_WIDTH 280
-#define CURVE_HEIGHT 110
+#define CURVE_WIDTH              280
+#define CURVE_HEIGHT             110
 
-#define FIRST_LEFT 9
-#define FIRST_UPPER 130
+#define FIRST_LEFT               9
+#define FIRST_UPPER              130
 
-#define LABEL_HEIGHT 50
+#define LABEL_HEIGHT             50
 
-#define MAX_NUMBER_POINTS 20 
-#define BUF_SIZE   1000
+#define MAX_NUMBER_POINTS        20 
+#define BUF_SIZE                 30
 
-#define PITCH_CURVE_NAME "dp_pitch"
-#define ROLL_CURVE_NAME "dp_roll"
-#define HEAD_CURVE_NAME "dp_head"
+#define PITCH_CURVE_NAME         "dp_pitch"
+#define ROLL_CURVE_NAME          "dp_roll"
+#define HEAD_CURVE_NAME          "dp_head"
 
-#define TIMER_IDENTIFIER_ONE 1
+#define TIMER_IDENTIFIER_ONE     1
 
 int operator== (const FlyStateGroup &p1, const FlyStateGroup &p2)
 {
@@ -46,19 +46,19 @@ CDPLeftFormView::CDPLeftFormView()
 	: CFormView(CDPLeftFormView::IDD)
 	, dpFileName(_T(""))
 	, dpStartTime(_T(""))
-	, dpFPS(20)
+	, dpFPS(1000)
 	, dpHour(0)
 	, dpMinute(0)
 	, dpSecond(0)
 	, dpRoll(0)
-	, dpRollUpper(0)
-	, dpRollLower(0)
+	, dpRollUpper(1000)
+	, dpRollLower(-1000)
 	, dpPitch(0)
-	, dpPitchUpper(0)
-	, dpPitchLower(0)
+	, dpPitchUpper(1000)
+	, dpPitchLower(-1000)
 	, dpHead(0)
-	, dpHeadUpper(0)
-	, dpHeadLower(0)
+	, dpHeadUpper(1000)
+	, dpHeadLower(-1000)
 {
 	m_pRollCurveCtrl = m_pPitchCurveCtrl = m_pHeadCurveCtrl = NULL;
 
@@ -119,6 +119,7 @@ BEGIN_MESSAGE_MAP(CDPLeftFormView, CFormView)
 	ON_BN_CLICKED(IDC_OPEN_EXP_FILE_BTN, &CDPLeftFormView::OnBnClickedOpenEXPFileBTN)
 	ON_WM_TIMER()
 	ON_WM_DESTROY()
+	ON_WM_HSCROLL()
 END_MESSAGE_MAP()
 
 
@@ -150,36 +151,26 @@ void CDPLeftFormView::Dump(CDumpContext& dc) const
 void CDPLeftFormView::OnBnClickedDPStart()
 {
 	/*
-	 * Here we only need to read the FIRST fly state file
+	 * Here we only need to read the FIRST fly state group file
 	 */
 	this->UpdateData(TRUE);
 	if (dpFileName.GetLength() == 0) {
-		AfxMessageBox("Experiment file name required", MB_OK | MB_ICONINFORMATION);
-		//return;
+		AfxMessageBox("Experiment file name required", MB_OK | MB_ICONSTOP);
+		return;
 	} else if (!isRead) {
 		readFSFile();
 	}
 
 	// Here we have already read the fly state from the files
 	if (buf.size() == 0) {
-		AfxMessageBox("No data", MB_OK | MB_ICONINFORMATION);
-		//return;
+		AfxMessageBox("No fly state data", MB_OK | MB_ICONINFORMATION);
+		return;
 	}
-
-	m_SliderCtrl.SetRangeMin(0);
-	m_SliderCtrl.SetRangeMax(3600);
-	m_SliderCtrl.SetTicFreq(1);
 
 	if (curSta == CDPLeftFormView::PAUSED || curSta == CDPLeftFormView::STOPED) {
 		curSta = CDPLeftFormView::RUNNING;
 		m_nTimer = SetTimer(TIMER_IDENTIFIER_ONE, dpFPS, 0);
 	}
-
-	//while (curSta == CDPLeftFormView::RUNNING && m_SliderCtrl.GetPos() < m_SliderCtrl.GetRangeMax()) {
-	//	// The slider control is going
-	//	m_SliderCtrl.SetPos(m_SliderCtrl.GetPos() + 1);
-
-	//}
 }
 
 void CDPLeftFormView::OnBnClickedDPPause()
@@ -258,23 +249,23 @@ int CDPLeftFormView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 void CDPLeftFormView::OnBnClickedOpenEXPFileBTN()
 {
-	char strFilter[] = {"Fly states(*.fs)|*.fs ||"};
+	char strFilter[] = {"Fly states(*.fs)|*.fs||"};
 
 	CFileDialog openDlg(TRUE, ".fs", NULL, 0, strFilter);
 
 	if (openDlg.DoModal() == IDOK)
 	{
-		dpFileName = openDlg.GetFileName();
+		dpFileName = openDlg.GetPathName();
 		readFSFile();
 	}
 
 	UpdateData(FALSE);
-
 }
 
 
 void CDPLeftFormView::readFSFile(void)
 {
+	// Set the tag variable
 	isRead = TRUE;
 
 	std::ifstream reserve(dpFileName, std::ios::binary);
@@ -316,7 +307,7 @@ void CDPLeftFormView::readFSFile(void)
 	ifs.seekg(sizeof(ExperimentData), std::ios::beg);
 	FlyStateGroup fsg;
 	int bytesRead;
-	while (TRUE && buf.size() != BUF_SIZE) {
+	while (buf.size() != BUF_SIZE) {
 		ifs.read((char *)&fsg, sizeof(fsg));
 		bytesRead = ifs.gcount();
 		if (bytesRead != sizeof(fsg))
@@ -337,26 +328,32 @@ void CDPLeftFormView::OnTimer(UINT_PTR nIDEvent)
 {
 	// Update elapsed
 	elapsed += dpFPS;
-	if (elapsed == tof)
-	{
-		KillTimer(m_nTimer);
-		elapsed = 0;
-		m_SliderCtrl.SetPos(m_SliderCtrl.GetRangeMin());
-		
-		buf.clear();
 
-	}
-	
 	// Calculate the seconds
 	int seconds = elapsed / 1000;
+	// Update the flight time
+	dpHour = seconds / 3600;
+	dpMinute = (seconds - dpHour * 3600) / 60;
+	dpSecond = (seconds - dpHour * 3600 - dpMinute * 60);
 
+	if (seconds == tof)
+	{
+		KillTimer(m_nTimer);
+		
+		elapsed = 0;
+		
+		m_SliderCtrl.SetPos(m_SliderCtrl.GetRangeMin());
+		
+		return;
+	}	
+	
 	m_SliderCtrl.SetPos(seconds);
 
 	// We must get the data
 	pFlyState fs = getFlyState();
 
 	/*
-	 * Need to update all the views
+	 * Update the curve
 	 */
 	dpPitch = fs->theta;
 	dpRoll = fs->phi;
@@ -366,7 +363,7 @@ void CDPLeftFormView::OnTimer(UINT_PTR nIDEvent)
 	// Update the GPS
 	GetDocument()->dpUpperRightView->updateFS(fs);
 
-	// Update the instruments and 3-d models
+	// Update the instruments and 3-d model
 	GetDocument()->lowerRightView->updateFS(fs);
 	
 	UpdateData(FALSE);
@@ -383,6 +380,8 @@ void CDPLeftFormView::updateBuf(int seconds)
 	// Start to read the data
 	int bytesRead;
 	FlyStateGroup fsg;
+	// First clear
+	buf.clear();
 	while (buf.size() != BUF_SIZE) {
 		ifs.read((char *)&fsg, sizeof(fsg));
 		bytesRead = ifs.gcount();
@@ -391,6 +390,7 @@ void CDPLeftFormView::updateBuf(int seconds)
 		buf.push_back(fsg);
 	}
 	ifs.close();
+
 }
 
 void CDPLeftFormView::restoreBuf(void)
@@ -408,10 +408,8 @@ void CDPLeftFormView::OnDestroy()
 pFlyState CDPLeftFormView::getFlyState(void)
 {
 	int seconds = elapsed / 1000;
-	int milliSeconds = elapsed - seconds;
+	int milliSeconds = elapsed - seconds * 1000;
 
-	if (buf.size() == 0)
-		return NULL;
 	/*
 	 * First get the fly state group according to seconds
 	 */
@@ -422,11 +420,11 @@ pFlyState CDPLeftFormView::getFlyState(void)
 		// No found, so need to update the buf
 		updateBuf(seconds);
 		// After update, the needed fly state group must be in the begin
-		iter == buf.end();
+		iter = buf.begin();
 	}
 
 	int milliIdx = milliSeconds / 20;
-	return &((*iter).states[milliIdx]);
+	return &(iter->states[milliIdx]);
 	
 }
 
@@ -491,36 +489,84 @@ void CDPLeftFormView::updateCurve(void)
 	/*
 	 * After update the data, then should update the curve
 	 */
+	
 	std::vector<float>::iterator iter;
 	fX = 0.1f;
+	// First clear the curve
+	m_pPitchCurveCtrl->GetCurve(PITCH_CURVE_NAME)->Clear();
 	for (iter = pitchCurveData.begin(); iter != pitchCurveData.end(); iter++) {		
 		fY = *iter;
 		m_pPitchCurveCtrl->AddData(PITCH_CURVE_NAME, fX, fY);
 		fX += 0.1f;
 	}
-	/*for (float f = 0.0f; f < 6.28f; f += 0.1f)
-	{
-		fX = f;
-		fY = 100.0 *  (sin(f));
-		m_pPitchCurveCtrl->AddData(PITCH_CURVE_NAME, fX, fY);
-	}*/
+	if (pitchCurveData.size() < MAX_NUMBER_POINTS) {
+		// Get the minimum elements in vector
+		iter = min_element(pitchCurveData.begin(), pitchCurveData.end());
+		for (int i = pitchCurveData.size(); i < MAX_NUMBER_POINTS; i++) {
+			fY = /*dpPitchLower*//*0.0f*/*iter;
+			m_pPitchCurveCtrl->AddData(PITCH_CURVE_NAME, fX, fY);
+			fX += 0.1f;
+		}
+	}
 
 	
 	fX = 0.1f;
+	m_pRollCurveCtrl->GetCurve(ROLL_CURVE_NAME)->Clear();
 	for (iter = rollCurveData.begin(); iter != rollCurveData.end(); iter++) {
 		fY = *iter;
 		m_pRollCurveCtrl->AddData(ROLL_CURVE_NAME, fX, fY);
 		fX += 0.1f;
 	}
+	if (rollCurveData.size() < MAX_NUMBER_POINTS) {
+		iter = min_element(rollCurveData.begin(), rollCurveData.end());
+		for (int i = rollCurveData.size(); i < MAX_NUMBER_POINTS; i++) {
+			fY = /*dpRollLower*//*0.0f*/*iter;
+			m_pRollCurveCtrl->AddData(ROLL_CURVE_NAME, fX, fY);
+			fX += 0.1f;
+		}
+	}
 
 	fX = 0.1f;
+	m_pHeadCurveCtrl->GetCurve(HEAD_CURVE_NAME)->Clear();
 	for (iter = headCurveData.begin(); iter != headCurveData.end(); iter++) {
 		fY = *iter;
 		m_pHeadCurveCtrl->AddData(HEAD_CURVE_NAME, fX, fY);
 		fX += 0.1f;
 	}
+
+	if (headCurveData.size() < MAX_NUMBER_POINTS) {
+		iter = min_element(headCurveData.begin(), headCurveData.end());
+		for (int i = headCurveData.size(); i < MAX_NUMBER_POINTS; i++) {
+			fY = /*0.0f*/*iter;
+			m_pHeadCurveCtrl->AddData(HEAD_CURVE_NAME, fX, fY);
+			fX += 0.1f;
+		}
+	}
 	
 	m_pPitchCurveCtrl->Invalidate();
 	m_pRollCurveCtrl->Invalidate();
 	m_pHeadCurveCtrl->Invalidate();
+}
+
+void CDPLeftFormView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+{
+	CSliderCtrl *m_pSC = (CSliderCtrl*)pScrollBar;
+	int curpos = m_pSC->GetPos();
+
+	// We must update the elapsed time
+	if (curpos == m_pSC->GetRangeMax())
+	{
+		KillTimer(m_nTimer);
+		
+		elapsed = 0;
+		
+		m_SliderCtrl.SetPos(m_SliderCtrl.GetRangeMin());
+		
+		return;
+	} else {
+		elapsed = curpos * 1000;
+	}
+
+
+	CFormView::OnHScroll(nSBCode, nPos, pScrollBar);
 }

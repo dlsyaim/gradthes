@@ -28,6 +28,8 @@ CUpperRightView::CUpperRightView()
 
 CUpperRightView::~CUpperRightView()
 {
+	if (m_pSpatialCurveCtrl)
+		delete m_pSpatialCurveCtrl;
 }
 
 void CUpperRightView::DoDataExchange(CDataExchange* pDX)
