@@ -44,6 +44,12 @@ public:
 	afx_msg LRESULT OnReplyMsgArrived(WPARAM w, LPARAM l);
 
 	void updateData(pOPTTRACETestData d);
+	double opt_n_coord;
+	double opt_e_coord;
+	double opt_d_coord;
+	double opt_roll_vel;
+	double opt_pitch_vel;
+	double opt_head_vel;
 };
 
 #ifndef _DEBUG  // debug version in OPTFormView.cpp

@@ -352,7 +352,7 @@ LRESULT CLeftView::OnFlyingStateData(WPARAM w, LPARAM l)
 
 void CLeftView::updateCurve(void)
 {
-	/*
+/*
 	 * Update the curve
 	 */
 	float fX, fY;
@@ -411,33 +411,54 @@ void CLeftView::updateCurve(void)
 	/*
 	 * After update the data, then should update the curve
 	 */
+	
 	std::vector<float>::iterator iter;
 	fX = 0.1f;
+	// First clear the curve
+	m_pPitchCurveCtrl->GetCurve(PITCH_CURVE_NAME)->Clear();
 	for (iter = pitchCurveData.begin(); iter != pitchCurveData.end(); iter++) {		
 		fY = *iter;
 		m_pPitchCurveCtrl->AddData(PITCH_CURVE_NAME, fX, fY);
 		fX += 0.1f;
 	}
-	/*for (float f = 0.0f; f < 6.28f; f += 0.1f)
-	{
-		fX = f;
-		fY = 100.0 *  (sin(f));
-		m_pPitchCurveCtrl->AddData(PITCH_CURVE_NAME, fX, fY);
-	}*/
+	if (pitchCurveData.size() < MAX_NUMBER_POINTS) {
+		for (int i = pitchCurveData.size(); i < MAX_NUMBER_POINTS; i++) {
+			fY = /*fePitchLower*/0.0f;
+			m_pPitchCurveCtrl->AddData(PITCH_CURVE_NAME, fX, fY);
+			fX += 0.1f;
+		}
+	}
 
 	
 	fX = 0.1f;
+	m_pRollCurveCtrl->GetCurve(ROLL_CURVE_NAME)->Clear();
 	for (iter = rollCurveData.begin(); iter != rollCurveData.end(); iter++) {
 		fY = *iter;
 		m_pRollCurveCtrl->AddData(ROLL_CURVE_NAME, fX, fY);
 		fX += 0.1f;
 	}
+	if (rollCurveData.size() < MAX_NUMBER_POINTS) {
+		for (int i = rollCurveData.size(); i < MAX_NUMBER_POINTS; i++) {
+			fY = /*feRollLower*/0.0f;
+			m_pRollCurveCtrl->AddData(ROLL_CURVE_NAME, fX, fY);
+			fX += 0.1f;
+		}
+	}
 
 	fX = 0.1f;
+	m_pHeadCurveCtrl->GetCurve(HEAD_CURVE_NAME)->Clear();
 	for (iter = headCurveData.begin(); iter != headCurveData.end(); iter++) {
 		fY = *iter;
 		m_pHeadCurveCtrl->AddData(HEAD_CURVE_NAME, fX, fY);
 		fX += 0.1f;
+	}
+
+	if (headCurveData.size() < MAX_NUMBER_POINTS) {
+		for (int i = headCurveData.size(); i < MAX_NUMBER_POINTS; i++) {
+			fY = 0.0f;
+			m_pHeadCurveCtrl->AddData(HEAD_CURVE_NAME, fX, fY);
+			fX += 0.1f;
+		}
 	}
 	
 	m_pPitchCurveCtrl->Invalidate();

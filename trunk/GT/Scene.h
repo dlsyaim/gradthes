@@ -8,6 +8,6 @@ public:
 
 	// In the lower-left corner, draw a little 3-d coordinate system.
 	static void drawCoordinateSystem(void);
-
+	static void drawCoordinateSystem(LPRECT lpRect);
 
 };

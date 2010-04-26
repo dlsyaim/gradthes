@@ -232,6 +232,7 @@
 #define IDC_HELICOPTER_MASS             1145
 #define IDC_RADIUS_MR                   1145
 #define IDC_LIFT_CURVE_SLOPE_TR         1145
+#define IDC_OPT_X_COOR                  1145
 #define IDC_EDIT2                       1146
 #define IDC_FE_Y_COOR                   1146
 #define IDC_DP_FPS_EDIT                 1146
@@ -243,21 +244,25 @@
 #define IDC_Y_INERTIA                   1147
 #define IDC_BLADES_MR                   1147
 #define IDC_CHORD_TR                    1147
+#define IDC_OPT_Y_COOR                  1147
 #define IDC_EDIT5                       1149
 #define IDC_FE_ROLL_EDIT                1149
 #define IDC_S_FRONTAL                   1149
 #define IDC_HINGE_OFFSET_MR             1149
 #define IDC_ZERO_LIFT_DRAG_COEFF_TR     1149
+#define IDC_OPT_Z_COOR                  1149
 #define IDC_EDIT6                       1150
 #define IDC_FE_ROLL_UPPER_EDIT          1150
 #define IDC_S_SIDE                      1150
 #define IDC_I_B_MR                      1150
 #define IDC_MAX_TRUST_COEFF_TR          1150
+#define IDC_OPT_ROLL_VEL                1150
 #define IDC_EDIT7                       1151
 #define IDC_FE_ROLL_LOWER_EDIT          1151
 #define IDC_S_VERT                      1151
 #define IDC_ZERO_LIFT_DRAG_COEF_MR      1151
 #define IDC_D_HUB_TO_CG_TR              1151
+#define IDC_OPT_PITCH_VEL               1151
 #define IDC_EDIT14                      1152
 #define IDC_FILENAME_EDIT               1152
 #define IDC_V_TIP_MR                    1152
@@ -269,6 +274,7 @@
 #define IDC_MAX_THRUST_COEF_MR          1155
 #define IDC_H_HUB_TO_CG_TR              1155
 #define IDC_HELICOPTER_NAME             1155
+#define IDC_OPT_HEAD_VEL                1155
 #define IDC_EDIT9                       1157
 #define IDC_FE_PITCH_UPPER_EDIT         1157
 #define IDC_KC_MR                       1157
@@ -343,9 +349,11 @@
 #define IDC_OPT_TEST_STOP               1209
 #define IDC_OPT_TEST_PASS               1210
 #define IDC_OPT_TEST_FAILURE            1211
+#define IDC_EDIT4                       1212
 #define IDC_ROLL_CURVE_CONTROL          1300
 #define IDC_PITCH_CURVE_CONTROL         1301
 #define IDC_HEAD_CURVE_CONTROL          1302
+#define IDC_SPATIAL_CURVE_CONTROL       1303
 #define ID_32771                        32771
 #define ID_32772                        32772
 #define ID_32773                        32773
@@ -391,7 +399,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        336
 #define _APS_NEXT_COMMAND_VALUE         32809
-#define _APS_NEXT_CONTROL_VALUE         1212
+#define _APS_NEXT_CONTROL_VALUE         1213
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

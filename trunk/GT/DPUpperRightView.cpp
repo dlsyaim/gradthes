@@ -29,6 +29,8 @@ CDPUpperRightView::CDPUpperRightView()
 
 CDPUpperRightView::~CDPUpperRightView()
 {
+	if (m_pSpatialCurveCtrl)
+		delete m_pSpatialCurveCtrl;
 }
 
 void CDPUpperRightView::DoDataExchange(CDataExchange* pDX)
@@ -75,12 +77,11 @@ int CDPUpperRightView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CFormView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	// TODO:  在此添加您专用的创建代码
 	GetDocument()->dpUpperRightView = this;
 
 	m_pSpatialCurveCtrl = new CCurveCtrl;
 	m_pSpatialCurveCtrl->Create(CRect(FIRST_LEFT, FIRST_UPPER, FIRST_LEFT + CURVE_WIDTH, FIRST_UPPER + CURVE_HEIGHT), this, 
-		IDC_ROLL_CURVE_CONTROL);
+		IDC_SPATIAL_CURVE_CONTROL);
 	/*
 	 * In method SetMargin, the CRect object's four coodinates don't have the actual meaning, they
 	 * just represent the margin in LEFT/TOP/RIGHT/BOTTOM direction respectively
@@ -94,18 +95,20 @@ int CDPUpperRightView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 void CDPUpperRightView::OnBnClickedDPZoomIn()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	// Just call the Zoom method of the curve control
+	m_pSpatialCurveCtrl->Zoom(TRUE);
 }
 
 void CDPUpperRightView::OnBnClickedDPZoomOut()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	// Just call the Zoom method of the curve control
+	m_pSpatialCurveCtrl->Zoom(FALSE);
 }
 
 void CDPUpperRightView::updateFS(pFlyState fs)
 {
-	dpXCoor = fs->N_Pos;
-	dpYCoor = fs->E_Pos;
+	dpXCoor = fs->E_Pos;
+	dpYCoor = fs->N_Pos;
 
 	mapData.push_back(FPOINT(dpXCoor, dpYCoor));
 

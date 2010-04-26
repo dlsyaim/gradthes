@@ -1517,6 +1517,17 @@ void CCurveCtrl::OnRButtonDown(UINT nFlags, CPoint point)
 	CWnd::OnRButtonDown(nFlags, point);
 }
 
+// description: Clear the curve
+BOOL CCurve::Clear(void)
+{
+	// Remove all the elements
+	m_ArrPoint.RemoveAll();
+	m_fArrHoriValue.RemoveAll();
+	m_fArrVertValue.RemoveAll();
+
+	return FALSE;
+}
+
 // description : notify owner that curve mode or data changed
 // in parameter: nMessage -- message id
 //               pCurve   -- curve object
