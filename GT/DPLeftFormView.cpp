@@ -7,10 +7,10 @@
 #include <vector>
 #include <algorithm>
 #include <GL/glut.h>
+#include "CurveCtrl.h"
 #include "GT.h"
 #include "DPLeftFormView.h"
 #include "GTDoc.h"
-#include "CurveCtrl.h"
 #include "GSDefinition.h"
 #include "DPUpperRightView.h"
 #include "GTView.h"

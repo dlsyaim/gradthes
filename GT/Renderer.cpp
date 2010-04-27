@@ -43,6 +43,8 @@
 #define LEFT_MARGIN 2.0f
 #define TOP_MARGIN 20.0f
 
+
+
 //#define RADIAN_TO_ANGLE()
 
 Renderer::Renderer(void):length(0)
@@ -72,6 +74,14 @@ Renderer::Renderer(int _length):length(_length)
 
 	// Initial path is empty
 	pPath = NULL;
+
+	// Default is FALSE
+	selectedPoint = NULL;
+	// Default is none
+	navi = -1;
+
+	// Initialize
+	qobj = NULL;
 }
 
 // Load configuration.
@@ -98,6 +108,9 @@ Renderer::~Renderer(void)
 		delete camera;
 	if (aircraft)
 	    delete aircraft;
+
+	if (qobj)
+		gluDeleteQuadric(qobj);
 }
 
 /*
@@ -596,6 +609,9 @@ void Renderer::drawPath(void)
 	glRotatef( 30.0f, 1.0f, 0.0f, 0.0f);
 	glRotatef( -45.0f, 0.0f, 1.0f, 0.0f);
 	Scene::drawCoordinateSystem(lpRect);
+	// Then draw a grid
+	Scene::drawGrid(lpRect);
+
 	glDisable(GL_LIGHTING);
 	if (pPath) {
 		glPushAttrib(GL_POINT_BIT | GL_COLOR_BUFFER_BIT);
@@ -622,6 +638,10 @@ void Renderer::drawPath(void)
 		glPopAttrib();
 	}
 	glEnable(GL_LIGHTING);
+
+	if (selectedPoint) {
+		drawNavigator();
+	}
 }
 
 void Renderer::updateData(void)
@@ -666,4 +686,71 @@ void Renderer::updateData(pOPTTRACETestData otd)
 	aircraft->update(otd);
 	
 	updateStat(otd);
+}
+
+void Renderer::drawNavigator(void)
+{
+	const double baseRadius = 1.0;
+	const double topRadius = 0.0;
+	const double length = 2.5;
+	if (!qobj)
+		qobj = gluNewQuadric();
+
+	gluQuadricDrawStyle(qobj, GLU_FILL);
+	gluQuadricNormals(qobj, GLU_SMOOTH);
+
+	glDisable(GL_LIGHTING);
+	glPushMatrix();
+	glPushAttrib(GL_COLOR_BUFFER_BIT);
+
+	// First translate to the selected point
+	glTranslatef(selectedPoint->Coordinate_X, selectedPoint->Coordinate_Y, selectedPoint->Coordinate_Z);
+	// Second draw the x-axis navigator
+	glPushMatrix();
+	glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
+	if (navi == 1)
+		glColor3f(1.0f, 1.0f, 1.0f);
+	else 
+		glColor3f(1.0f, 0.0f, 0.0f);
+
+	glBegin(GL_LINES);
+		glVertex3f(0.0f, 0.0f, 0.0f);
+		glVertex3f(0.0f, 0.0f, NAVIGATOR_LENGTH);
+	glEnd();
+
+	glTranslatef(0.0f, 0.0f, NAVIGATOR_LENGTH);	
+	gluCylinder(qobj, baseRadius, topRadius, length, 10, 10);
+	glPopMatrix();
+
+	// Third draw the y-axis navigator
+	glPushMatrix();
+	glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+	if (navi == 2)
+		glColor3f(1.0f, 1.0f, 1.0f);
+	else 
+		glColor3f(0.0f, 1.0f, 0.0f);
+	glBegin(GL_LINES);
+		glVertex3f(0.0f, 0.0f, 0.0f);
+		glVertex3f(0.0f, 0.0f, NAVIGATOR_LENGTH);
+	glEnd();
+	glTranslatef(0.0f, 0.0f, NAVIGATOR_LENGTH);	
+	gluCylinder(qobj, baseRadius, topRadius, length, 10, 10);
+	glPopMatrix();
+
+	// Forth draw the z-axis navigator
+	glPushMatrix();
+	if (navi == 3)
+		glColor3f(1.0f, 1.0f, 1.0f);
+	else 
+		glColor3f(0.0f, 0.0f, 1.0f);
+	glBegin(GL_LINES);
+		glVertex3f(0.0f, 0.0f, 0.0f);
+		glVertex3f(0.0f, 0.0f, NAVIGATOR_LENGTH);
+	glEnd();
+	glTranslatef(0.0f, 0.0f, NAVIGATOR_LENGTH);	
+	gluCylinder(qobj, baseRadius, topRadius, length, 10, 10);
+	glPopMatrix();
+
+	glPopAttrib();
+	glPopMatrix();
 }

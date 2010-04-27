@@ -82,6 +82,7 @@
 #define IDC_BODY_Z_ACC_EDIT             1037
 #define IDC_BUTTON2                     1038
 #define IDC_FE_ZOOM_OUT                 1038
+#define IDC_ADD_POINT                   1038
 #define IDC_BUTTON3                     1039
 #define IDC_IMU_TEST_PASS               1039
 #define IDC_ASSURE_PATH                 1039
@@ -350,6 +351,8 @@
 #define IDC_OPT_TEST_PASS               1210
 #define IDC_OPT_TEST_FAILURE            1211
 #define IDC_EDIT4                       1212
+#define Select                          1213
+#define IDC_SELECT_POINT                1213
 #define IDC_ROLL_CURVE_CONTROL          1300
 #define IDC_PITCH_CURVE_CONTROL         1301
 #define IDC_HEAD_CURVE_CONTROL          1302
@@ -399,7 +402,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        336
 #define _APS_NEXT_COMMAND_VALUE         32809
-#define _APS_NEXT_CONTROL_VALUE         1213
+#define _APS_NEXT_CONTROL_VALUE         1214
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

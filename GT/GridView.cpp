@@ -18,6 +18,7 @@ bool lowerSorter(PathPointData* p1, PathPointData* p2)
 	return p1->serial <= p2->serial;
 }
 
+
 // CGridView
 
 IMPLEMENT_DYNCREATE(CGridView, CFormView)
@@ -58,6 +59,8 @@ BEGIN_MESSAGE_MAP(CGridView, CFormView)
 	ON_BN_CLICKED(IDC_ASSURE_PATH, &CGridView::OnBnClickedAssurePath)
 	ON_MESSAGE(LOAD_POINT_REPLY_MSG, &CGridView::OnLoadReply)
 	ON_MESSAGE(PATH_CHECK_REPLY_MSG, &CGridView::OnCheckReply)
+	ON_BN_CLICKED(IDC_ADD_POINT, &CGridView::OnBnClickedAddPoint)
+	ON_BN_CLICKED(IDC_SELECT_POINT, &CGridView::OnBnClickedSelectPoint)
 END_MESSAGE_MAP()
 
 
@@ -248,11 +251,13 @@ void CGridView::OnGridClick(NMHDR *pNotifyStruct, LRESULT* /*pResult*/)
     NM_GRIDVIEW* pItem = (NM_GRIDVIEW*) pNotifyStruct;
     TRACE(_T("Clicked on row %d, col %d\n"), pItem->iRow, pItem->iColumn);
 	/***** When click the last cell, then should check if the text is 'Add' or 'Update' *****/
+
 	if (pItem->iColumn == NUM_OF_COL) {
+		PathPointData *ppd = NULL, *editedPoint = NULL;
 		CString label = m_pGridCtrl->GetItemText(pItem->iRow, pItem->iColumn);
 		if (label == "Add") {
 			// Contruct a new path point
-			PathPointData *ppd = new PathPointData();
+			ppd = new PathPointData();
 			memset(ppd, 0, sizeof(PathPointData));
 			// Set the serial number
 			ppd->serial = pItem->iRow - 1;
@@ -279,13 +284,9 @@ void CGridView::OnGridClick(NMHDR *pNotifyStruct, LRESULT* /*pResult*/)
 			m_pGridCtrl->SetItemText(pItem->iRow, pItem->iColumn, "Update");
 			m_pGridCtrl->Invalidate();
 			// Insert			
-			//path.insert(path.begin() + pItem->iRow - 1, ppd);
 			path.push_back(ppd);
 		} else if (label == "Update") {
-			// Sorting before update
-			sort(path.begin(), path.end(), lowerSorter);
-			// Update a path point
-			PathPointData* editedPoint = path[pItem->iRow - 1];
+			editedPoint = findBySerial(pItem->iRow - 1);
 			if (editedPoint != NULL) {
 				// Update the point's data
 				for (int i = 1; i <= NUM_OF_COL - 1; i++) {
@@ -311,7 +312,12 @@ void CGridView::OnGridClick(NMHDR *pNotifyStruct, LRESULT* /*pResult*/)
 		}
 
 		// Inform the CGTView to update
+		// Set the path
 		GetDocument()->lowerRightView->setPath(&path);
+		if (ppd)
+			GetDocument()->lowerRightView->addPathPoint(ppd);
+		else
+			GetDocument()->lowerRightView->updatePathPoint(editedPoint);
 	}	
 }
 
@@ -383,6 +389,8 @@ LRESULT CGridView::OnLoadReply(WPARAM w, LPARAM l)
 	memcpy(pointCommand + 2, (char *)(path[*received]), sizeof(PathPointData));
 	cln->SendSvr(pointCommand, sizeof(pointCommand));
 
+	TRACE(_T("Point:%d, %f, %f, %f\n"), path[*received]->serial, path[*received]->Coordinate_X, path[*received]->Coordinate_Z);
+
 	return TRUE;
 }
 
@@ -412,4 +420,23 @@ LRESULT CGridView::OnCheckReply(WPARAM w, LPARAM l)
 	}
 
 	return TRUE;
+}
+
+pPathPointData CGridView::findBySerial(int serial)
+{
+	std::vector<pPathPointData>::iterator iter;
+	for (iter = path.begin(); iter != path.end(); iter++) {
+		if ((*iter)->serial == serial)
+			return *iter;
+	}
+	return NULL;
+}
+void CGridView::OnBnClickedAddPoint()
+{
+	GetDocument()->lowerRightView->setEditState(1);
+}
+
+void CGridView::OnBnClickedSelectPoint()
+{
+	GetDocument()->lowerRightView->setEditState(2);
 }
