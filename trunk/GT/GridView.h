@@ -53,19 +53,25 @@ public:
 private:
 // Operations
 	void schedulePath(void);
+	pPathPointData findBySerial(int serial);
 // Attributes
 	// The origin path
 	std::vector<PathPointData*> path;
 	// The scheduled path
 	std::vector<PathPointData*> scheduledPath;
-	// The selected path point
-	PathPointData* selectedPathPoint;
+
 	// The state variable
 	BOOL isPathCompleted;
 	// The point index the server just received
 	__int32 *received;
 	// The state variable
 	__int32 *state;
+
+
+
+public:
+	afx_msg void OnBnClickedAddPoint();
+	afx_msg void OnBnClickedSelectPoint();
 };
 
 #ifndef _DEBUG  // debug version in GridView.cpp

@@ -6,13 +6,14 @@
 #include <math.h>
 #include <vector>
 #include <GL/glut.h>
+#include "CurveCtrl.h"
 #include "GT.h"
 #include "LeftView.h"
 #include "GTView.h"
 #include "GTDoc.h"
 #include "Singleton.h"
 #include "MsgType.h"
-#include "CurveCtrl.h"
+
 #include "UpperRightView.h"
 
 #define CURVE_WIDTH 280

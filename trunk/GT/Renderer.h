@@ -4,6 +4,8 @@
 #include "Aircraft.h"
 #include "Tools.h"
 
+#define NAVIGATOR_LENGTH 5
+
 class Renderer
 {
 public:
@@ -44,6 +46,9 @@ public:
 	// Update the flight path data
 	inline void setPPath(std::vector<PathPointData*> *pPath) {this->pPath = pPath;}
 
+	inline void setSelect(pPathPointData slc){selectedPoint = slc;}
+	inline void setSelectedNavi(int navi) {this->navi = navi;}
+
 // Attributes
 private:
 	// Panel
@@ -64,6 +69,12 @@ private:
 	std::vector<PathPointData*> *pPath;
 	// The size of the current view
 	LPRECT lpRect;
+	// Quadric object
+	GLUquadricObj* qobj;
+	// Draw navigator or not
+	pPathPointData selectedPoint;
+	// Selected navigator
+	int navi;
 
 // Operations
 	// Draw function with drawing instruments
@@ -82,4 +93,7 @@ private:
 
 	// Update the instruments' data by FlyState, One-line-of-file
 	void updateInstrumentsData(void);
+
+	// Draw a navigator
+	void drawNavigator(void);
 };

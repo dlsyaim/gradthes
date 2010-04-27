@@ -13,10 +13,13 @@
 #include "GTDoc.h"
 #include "GTView.h"
 #include "GPSTestDialog.h"
+#include "Scene.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+
+typedef std::pair <pPathPointData, POINT> wPw;
 
 // Some global variables.
 char commandData[2];
@@ -50,6 +53,7 @@ BEGIN_MESSAGE_MAP(CGTView, CView)
 	ON_WM_RBUTTONDOWN()	
 	ON_COMMAND(ID_32777, &CGTView::OnGPSTest)
 	ON_WM_LBUTTONDOWN()
+//	ON_WM_LBUTTONDBLCLK()
 END_MESSAGE_MAP()
 
 // CGTView construction/destruction
@@ -58,10 +62,23 @@ CGTView::CGTView()
 {
 	// Default not down state is 0
 	lbState = 0;
+
+	// Default is -1
+	moveOrUp = -1;
+
+	// Default is nothing
+	addOrSelect = -1;
+
+	// Initializing
+	selectedPathPoint = NULL;
+
+	// Default is -1
+	selected = -1;
 }
 
 CGTView::~CGTView()
 {
+
 }
 
 BOOL CGTView::PreCreateWindow(CREATESTRUCT& cs)
@@ -266,6 +283,9 @@ void CGTView::OnSize(UINT nType, int cx, int cy)
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+
+	// We also should update the mapCoor
+	updateMapCoor();
 }
 
 BOOL CGTView::OnEraseBkgnd(CDC* pDC)
@@ -331,14 +351,65 @@ void CGTView::OnTimer(UINT_PTR nIDEvent)
 
 void CGTView::OnMouseMove(UINT nFlags, CPoint point)
 {
-	CRect rec;
-	GetClientRect(&rec);
-	CPoint middlePoint(rec.right >> 1, rec.bottom >> 1);
-	ClientToScreen(&middlePoint);
-	if (rbDown) {
-		m_Renderer->updateCamera(&middlePoint);
-		Invalidate(FALSE);
+	//if (rbDown) {
+	//	CRect rec;
+	//	GetClientRect(&rec);
+	//	CPoint middlePoint(rec.right >> 1, rec.bottom >> 1);
+	//	ClientToScreen(&middlePoint);
+	//	if (rbDown) {
+	//		m_Renderer->updateCamera(&middlePoint);
+	//		Invalidate(FALSE);
+	//	}
+	//} 
+	static LONG x_coo = point.x;
+	static LONG y_coo = point.y;
+
+	if (renderMode == CGTView::FLIGHT_PATH_SET) {
+		if (addOrSelect == 2) {
+			if (nFlags != MK_LBUTTON) {
+				m_Renderer->setSelectedNavi(selectNavigator(&point));
+			} else {
+				// Drag
+				switch (selected) {
+					case 1:
+						// Drag along X-axis
+						if (x_coo > point.x) {
+							// So we decrease the x-coordinate by a fixed value
+							selectedPathPoint->Coordinate_X -= 0.5f;
+						} else if (x_coo < point.x) {
+							// So we increase the x-coordinate by a fixed value
+							selectedPathPoint->Coordinate_X += 0.5f;
+						}
+						break;
+					case 2:
+						// Drag along Y-axis
+						if (y_coo > point.y) {
+							// So we increase the y-coordinate by a fixed value
+							selectedPathPoint->Coordinate_Y += 0.5f;
+						} else if (y_coo < point.y) {
+							// So we decrease the y-coordinate by a fixed value
+							selectedPathPoint->Coordinate_Y -= 0.5f;
+						}
+						break;
+					case 3:
+						// Drag along Z-axis
+						if (x_coo > point.x) {
+							// So we increase the z-coordinate by a fixed value
+							selectedPathPoint->Coordinate_Z += 0.5f;
+						} else if (x_coo < point.x) {
+							// So we decrease the z-coordinate by a fixed value
+							selectedPathPoint->Coordinate_Z -= 0.5f;
+						}
+						break;
+					default:
+						break;
+				}
+			}
+		}
 	}
+	
+	x_coo = point.x;
+	y_coo = point.y;
 
 	CView::OnMouseMove(nFlags, point);
 }
@@ -558,28 +629,166 @@ void CGTView::updateFS(pFlyState fs)
 }
 void CGTView::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	if (renderMode != CGTView::FLIGHT_PATH_SET) 
-		return;
-	
-	lbState = 1;
+	if (renderMode == CGTView::FLIGHT_PATH_SET) 
+	{
+		// Find the windows coordinates
+		std::map<pPathPointData, POINT>::iterator iter;
+		for (iter = mapCoor.begin(); iter != mapCoor.end(); iter++) {
+			if (abs(iter->second.x - point.x) <= 2 && abs(iter->second.y - point.y) <= 2) {
+				selectedPathPoint = iter->first;
+				break;
+			}
+		}
 
-	// Un Project
+		if (iter == mapCoor.end()) {   
+			// Not found the point
+			if (addOrSelect == 1) {
+				
+			} else if (addOrSelect == 2){
+				// Select, should check if selected the navigator
+				selected = selectNavigator(&point);
+				m_Renderer->setSelectedNavi(selected);
+			}
+		} else { 
+			// Found
+			if (addOrSelect == 1) {
+				// Add, do nothing
+			} else if (addOrSelect == 2) { 
+				// Select
+				m_Renderer->setSelect(selectedPathPoint);
+			}
+		}
+	}
+
+	CView::OnLButtonDown(nFlags, point);
+}
+
+//void CGTView::OnLButtonDblClk(UINT nFlags, CPoint point)
+//{
+//	if (renderMode != CGTView::FLIGHT_PATH_SET) 
+//		return;
+//
+//	// If clicking on a existing point, then do nothing
+//
+//
+//	CView::OnLButtonDblClk(nFlags, point);
+//}
+
+void CGTView::addPathPoint(pPathPointData p)
+{
+	CRect rect;
+	GetClientRect(&rect);
+	// Project
 	GLint viewport[4];
 	GLdouble mvmatrix[16], projmatrix[16];
 
-	GLint realy;  /* OpenGL y coordinate position */
-	GLdouble wx, wy, wz; /* Returned world x, y, z coords */
+	GLdouble wx, wy, wz; /* Returned window x, y, z coords */
 
 	glGetIntegerv(GL_VIEWPORT, viewport);
 	glGetDoublev(GL_MODELVIEW_MATRIX, mvmatrix);
 	glGetDoublev(GL_PROJECTION_MATRIX, projmatrix);
-	/* Note viewport[3] is height of window in pixels */
-	realy = /*viewport[3] -(GLint)point.y - 1*/point.y;
 
-	gluUnProject((GLdouble)point.x, realy, 0.0, mvmatrix, projmatrix, viewport, &wx, &wy, &wz);
+	gluProject(p->Coordinate_X, p->Coordinate_Y, p->Coordinate_Z, mvmatrix, projmatrix, viewport, &wx, &wy, &wz);
 
-	TRACE(_T("Coordinates at cursor are (%d, %d)\n"), point.x, realy);
-	TRACE(_T("World coords at z = 0.0 are(%f, %f, %f)\n"), wx, wy, wz);
+	POINT wp;
+	wp.x = (LONG)wx;
+	wp.y = rect.bottom - (LONG)wy - 1;
+	mapCoor.insert(wPw(p, wp));
+}
 
-	CView::OnLButtonDown(nFlags, point);
+void CGTView::updatePathPoint(pPathPointData p)
+{
+	CRect rect;
+	GetClientRect(&rect);
+	// Project
+	GLint viewport[4];
+	GLdouble mvmatrix[16], projmatrix[16];
+
+	GLdouble wx, wy, wz; /* Returned window x, y, z coords */
+
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	glGetDoublev(GL_MODELVIEW_MATRIX, mvmatrix);
+	glGetDoublev(GL_PROJECTION_MATRIX, projmatrix);
+
+	gluProject(p->Coordinate_X, p->Coordinate_Y, p->Coordinate_Z, mvmatrix, projmatrix, viewport, &wx, &wy, &wz);
+
+	// Get the updated point's pointer
+	std::map<pPathPointData, POINT>::iterator iter;
+	for (iter = mapCoor.begin(); iter != mapCoor.end(); iter++) {
+		if (iter->first->serial = p->serial)
+			break;
+	}
+	if (iter == mapCoor.end()) {
+		AfxMessageBox(_T("Couldn't update the path point in CGTView class\n"), MB_OK | MB_ICONINFORMATION);
+		return;
+	}
+
+	iter->second.x = (LONG)wx;
+	iter->second.y = rect.bottom - (LONG)wy - 1;
+
+}
+
+void CGTView::updateMapCoor(void)
+{
+	CRect rect;
+	GetClientRect(&rect);
+	if (mapCoor.size() == 0)
+		return;
+
+	// Project
+	GLint viewport[4];
+	GLdouble mvmatrix[16], projmatrix[16];
+
+	GLdouble wx, wy, wz; /* Returned window x, y, z coords */
+
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	glGetDoublev(GL_MODELVIEW_MATRIX, mvmatrix);
+	glGetDoublev(GL_PROJECTION_MATRIX, projmatrix);
+
+	std::map<pPathPointData, POINT>::iterator iter;
+	for (iter = mapCoor.begin(); iter != mapCoor.end(); iter++) {
+		gluProject(iter->first->Coordinate_X, iter->first->Coordinate_Y, iter->first->Coordinate_Z, 
+			mvmatrix, projmatrix, viewport, &wx, &wy, &wz);
+		iter->second.x = (LONG)wx;
+		iter->second.y = rect.bottom - (LONG)wy - 1; 
+	}
+}
+
+
+int CGTView::selectNavigator(CPoint* pP)
+{
+	if (!selectedPathPoint)
+		return -1;
+
+	CRect rect;
+	GetClientRect(&rect);
+	// Project
+	GLint viewport[4];
+	GLdouble mvmatrix[16], projmatrix[16];
+
+	GLdouble wx, wy, wz; /* Returned window x, y, z coords */
+
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	glGetDoublev(GL_MODELVIEW_MATRIX, mvmatrix);
+	glGetDoublev(GL_PROJECTION_MATRIX, projmatrix);
+
+	gluProject(selectedPathPoint->Coordinate_X + NAVIGATOR_LENGTH, selectedPathPoint->Coordinate_Y, selectedPathPoint->Coordinate_Z, 
+			mvmatrix, projmatrix, viewport, &wx, &wy, &wz);
+	wy = rect.bottom - (LONG)wy - 1;
+	if (abs(pP->x - (LONG)wx) <= 2 && abs(pP->y - (LONG)wy) <= 2)
+		return 1;
+
+	gluProject(selectedPathPoint->Coordinate_X, selectedPathPoint->Coordinate_Y + NAVIGATOR_LENGTH, selectedPathPoint->Coordinate_Z, 
+			mvmatrix, projmatrix, viewport, &wx, &wy, &wz);
+	wy = rect.bottom - (LONG)wy - 1;
+	if (abs(pP->x - (LONG)wx) <= 2 && abs(pP->y - (LONG)wy) <= 2)
+		return 2;
+
+	gluProject(selectedPathPoint->Coordinate_X, selectedPathPoint->Coordinate_Y, selectedPathPoint->Coordinate_Z + NAVIGATOR_LENGTH, 
+			mvmatrix, projmatrix, viewport, &wx, &wy, &wz);
+	wy = rect.bottom - (LONG)wy - 1;
+	if (abs(pP->x - (LONG)wx) <= 2 && abs(pP->y - (LONG)wy) <= 2)
+		return 3;
+
+	return -1;	
 }

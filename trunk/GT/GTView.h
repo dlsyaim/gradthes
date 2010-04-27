@@ -4,8 +4,10 @@
 
 
 #pragma once
+#include <map>
 #include "Renderer.h"
 #include "SerialPort.h"
+
 //#include "NetSvrUdp.h"
 
 #define FLY_STATISTICS 9
@@ -60,12 +62,27 @@ private:
 	RENDER_MODE renderMode;
 	// Left mouse button's state
 	int lbState;
+	// Map stores the window coordinates and the 3D coordinates
+	std::map<pPathPointData, POINT> mapCoor;
+	// For mouse moving or up
+	int moveOrUp;
+	// The selected path point
+	PathPointData* selectedPathPoint;
+	// For adding or selecting: 1 for add and 2 for select
+	int addOrSelect;
+	// Left button pushed
+	int selected;
 
 // Operations
 public:
 	// Setters and getters
 	inline void setRenderMode(RENDER_MODE m) {this->renderMode = m; Invalidate(FALSE);}
 	inline void setPath(std::vector<PathPointData*> *pPath) {m_Renderer->setPPath(pPath); this->Invalidate(FALSE);}
+	void addPathPoint(pPathPointData p);
+	void updatePathPoint(pPathPointData p);
+	void updateMapCoor(void);
+
+	inline void setEditState(int ste) {this->addOrSelect = ste;}
 
 	// Update the data for the IMU test
 	void updateIMUData(IMUTestData* itd);
@@ -124,6 +141,13 @@ public:
 	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnGPSTest();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+//	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
+
+private:
+// Operations
+	// 1 for x-axis, 2 for y-axis, 3 for z-axis, -1 for none
+	int selectNavigator(CPoint *pP);
+
 };
 
 #ifndef _DEBUG  // debug version in GTView.cpp

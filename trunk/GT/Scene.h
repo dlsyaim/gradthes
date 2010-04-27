@@ -10,4 +10,10 @@ public:
 	static void drawCoordinateSystem(void);
 	static void drawCoordinateSystem(LPRECT lpRect);
 
+	// In the X-Z plane, draw a grid
+	static void drawGrid(LPRECT lpRect);
+
+	// Draw a navigator
+	static void drawNavigator(void);
+
 };
