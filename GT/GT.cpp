@@ -140,13 +140,13 @@ BOOL CGTApp::InitInstance()
 	/*
 	 * We set up a single socket client point
 	 */
-	//char *IP = "127.0.0.1";
-	//// Initializing
-	//while(cln.initCln(IP, 8818) == 0)
-	//{
-	//	//AfxMessageBox("Failed to create a sending client", MB_OK | MB_ICONSTOP);	
-	//	Sleep(100);
-	//}
+	char *IP = "127.0.0.1";
+	// Initializing
+	while(cln.initCln(IP, 8818) == 0)
+	{
+		//AfxMessageBox("Failed to create a sending client", MB_OK | MB_ICONSTOP);	
+		Sleep(100);
+	}
 	//char *IP = "192.168.0.186";
 	//if (cln.initCln(IP, 22222) == 0)
 	//{
