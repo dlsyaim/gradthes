@@ -16,6 +16,9 @@
 
 CGSProtocolParser::CGSProtocolParser(void)
 {
+	curPos = 0;
+
+	isError = FALSE;
 }
 
 CGSProtocolParser::~CGSProtocolParser(void)
@@ -37,8 +40,10 @@ void CGSProtocolParser::OnComTestTReply(void * Target, __int32 Len)
 	CGTApp* m_mainApp = (CGTApp*)AfxGetApp();
 	if (m_mainApp == NULL) {
 		AfxMessageBox("Failed to get the application pointer", MB_OK | MB_ICONSTOP);
-	} else if (!m_mainApp->getCtd()->SendMessage(COMMUNICATION_TEST_REPLY_MSG, 0, 0)) {
-		AfxMessageBox("Failed to inform the communication test dialog", MB_OK | MB_ICONSTOP);
+	} else if (!m_mainApp->getCtd()) {
+		AfxMessageBox("No communication test");
+	} else {
+		m_mainApp->getCtd()->SendMessage(COMMUNICATION_TEST_REPLY_MSG, 0, 0);
 	}
 }
 
@@ -199,13 +204,15 @@ bool CGSProtocolParser::OnInsData(void *tmpTarget, __int32 Len)
 		return false ;
 	}
 	// The index of the buffer - Target
-	int curPos = 0;
+	curPos = 0;
+	
 	/* If not casting, then Target can't be added */
 	char *buf = (char *)tmpTarget;
 	char *Target = new char[Len];
 	memcpy(Target, buf, Len);
 
-	while (curPos < (Len - 1)) {
+	isError = FALSE;
+	while (curPos < (Len - 1) && !isError) {
 		// Parse the instruction header
 		INSHEAD *inshead = (INSHEAD *)(Target + curPos);
 		INSHEAD V = *inshead;
@@ -471,4 +478,10 @@ bool CGSProtocolParser::OnInsData(void *tmpTarget, __int32 Len)
 	// Release memory
 	delete[] Target;
 	return TRUE;
+}
+
+void CGSProtocolParser::ParseError(INSHEAD V)
+{
+	isError = TRUE;
+	::SendMessage(((CGTApp*)AfxGetApp())->GetMainWnd()->m_hWnd, ERROR_INSTRUCTION, 0, 0);
 }

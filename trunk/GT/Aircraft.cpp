@@ -74,11 +74,16 @@ void Aircraft::drawWithAutoSize(LPRECT lpRect)
 	// Then translate 50.0f towards Y-axis negative direction
 	glTranslatef(0.0f, -150.0f, 0.0f);
 
-	// To make the aircraft's head toward left
-	glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
+	// To make the aircraft's coordinate system same as the test environment's coordinate system
+	//glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+	//glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
+	// First rotate around the y-axis, means heading
+	glRotatef(yrot, 0.0f, 1.0f, 0.0f);
+	// Second rotate around the x-axis, means pitch
 	glRotatef(-xrot, 1.0f, 0.0f, 0.0f);
-	glRotatef(-yrot, 0.0f, 1.0f, 0.0f);
-	glRotatef(-zrot, 0.0f, 0.0f, 1.0f);
+	// Third rotate around the z-axis, means roll
+	glRotatef(zrot, 0.0f, 0.0f, 1.0f);
+	glEnable(GL_DEPTH_TEST);
 	glBegin(GL_TRIANGLES);
 		for ( int i = 0; i < (int)meshes.size(); i++ ) {
 			for ( int j = 0; j < (int)meshes[i].numFaces; j++ ) {
@@ -135,11 +140,18 @@ void Aircraft::drawWithInstruments(LPRECT lpRect)
 	glTranslatef(x_offset, y_offset, distance);
 
 
-	// To make the aircraft's head toward left
-	glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
+	//// To make the aircraft's head toward left
+	//glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
+	//glRotatef(-xrot, 1.0f, 0.0f, 0.0f);
+	//glRotatef(-yrot, 0.0f, 1.0f, 0.0f);
+	//glRotatef(-zrot, 0.0f, 0.0f, 1.0f);
+	// First rotate around the y-axis, means heading
+	glRotatef(yrot, 0.0f, 1.0f, 0.0f);
+	// Second rotate around the x-axis, means pitch
 	glRotatef(-xrot, 1.0f, 0.0f, 0.0f);
-	glRotatef(-yrot, 0.0f, 1.0f, 0.0f);
-	glRotatef(-zrot, 0.0f, 0.0f, 1.0f);
+	// Third rotate around the z-axis, means roll
+	glRotatef(zrot, 0.0f, 0.0f, 1.0f);
+	glEnable(GL_DEPTH_TEST);
 	glBegin(GL_TRIANGLES);
 		for ( int i = 0; i < (int)meshes.size(); i++ ) {
 			for ( int j = 0; j < (int)meshes[i].numFaces; j++ ) {
@@ -186,7 +198,9 @@ void Aircraft::update(pOPTTRACETestData otd)
 	zrot = otd->phi * 180 / PI;
 }
 
-// Draw function.
+/*
+ * The draw function's entry
+ */
 void Aircraft::draw(LPRECT lpRect, BOOL isTerrain/* = TRUE*/, BOOL isInstr/* = FALSE*/)
 {
 	if (isTerrain) {
@@ -219,11 +233,14 @@ void Aircraft::draw(LPRECT lpRect, BOOL isTerrain/* = TRUE*/, BOOL isInstr/* = F
 			// -800.0f is an experienced value. 
 			//glTranslatef(0.0f, 0.0f, -800.0f);
 			glTranslatef(x, y, z);
-			// To make the aircraft's head toward left
-			glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
+			// To make the aircraft's coordinate system same as the test environment's coordinate system.
+			// First rotate around the y-axis, means heading
+			glRotatef(yrot, 0.0f, 1.0f, 0.0f);
+			// Second rotate around the x-axis, means pitch
 			glRotatef(-xrot, 1.0f, 0.0f, 0.0f);
-			glRotatef(-yrot, 0.0f, 1.0f, 0.0f);
-			glRotatef(-zrot, 0.0f, 0.0f, 1.0f);
+			// Third rotate around the z-axis, means roll
+			glRotatef(zrot, 0.0f, 0.0f, 1.0f);
+			glEnable(GL_DEPTH_TEST);
 			glBegin(GL_TRIANGLES);
 				for ( int i = 0; i < (int)meshes.size(); i++ ) {
 					for ( int j = 0; j < (int)meshes[i].numFaces; j++ ) {

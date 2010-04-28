@@ -9,7 +9,8 @@ CNetCln::CNetCln()
 
 CNetCln::~CNetCln()
 {
-
+    if (RunSocket != 0)
+		closesocket(RunSocket);
 }
 
 int CNetCln::InitNet()

@@ -103,11 +103,11 @@ int CGridView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	
 	if (m_pGridCtrl == NULL)
 	{
-		// Create the Gridctrl object
+		// Create the grid control object
 		m_pGridCtrl = new CGridCtrl;
 		if (!m_pGridCtrl) return -1;
 
-		// Create the Gridctrl window
+		// Create the grid control window
 		CRect rect;
 		GetClientRect(rect);
 		rect.bottom /= 2;

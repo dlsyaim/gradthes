@@ -3,10 +3,10 @@
 //
 
 #include "stdafx.h"
-#include "GT.h"
 #include <gl/glut.h>
 #include <vector>
 #include <fstream>
+#include "GT.h"
 #include "ST_SplitterWnd.h"
 #include "MainFrm.h"
 #include "HelicopterChoosingDialog.h"
@@ -24,6 +24,7 @@
 #include "OPTFormView.h"
 #include "GSDefinition.h"
 #include "Singleton.h"
+#include "MsgType.h"
 
 /*
  * 48000 is an estimated number
@@ -65,6 +66,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_FLIGHT_EXPERIMENT, &CMainFrame::OnFlightExperiment)
 	ON_COMMAND(ID_DATA_PROCESS, &CMainFrame::OnDataProcess)
 	ON_COMMAND(ID_OPT_TEST, &CMainFrame::OnOptTest)
+	ON_MESSAGE(ERROR_INSTRUCTION, &CMainFrame::OnErrInst)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -601,7 +603,7 @@ void CMainFrame::readHMFromRegistry(void)
 	char res[5];
 
 	for (int i = 0 ; i < MAX_NUM_HELICOPTER_NAME; i++) {
-		itoa(i,res,10);
+		_itoa_s(i, res, sizeof(res), 10);
 		memset(buf, 0, 256);
 		dwLength = 256;	
 		RegQueryValueEx(hk, res, NULL, &dwType, (LPBYTE)buf, &dwLength);
@@ -692,7 +694,7 @@ void CMainFrame::OnDestroy()
 	char res[5];
 
 	for (int i = 0; i < MAX_NUM_HELICOPTER_NAME ; i++) {	
-		itoa(i,res,10);
+		_itoa_s(i, res, sizeof(res), 10);
 		memcpy(buf, helicopterNames[i].GetBuffer(0), helicopterNames[i].GetLength());
 		buf[helicopterNames[i].GetLength()] = '\0';
 		RegSetValueEx(hk,res,0, REG_SZ,(PBYTE)buf, helicopterNames[i].GetLength() + 1);
@@ -785,15 +787,34 @@ void CMainFrame::OnFlightPathSet()
 	}
 }
 
+/*
+ * Read the configuration file
+ */
 void CMainFrame::OnReadConfiguration()
 {
-	/***** Open the configuration file *****/
-	char strFilter[] = { "UNHE configuration files (*.uhc)|*.uhc| All files (*.*) | *.*|" };
-	CFileDialog FileDlg(TRUE, ".uhc", NULL, 0, strFilter);
-	if (FileDlg.DoModal() == IDOK) {
-		CString fileName = FileDlg.GetFileName();
-		TRACE(fileName);
-		// Open it
+	/********** Open the configuration file **********/
+	char strFilter[] = { "UNHE configuration files (*.uhc)|*.uhc| All files (*.*) | *.*||" };
+	CFileDialog fileDlg(TRUE, ".uhc", NULL, 0, strFilter);
+	
+	CString fileName;	
+	ConfigStruct conStr;
+	CSingleton *instance;
+	std::ifstream ifs;
+	switch (fileDlg.DoModal()) {
+		case IDOK:
+			fileName = fileDlg.GetPathName();
+			ifs.open(fileName, std::ios::binary);
+			ifs.read((char *)&conStr, sizeof(conStr));
+			ifs.close();
+			// And set the flight path file name and control parameter file name
+			instance = CSingleton::getInstance();
+			instance->setRecentFPName(conStr.flightPathFileName);
+			instance->setRecentCPName(conStr.controlParameterFileName);
+			break;
+		case IDCANCEL:
+			break;
+		default:
+			break;
 	}
 }
 
@@ -802,14 +823,44 @@ void CMainFrame::OnSaveConfiguration()
 	
 }
 
+/*
+ * Save the configuration file
+ */
 void CMainFrame::OnSaveAsConfiguration()
 {
-	char strFilter[] = { "UNHE configuration files (*.uhc)|*.uhc| All files (*.*) | *.*|" };
-	CFileDialog FileDlg(FALSE, ".uhc", NULL, 0, strFilter);
-	if (FileDlg.DoModal() == IDOK) {
-		CString fileName = FileDlg.GetFileName();
-		TRACE(fileName);
-		// Save it
+	char strFilter[] = { "UNHE configuration files (*.uhc)|*.uhc| All files (*.*) | *.*||" };	
+	while (TRUE) {
+		CFileDialog fileDlg(FALSE, ".uhc", NULL, 0, strFilter);
+		INT_PTR rest = fileDlg.DoModal();
+		if (rest != IDOK)
+			break;
+		// Construct a ConfigStruct object
+		ConfigStruct coSt;
+		// Initializing
+		memset(&coSt, 0, sizeof(coSt));
+		CSingleton* instance = CSingleton::getInstance();
+		coSt.version = 0;
+		memcpy(coSt.controlParameterFileName, instance->getRecnetCPName().GetBuffer(0), instance->getRecnetCPName().GetLength());
+		memcpy(coSt.flightPathFileName, instance->getRecnetFPName().GetBuffer(0), instance->getRecnetFPName().GetLength());
+		// Check if the file already exists
+		CString fileName = fileDlg.GetPathName();
+		CFileFind finder;
+		BOOL isFound = finder.FindFile(fileName);
+		if (isFound) {
+			INT_PTR ret = AfxMessageBox(fileName + _T(" already exists.\nDo you want to replace it?"), MB_YESNO | MB_ICONWARNING);
+			if (ret == IDYES) {				
+				// Override an existing file
+				std::ofstream ofs(fileName, std::ios::binary | std::ios::trunc);
+				ofs.write((char *)&coSt, sizeof(coSt));
+				ofs.close();
+				break;
+			}
+		} else {
+			std::ofstream ofs(fileName, std::ios::binary | std::ios::trunc);
+			ofs.write((char *)&coSt, sizeof(coSt));
+			ofs.close();
+			break;
+		}
 	}
 }
 
@@ -881,4 +932,11 @@ void CMainFrame::OnOptTest()
 	if (pView != NULL)  {
 		pView->setRenderMode(CGTView::OPT_TEST);
 	}
+}
+
+
+LRESULT CMainFrame::OnErrInst(WPARAM w, LPARAM l)
+{
+	m_wndStatusBar.SetPaneText(0, "Error Instruction", TRUE);
+	return TRUE;
 }

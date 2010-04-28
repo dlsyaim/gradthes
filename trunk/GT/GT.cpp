@@ -20,6 +20,7 @@
 #endif
 
 
+
 // CGTApp
 
 BEGIN_MESSAGE_MAP(CGTApp, CWinAppEx)
@@ -141,7 +142,8 @@ BOOL CGTApp::InitInstance()
 	 * We set up a single socket client point
 	 */
 	//char *IP = "127.0.0.1";
-	//// Initializing
+	char *IP = "192.168.1.144";
+	// Initializing
 	//while(cln.initCln(IP, 8818) == 0)
 	//{
 	//	//AfxMessageBox("Failed to create a sending client", MB_OK | MB_ICONSTOP);	
