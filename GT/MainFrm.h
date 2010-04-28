@@ -101,6 +101,7 @@ public:
 	afx_msg void OnFlightExperiment();
 	afx_msg void OnDataProcess();
 	afx_msg void OnOptTest();
+	afx_msg LRESULT OnErrInst(WPARAM w, LPARAM l);
 };
 
 

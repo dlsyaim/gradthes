@@ -2,6 +2,7 @@
 
 #include "define\FlyStructDefine.h "
 
+
 /*
  * This struct is an aggregated struct, which contains
  * (1)helicopterName,
@@ -18,13 +19,18 @@ typedef struct _HelicopterModel
 }HelicopterModel, *PHelicopterModel;
 
 /*
- * Must consider the configuration files
+ * The configuration file's structure
+ * (1)Version
+ * (2)The file name of the flight path
+ * (3)The file name of control parameter
  */
 
-//typedef struct _
-//{
-//
-//};
+typedef struct _ConfigStruct
+{
+	int version;
+	char flightPathFileName[100];
+	char controlParameterFileName[100];
+}ConfigStruct, *PConfigStruct;
 
 /*
  * The experiments' data files:

@@ -17,3 +17,6 @@
 #define START_TASK_REPLY_MSG WM_USER + 305
 #define STOP_TASK_REPLY_MSG WM_USER + 306
 #define FLYING_STATE_DATA_MSG WM_USER + 307
+
+/* Message indicates instruction parsering error */
+#define ERROR_INSTRUCTION WM_USER + 308

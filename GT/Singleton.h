@@ -1,10 +1,12 @@
 #pragma once
-#include "GSDefinition.h"
+
 #include <vector>
 #include <fstream>
+#include "GSDefinition.h"
 
 class CSingleton
 {
+// Operations
 private:
 	CSingleton(void);
 public:

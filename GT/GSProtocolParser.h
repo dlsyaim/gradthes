@@ -24,5 +24,10 @@ protected:
 	void OnStartTaskReply(void *Target, __int32 Len);
 	void OnStopTaskReply(void *Target, __int32 Len);
 	void OnFlyingState(void * Target, __int32 Len);
+	void ParseError(INSHEAD V);
+
+	int curPos;
+
+	BOOL isError;
 
 };
