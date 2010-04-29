@@ -258,6 +258,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FPSFormView.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\FuelKnob.cpp"
 				>
 			</File>
@@ -625,6 +629,10 @@
 			</File>
 			<File
 				RelativePath=".\define\FlyStructDefine.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FPSFormView.h"
 				>
 			</File>
 			<File
