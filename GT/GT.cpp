@@ -19,7 +19,10 @@
 #define new DEBUG_NEW
 #endif
 
-
+#define IP_STRING "192.168.1.144"
+#define TEST_IP_STRING "127.0.0.1"
+#define LOCAL_PORT 9919
+#define REMOTE_PORT 8818
 
 // CGTApp
 
@@ -130,29 +133,20 @@ BOOL CGTApp::InitInstance()
 	/*
 	 * For we shouldn't always create a thread to receive the return messages from the server,
 	 * we start up a thread here. However, we should set the port we listen firstly.
-	 * 33333 is a casual digit and can be changed through discussion.
+	 * LOCAL_PORT is a casual digit and can be changed through discussion.
 	 */
-	svr.port = 9919;
+	svr.port = LOCAL_PORT;
 	if (!svr.StartSvr()) {
 		AfxMessageBox(_T("The server for connection failed to start up"), MB_OK | MB_ICONWARNING);
 	}
 
 
 	/*
-	 * We set up a single socket client point
+	 * We set up a globally unique socket client
 	 */
-	//char *IP = "127.0.0.1";
-	char *IP = "192.168.1.144";
-	// Initializing
-	//while(cln.initCln(IP, 8818) == 0)
+	//while(cln.initCln(IP_STRING, REMOTE_PORT) == 0)
 	//{
-	//	//AfxMessageBox("Failed to create a sending client", MB_OK | MB_ICONSTOP);	
 	//	Sleep(100);
-	//}
-	//char *IP = "192.168.0.186";
-	//if (cln.initCln(IP, 22222) == 0)
-	//{
-	//	AfxMessageBox("Failed to create a sending client", MB_OK | MB_ICONSTOP);
 	//}
 	// call DragAcceptFiles only if there's a suffix
 	//  In an SDI app, this should occur after ProcessShellCommand

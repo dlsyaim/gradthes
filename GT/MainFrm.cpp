@@ -569,6 +569,7 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 	// Add views
 	m_pSplitterWnd1->AddView(TOP_SIDE, RUNTIME_CLASS(CUpperRightView), pContext);
 	m_pSplitterWnd1->AddView(TOP_SIDE, RUNTIME_CLASS(CDPUpperRightView), pContext);
+	
 	m_pSplitterWnd1->AddView(BOTTOM_SIDE, RUNTIME_CLASS(CGTView), pContext);
 
 	m_pSplitterWnd1->SetInitialStatus();
@@ -699,34 +700,43 @@ void CMainFrame::OnDestroy()
 		buf[helicopterNames[i].GetLength()] = '\0';
 		RegSetValueEx(hk,res,0, REG_SZ,(PBYTE)buf, helicopterNames[i].GetLength() + 1);
 	}
-	
+
+	// We have finished with the registry,
+	// so liberate the resources we were using		
+	RegCloseKey(hk);
 
 	if (m_pSplitterWnd)
 		delete m_pSplitterWnd;
 	if (m_pSplitterWnd1)
 		delete m_pSplitterWnd1;
-
-	// We have finished with the registry,
-	// so liberate the resources we were using		
-	RegCloseKey(hk);
 }
 
+/*
+ * Start to test communication
+ */
 void CMainFrame::OnCommunicationTest()
 {
 	CCommunicationTestDialog ctd;
-	((CGTApp*)AfxGetApp())->setCtd(&ctd);
+	// Set the dialog pointer to use it later in sending message method
+	((CGTApp*)AfxGetApp())->setCommunicationTestDialog(&ctd);
+	// Pop up the dialog
 	ctd.DoModal();
 }
 
+/*
+ * Start to demarcate servo actor
+ */
 void CMainFrame::OnServoActorDemarcate()
 {
+	// Get the globally unique instance
 	CSingleton *instance = CSingleton::getInstance();
 	if (!instance->getCurPHM())
 	{
-		AfxMessageBox(_T("Must choose a helicopter model first"), MB_OK | MB_ICONSTOP);
+		AfxMessageBox(_T("A helicopter model required.\nSo you must firstly choose a helicopter model"), MB_OK | MB_ICONSTOP);
 		return;
 	}
 	CServoActorDemarcateDialog sadd;
+	// TODO: Further processing may be added below
 	switch (sadd.DoModal()) {
 		case IDOK:
 			break;
@@ -737,12 +747,120 @@ void CMainFrame::OnServoActorDemarcate()
 	}
 }
 
+/*
+ * Start to test gyro(IMU)
+ */
 void CMainFrame::OnGyroTest()
+{
+	/********** Toggle on the left side, switch to IMUTestFormView **********/
+	const int imuTestFormViewIndex = 1;
+	if (m_pSplitterWnd->IsSideHidden(LEFT_SIDE))
+		m_pSplitterWnd->ToggleSide(LEFT_SIDE);
+	m_pSplitterWnd->SwitchToView(LEFT_SIDE, imuTestFormViewIndex);
+
+	/********** Toggle off the upper right side **********/
+	if (!m_pSplitterWnd1->IsSideHidden(TOP_SIDE)) {
+		m_pSplitterWnd1->ToggleSide(TOP_SIDE);
+	}
+
+	/********** Set GTView's render mode to be IMU_TEST **********/
+	CGTView* pGTView = getLowerRightPane();	
+	if (pGTView != NULL)  {
+		pGTView->setRenderMode(CGTView::IMU_TEST);
+	} else {
+		AfxMessageBox(_T("Couldn't get the view pointer.\n3-D helicopter model won't show"), MB_OK | MB_ICONWARNING);
+	}
+}
+
+
+/*
+ * Set the flight path
+ */
+void CMainFrame::OnFlightPathSet()
+{
+	const int gridViewIndex = 0;
+	/********** Toggle on the left side, switch to GridView **********/
+	if (m_pSplitterWnd->IsSideHidden(LEFT_SIDE))
+		m_pSplitterWnd->ToggleSide(LEFT_SIDE);
+	m_pSplitterWnd->SwitchToView(LEFT_SIDE, gridViewIndex);
+
+	/********** Toggle off the upper right side **********/
+	if (!m_pSplitterWnd1->IsSideHidden(TOP_SIDE)) {
+		m_pSplitterWnd1->ToggleSide(TOP_SIDE);
+	}
+
+	/********** Toggle on the lower left side **********/
+	if (m_pSplitterWnd1->IsSideHidden(BOTTOM_SIDE)) {
+		m_pSplitterWnd1->ToggleSide(BOTTOM_SIDE);
+	}
+
+
+	if (getLowerRightPane()) {
+		getLowerRightPane()->setRenderMode(CGTView::FLIGHT_PATH_SET);
+	}
+}
+
+/*
+ * Set the control parameters
+ */
+void CMainFrame::OnControlParameter()
+{
+	CPIDCPDialog cpd;
+	// Pop up a dialog
+	cpd.DoModal();
+}
+
+void CMainFrame::OnFlightExperiment()
+{
+	/***** First toggle on the left side, then switch to LeftView *****/
+	if (m_pSplitterWnd->IsSideHidden(LEFT_SIDE))
+		m_pSplitterWnd->ToggleSide(LEFT_SIDE);
+	m_pSplitterWnd->SwitchToView(LEFT_SIDE, 2);
+
+	/***** Then toggle on the upper right side, then switch to UpperRightView *****/
+	if (m_pSplitterWnd1->IsSideHidden(TOP_SIDE)) 
+		m_pSplitterWnd1->ToggleSide(TOP_SIDE);
+	m_pSplitterWnd1->SwitchToView(TOP_SIDE, 0);
+	
+
+	if (m_pSplitterWnd1->IsSideHidden(BOTTOM_SIDE)) 
+		m_pSplitterWnd1->ToggleSide(BOTTOM_SIDE);
+
+	m_pSplitterWnd1->SwitchToView(BOTTOM_SIDE, 0);
+	// Change the render mode
+	if (getLowerRightPane())
+		getLowerRightPane()->setRenderMode(CGTView::FLIGHT_EXPERIMENT);
+}
+
+void CMainFrame::OnDataProcess()
+{
+	/***** First toggle on the left side, then switch to LeftView *****/
+	if (m_pSplitterWnd->IsSideHidden(LEFT_SIDE))
+		m_pSplitterWnd->ToggleSide(LEFT_SIDE);
+	m_pSplitterWnd->SwitchToView(LEFT_SIDE, 3);
+
+	/***** Then toggle on the upper right side, then switch to LeftView *****/
+	if (m_pSplitterWnd1->IsSideHidden(TOP_SIDE)) 
+		m_pSplitterWnd1->ToggleSide(TOP_SIDE);
+	m_pSplitterWnd1->SwitchToView(TOP_SIDE, 1);
+	
+
+	if (m_pSplitterWnd1->IsSideHidden(BOTTOM_SIDE)) 
+		m_pSplitterWnd1->ToggleSide(BOTTOM_SIDE);
+
+	m_pSplitterWnd1->SwitchToView(BOTTOM_SIDE, 0);
+
+	// Change the render mode
+	if (getLowerRightPane())
+		getLowerRightPane()->setRenderMode(CGTView::DATA_PROCESS);
+}
+
+void CMainFrame::OnOptTest()
 {
 	/***** First toggle on the left side, then switch to IMUTestFormView *****/
 	if (m_pSplitterWnd->IsSideHidden(LEFT_SIDE))
 		m_pSplitterWnd->ToggleSide(LEFT_SIDE);
-	m_pSplitterWnd->SwitchToView(LEFT_SIDE, 1);
+	m_pSplitterWnd->SwitchToView(LEFT_SIDE, 4);
 
 	/***** Then toggle off the upper right side *****/
 	if (!m_pSplitterWnd1->IsSideHidden(TOP_SIDE)) {
@@ -752,40 +870,10 @@ void CMainFrame::OnGyroTest()
 	/***** Inform GTView to draw the static 3D helicopter model *****/
 	CGTView* pView = getLowerRightPane();	
 	if (pView != NULL)  {
-		pView->setRenderMode(CGTView::IMU_TEST);
+		pView->setRenderMode(CGTView::OPT_TEST);
 	}
 }
 
-CGTView* CMainFrame::getLowerRightPane(void)
-{
-	CWnd* pWnd = NULL;
-	CGTView* pView = NULL;
-	if (m_pSplitterWnd1->IsSideHidden(TOP_SIDE)) {
-		pWnd = m_pSplitterWnd1->GetPane(0, 0)/*.GetPane(0, 1)*/;
-		pView = DYNAMIC_DOWNCAST(CGTView, pWnd);
-	} else if (!m_pSplitterWnd1->IsSideHidden(BOTTOM_SIDE)) {
-		pWnd = m_pSplitterWnd1->GetPane(1, 0);
-		pView = DYNAMIC_DOWNCAST(CGTView, pWnd);		
-	}
-	return pView;	
-}
-
-void CMainFrame::OnFlightPathSet()
-{
-	/***** First toggle on the left side, switch to GridView *****/
-	if (m_pSplitterWnd->IsSideHidden(LEFT_SIDE))
-		m_pSplitterWnd->ToggleSide(LEFT_SIDE);
-	m_pSplitterWnd->SwitchToView(LEFT_SIDE, 0);
-
-	/***** Then toggle off the upper right side *****/
-	if (!m_pSplitterWnd1->IsSideHidden(TOP_SIDE)) {
-		m_pSplitterWnd1->ToggleSide(TOP_SIDE);
-	}
-
-	if (getLowerRightPane()) {
-		getLowerRightPane()->setRenderMode(CGTView::FLIGHT_PATH_SET);
-	}
-}
 
 /*
  * Read the configuration file
@@ -864,79 +952,28 @@ void CMainFrame::OnSaveAsConfiguration()
 	}
 }
 
-void CMainFrame::OnControlParameter()
-{
-	CPIDCPDialog cpd;
-	cpd.DoModal();
-}
-
-void CMainFrame::OnFlightExperiment()
-{
-	/***** First toggle on the left side, then switch to LeftView *****/
-	if (m_pSplitterWnd->IsSideHidden(LEFT_SIDE))
-		m_pSplitterWnd->ToggleSide(LEFT_SIDE);
-	m_pSplitterWnd->SwitchToView(LEFT_SIDE, 2);
-
-	/***** Then toggle on the upper right side, then switch to UpperRightView *****/
-	if (m_pSplitterWnd1->IsSideHidden(TOP_SIDE)) 
-		m_pSplitterWnd1->ToggleSide(TOP_SIDE);
-	m_pSplitterWnd1->SwitchToView(TOP_SIDE, 0);
-	
-
-	if (m_pSplitterWnd1->IsSideHidden(BOTTOM_SIDE)) 
-		m_pSplitterWnd1->ToggleSide(BOTTOM_SIDE);
-
-	m_pSplitterWnd1->SwitchToView(BOTTOM_SIDE, 0);
-	// Change the render mode
-	if (getLowerRightPane())
-		getLowerRightPane()->setRenderMode(CGTView::FLIGHT_EXPERIMENT);
-}
-
-void CMainFrame::OnDataProcess()
-{
-	/***** First toggle on the left side, then switch to LeftView *****/
-	if (m_pSplitterWnd->IsSideHidden(LEFT_SIDE))
-		m_pSplitterWnd->ToggleSide(LEFT_SIDE);
-	m_pSplitterWnd->SwitchToView(LEFT_SIDE, 3);
-
-	/***** Then toggle on the upper right side, then switch to LeftView *****/
-	if (m_pSplitterWnd1->IsSideHidden(TOP_SIDE)) 
-		m_pSplitterWnd1->ToggleSide(TOP_SIDE);
-	m_pSplitterWnd1->SwitchToView(TOP_SIDE, 1);
-	
-
-	if (m_pSplitterWnd1->IsSideHidden(BOTTOM_SIDE)) 
-		m_pSplitterWnd1->ToggleSide(BOTTOM_SIDE);
-
-	m_pSplitterWnd1->SwitchToView(BOTTOM_SIDE, 0);
-
-	// Change the render mode
-	if (getLowerRightPane())
-		getLowerRightPane()->setRenderMode(CGTView::DATA_PROCESS);
-}
-
-void CMainFrame::OnOptTest()
-{
-	/***** First toggle on the left side, then switch to IMUTestFormView *****/
-	if (m_pSplitterWnd->IsSideHidden(LEFT_SIDE))
-		m_pSplitterWnd->ToggleSide(LEFT_SIDE);
-	m_pSplitterWnd->SwitchToView(LEFT_SIDE, 4);
-
-	/***** Then toggle off the upper right side *****/
-	if (!m_pSplitterWnd1->IsSideHidden(TOP_SIDE)) {
-		m_pSplitterWnd1->ToggleSide(TOP_SIDE);
-	}
-
-	/***** Inform GTView to draw the static 3D helicopter model *****/
-	CGTView* pView = getLowerRightPane();	
-	if (pView != NULL)  {
-		pView->setRenderMode(CGTView::OPT_TEST);
-	}
-}
 
 
 LRESULT CMainFrame::OnErrInst(WPARAM w, LPARAM l)
 {
 	m_wndStatusBar.SetPaneText(0, "Error Instruction", TRUE);
 	return TRUE;
+}
+
+/*
+ * Get the GTView pointer
+ */
+CGTView* CMainFrame::getLowerRightPane(void)
+{
+	// If a pane is hidden, it won't occupy a location
+	CWnd* pWnd = NULL;
+	CGTView* pView = NULL;
+	if (m_pSplitterWnd1->IsSideHidden(TOP_SIDE)) {
+		pWnd = m_pSplitterWnd1->GetPane(0, 0);
+		pView = DYNAMIC_DOWNCAST(CGTView, pWnd);
+	} else if (!m_pSplitterWnd1->IsSideHidden(BOTTOM_SIDE)) {
+		pWnd = m_pSplitterWnd1->GetPane(1, 0);
+		pView = DYNAMIC_DOWNCAST(CGTView, pWnd);		
+	}
+	return pView;	
 }

@@ -30,7 +30,7 @@ public:
 	inline const CNetSvrHeli* getSvr(void) {return &svr;}
 	inline CNetCln* getCln(void) {return &cln;}
 	inline CCommunicationTestDialog* getCtd(void) {return ctd;}
-	inline void setCtd(CCommunicationTestDialog* ctd) {this->ctd = ctd;}
+	inline void setCommunicationTestDialog(CCommunicationTestDialog* ctd) {this->ctd = ctd;}
 	CGTDoc* getDoc(void);
 // Overrides
 public:
