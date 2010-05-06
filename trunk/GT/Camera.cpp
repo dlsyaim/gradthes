@@ -36,7 +36,7 @@ void CCamera::PositionCamera(float posX, float posY, float posZ,
 
 	// Normalize the vector from m_vView to m_vPosition
 	m_vView = m_vPosition + (m_vView - m_vPosition).GetNormalized();
-	SetCursorPos(Window_Width >> 1, Window_Height >> 1);
+	//SetCursorPos(Window_Width >> 1, Window_Height >> 1);
 }
 
 // Set camera's position

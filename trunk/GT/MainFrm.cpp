@@ -22,6 +22,7 @@
 #include "DPLeftFormView.h"
 #include "DPUpperRightView.h"
 #include "OPTFormView.h"
+#include "FPSFormView.h"
 #include "GSDefinition.h"
 #include "Singleton.h"
 #include "MsgType.h"
@@ -569,6 +570,7 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 	// Add views
 	m_pSplitterWnd1->AddView(TOP_SIDE, RUNTIME_CLASS(CUpperRightView), pContext);
 	m_pSplitterWnd1->AddView(TOP_SIDE, RUNTIME_CLASS(CDPUpperRightView), pContext);
+	m_pSplitterWnd1->AddView(TOP_SIDE, RUNTIME_CLASS(CFPSFormView), pContext);
 	
 	m_pSplitterWnd1->AddView(BOTTOM_SIDE, RUNTIME_CLASS(CGTView), pContext);
 
@@ -779,6 +781,7 @@ void CMainFrame::OnGyroTest()
 void CMainFrame::OnFlightPathSet()
 {
 	const int gridViewIndex = 0;
+	const int fpsFormViewIndex = 2;
 	/********** Toggle on the left side, switch to GridView **********/
 	if (m_pSplitterWnd->IsSideHidden(LEFT_SIDE))
 		m_pSplitterWnd->ToggleSide(LEFT_SIDE);
@@ -788,12 +791,12 @@ void CMainFrame::OnFlightPathSet()
 	if (!m_pSplitterWnd1->IsSideHidden(TOP_SIDE)) {
 		m_pSplitterWnd1->ToggleSide(TOP_SIDE);
 	}
+	//m_pSplitterWnd1->SwitchToView(TOP_SIDE, fpsFormViewIndex);
 
 	/********** Toggle on the lower left side **********/
 	if (m_pSplitterWnd1->IsSideHidden(BOTTOM_SIDE)) {
 		m_pSplitterWnd1->ToggleSide(BOTTOM_SIDE);
 	}
-
 
 	if (getLowerRightPane()) {
 		getLowerRightPane()->setRenderMode(CGTView::FLIGHT_PATH_SET);

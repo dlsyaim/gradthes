@@ -1,5 +1,7 @@
 #pragma once
 
+class Texture;
+
 class Scene
 {
 public:
@@ -15,5 +17,8 @@ public:
 
 	// Draw a navigator
 	static void drawNavigator(void);
+
+	// Draw a map texture
+	static void drawMapTex(Texture* mapTex, LPRECT lpRect);
 
 };

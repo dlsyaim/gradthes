@@ -24,6 +24,7 @@ public:
 	BOOL loadTexture(GLuint& texId);
 	BOOL loadTexture(void);
 	BOOL loadTexture(std::string path);
+	BOOL loadTexture(CString fileName);
 
 private:
 	// path

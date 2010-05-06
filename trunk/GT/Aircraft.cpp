@@ -35,7 +35,8 @@ void Aircraft::loadAircraft(char *filePath)
 	meshes = loadVRML(filePath);
 
 	terrain->LoadRawFile("..\\terrains\\terrain.raw");
-	terrain->getTerrainTex()->loadTexture("..\\Instruments\\Textures\\Terrain.tga");
+	std::string texPath = "..\\Instruments\\Textures\\Terrain.tga";
+	terrain->getTerrainTex()->loadTexture(texPath);
 }
 
 // Attention: This function needs to be consummated

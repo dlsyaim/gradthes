@@ -42,6 +42,8 @@ public:
 private:
 // Operations
 	HBITMAP LoadAnImage(CString fileName);
+public:
+	afx_msg void OnBnClickedLoadMapButton();
 };
 
 #ifndef _DEBUG  // debug version in FPSFormView.cpp

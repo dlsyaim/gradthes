@@ -38,9 +38,9 @@ BOOL Texture::loadTexture(GLuint &texId)
 	// Get the current directory path
 	GetCurrentDirectory(MAX_PATH, (LPTSTR)szPath);			
 	// Add '\\'
-	strcat(szPath, "\\..");											
+	strcat_s(szPath, sizeof(szPath), "\\..");											
 	// Add the relative path 
-	strcat(szPath, path.append("bmp").c_str());			
+	strcat_s(szPath, sizeof(szPath), path.append("bmp").c_str());			
 	// Convert to the wide char
 	MultiByteToWideChar(CP_ACP, 0, szPath, -1, wszPath, MAX_PATH);		
 
@@ -175,9 +175,9 @@ BOOL Texture::loadTexture(void)
 	// Get the current directory path
 	GetCurrentDirectory(MAX_PATH, (LPTSTR)szPath);			
 	// Add '\\'
-	strcat(szPath, "\\..");											
+	strcat_s(szPath, sizeof(szPath), "\\..");											
 	// Add the relative path 
-	strcat(szPath, path.append("tga").c_str());	
+	strcat_s(szPath, sizeof(szPath), path.append("tga").c_str());	
 	// Open tga file
 	FILE *file = fopen(szPath, "rb");									
 
@@ -321,4 +321,141 @@ BOOL Texture::loadTexture(std::string path)
 {
 	this->path = path.substr(2, path.size() - 3 - 2);
 	return loadTexture();
+}
+
+BOOL Texture::loadTexture(CString fileName)
+{
+	// DC is used to save bitmap
+	HDC			hdcTemp;												
+	// Save the temporary bitmap
+	HBITMAP		hbmpTemp;			
+	// Define IPicture Interface
+	IPicture	*pPicture;												
+	// The complete path of the picture
+	OLECHAR		wszPath[MAX_PATH + 1];									
+	// The complete path of the picture
+	char		szPath[MAX_PATH + 1];										
+	long		lWidth;													
+	long		lHeight;												
+	long		lWidthPixels;											
+	long		lHeightPixels;			
+
+	GLint		glMaxTexDim ;											
+
+	//// Get the current directory path
+	//GetCurrentDirectory(MAX_PATH, (LPTSTR)szPath);			
+	//// Add '\\'
+	//strcat_s(szPath, sizeof(szPath), "\\..");											
+	//// Add the relative path 
+	//strcat_s(szPath, sizeof(szPath), fileName.GetBuffer(0));
+	memset(szPath, 0, sizeof(szPath));
+	memcpy(szPath, fileName.GetBuffer(0), fileName.GetLength());
+	// Convert to the wide char
+	MultiByteToWideChar(CP_ACP, 0, szPath, -1, wszPath, MAX_PATH);		
+
+	HRESULT hr = OleLoadPicturePath(wszPath, 0, 0, 0, IID_IPicture, (void**)&pPicture);
+	// If failed
+	if(FAILED(hr))
+	{
+		MessageBox (HWND_DESKTOP, _T("Ole loading function failed"), _T("Error"), MB_OK | MB_ICONEXCLAMATION);
+		return FALSE;													
+	}
+
+    // Creates a memory device context (DC) compatible with the specified device
+	hdcTemp = CreateCompatibleDC(GetDC(0));		
+	// If failed
+	if(!hdcTemp)														
+	{
+		pPicture->Release();										
+		MessageBox (HWND_DESKTOP, _T("Memory DC creating failed"), _T("Error"), MB_OK | MB_ICONEXCLAMATION);
+		return FALSE;													
+	}
+
+	// Get the maximal supported Texture size
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &glMaxTexDim);					
+	
+	pPicture->get_Width(&lWidth);										
+	lWidthPixels = MulDiv(lWidth, GetDeviceCaps(hdcTemp, LOGPIXELSX), 2540);
+	pPicture->get_Height(&lHeight);										
+	lHeightPixels = MulDiv(lHeight, GetDeviceCaps(hdcTemp, LOGPIXELSY), 2540);
+
+	// Adjust the picture to a better condition
+	if (lWidthPixels <= glMaxTexDim) {									
+		lWidthPixels = 1 << (int) floor(log((double)lWidthPixels) / log(2.0f) + 0.5f ); 
+	} else {																
+		lWidthPixels = glMaxTexDim;
+	}
+ 
+	if (lHeightPixels <= glMaxTexDim) {								
+		lHeightPixels = 1 << (int)floor(log((double)lHeightPixels) / log(2.0f) + 0.5f);
+	} else	 {														
+		lHeightPixels = glMaxTexDim;
+	}
+
+	// Build a temporary bitmap
+	BITMAPINFO	bi = {0};											
+	// Pointer to the bitmap
+	DWORD *pBits = 0;												
+
+	// Some initialization
+	bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);				
+	bi.bmiHeader.biBitCount	 = 32;									
+	bi.bmiHeader.biWidth	 = lWidthPixels;							
+	bi.bmiHeader.biHeight = lHeightPixels;						
+	// RGB 
+	bi.bmiHeader.biCompression	= BI_RGB;
+	// One bit plane
+	bi.bmiHeader.biPlanes = 1;
+
+	// After build a bitmap, we can specify the color and depth, and access the value of each bit
+	hbmpTemp = CreateDIBSection(hdcTemp, &bi, DIB_RGB_COLORS, (void**)&pBits, 0, 0);
+	
+	// If failed
+	if(!hbmpTemp)													
+	{
+		DeleteDC(hdcTemp);												
+		pPicture->Release();	
+		MessageBox (HWND_DESKTOP, _T("Create DIB failed"), _T("Error"), MB_OK | MB_ICONEXCLAMATION);
+		return FALSE;												
+	}
+
+	// Selects hbmpTemp into the specified device context (DC) hdcTemp. 
+	SelectObject(hdcTemp, hbmpTemp);
+
+	// Draw IPicture on the bitmap
+	pPicture->Render(hdcTemp, 0, 0, lWidthPixels, lHeightPixels, 0, lHeight, lWidth, -lHeight, 0);
+	
+	// Transform the BGR to RGB and set ALPHA to 255
+	for(long i = 0; i < lWidthPixels * lHeightPixels; i++)				// 循环遍历所有的像素
+	{
+		// Get the current pixel
+		BYTE* pPixel	= (BYTE*)(&pBits[i]);							
+		// Because the first is blue
+		BYTE  temp		= pPixel[0];									
+		pPixel[0]		= pPixel[2];									
+		pPixel[2]		= temp;										
+		pPixel[3]		= 255;										
+	}
+
+	// Start to create Texture
+	glGenTextures(1, &texId);											
+
+	glBindTexture(GL_TEXTURE_2D, texId);				
+
+	setTexId(texId);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	// Generate Texture
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, lWidthPixels, lHeightPixels, 0, GL_RGBA, GL_UNSIGNED_BYTE, pBits);
+
+	DeleteObject(hbmpTemp);												
+	DeleteDC(hdcTemp);													
+
+	pPicture->Release();												
+
+	return TRUE;
 }
