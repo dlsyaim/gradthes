@@ -82,6 +82,8 @@ Renderer::Renderer(int _length):length(_length)
 
 	// Initialize
 	qobj = NULL;
+
+	mapTex = NULL;
 }
 
 // Load configuration.
@@ -602,20 +604,35 @@ void Renderer::drawWithoutInstruments(void)
 
 void Renderer::drawPath(void)
 {
+	static BOOL secondInitial = TRUE;
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+	if (secondInitial) {
+		camera->PositionCamera(
+			60.0f, 40.0f, 60.0f,
+			0.0f, 0.0f, 0.0f,
+			0.0f, 1.0f, 0.0f);
+		secondInitial = FALSE;
+
+	}
 	camera->Look();
-	glTranslatef(0.0f, 0.0f, -100.0f);
-	glRotatef( 30.0f, 1.0f, 0.0f, 0.0f);
-	glRotatef( -45.0f, 0.0f, 1.0f, 0.0f);
+
+	//glTranslatef(0.0f, -30.0f, -100.0f);
+	//glRotatef( 45.0f, 1.0f, 0.0f, 0.0f);
+	//glRotatef( -45.0f, 0.0f, 1.0f, 0.0f);
 	Scene::drawCoordinateSystem(lpRect);
 	// Then draw a grid
 	Scene::drawGrid(lpRect);
 
+	if (mapTex) {
+		Scene::drawMapTex(mapTex, lpRect);
+	}
+
+
 	glDisable(GL_LIGHTING);
 	if (pPath) {
 		glPushAttrib(GL_POINT_BIT | GL_COLOR_BUFFER_BIT);
-		glColor3f(1.0f, 1.0f, 1.0f);
+		glColor3f(0.0f, 0.0f, 0.0f);
 
 		std::vector<PathPointData*>::iterator iter;
 		// Draw lines

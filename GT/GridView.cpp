@@ -27,6 +27,8 @@ CGridView::CGridView()
 	: CFormView(CGridView::IDD)
 {
 	m_pGridCtrl = NULL;
+
+	mapTex = NULL;
 }
 
 CGridView::~CGridView()
@@ -39,6 +41,9 @@ CGridView::~CGridView()
 	for (iter = path.begin(); iter != path.end(); iter++) {
 		delete *iter;
 	}
+
+	if (mapTex)
+		delete mapTex;
 }
 
 void CGridView::DoDataExchange(CDataExchange* pDX)
@@ -61,6 +66,7 @@ BEGIN_MESSAGE_MAP(CGridView, CFormView)
 	ON_MESSAGE(PATH_CHECK_REPLY_MSG, &CGridView::OnCheckReply)
 	ON_BN_CLICKED(IDC_ADD_POINT, &CGridView::OnBnClickedAddPoint)
 	ON_BN_CLICKED(IDC_SELECT_POINT, &CGridView::OnBnClickedSelectPoint)
+	ON_BN_CLICKED(IDC_LOAD_IMAGE_BUTTON, &CGridView::OnBnClickedLoadImageButton)
 END_MESSAGE_MAP()
 
 
@@ -309,7 +315,8 @@ void CGridView::OnGridClick(NMHDR *pNotifyStruct, LRESULT* /*pResult*/)
 					}
 				}
 			}
-		}
+		} else
+			return;
 
 		// Inform the CGTView to update
 		// Set the path
@@ -440,3 +447,39 @@ void CGridView::OnBnClickedSelectPoint()
 {
 	GetDocument()->lowerRightView->setEditState(2);
 }
+
+/*
+ * Load a image, and turn it into a texture
+ */
+void CGridView::OnBnClickedLoadImageButton()
+{
+	/********** Open the image file **********/
+	char strFilter[] = { 
+		"Joint Photographic Experts Group(*.jpg;*.jpeg)|*.jpg;*.jpeg|Graphic Interchange Format(*.gif)|*.gif|Bitmap(*.bmp)| *.bmp||" };
+	while (TRUE) {
+		CFileDialog fileDlg(TRUE, NULL, NULL, 0, strFilter);
+		CString fileName;	
+		if (fileDlg.DoModal() == IDOK) {
+			fileName = fileDlg.GetPathName();
+			if (!mapTex)
+				mapTex = new Texture();			
+			if (!mapTex->loadTexture(fileName) ) {
+				AfxMessageBox(_T("Invalidate image file\nChoose another one"), MB_OK | MB_ICONINFORMATION);
+				delete mapTex;
+				mapTex = NULL;
+				continue;
+			} else {
+				// x1(0.0f), x2(1.0f), y1(0.0f), y2(1.0f)
+				mapTex->setX1(0.0f);
+				mapTex->setX2(1.0f);
+				mapTex->setY1(0.0f);
+				mapTex->setY2(1.0f);
+				GetDocument()->lowerRightView->setMapTex(mapTex);
+				break;
+			}
+		} else {
+			break;
+		}
+	}
+}
+

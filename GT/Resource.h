@@ -81,9 +81,11 @@
 #define IDC_FE_ZOOM_IN                  1037
 #define IDC_DP_PAUSE                    1037
 #define IDC_BODY_Z_ACC_EDIT             1037
+#define IDC_LOAD_IMAGE_BUTTON           1037
 #define IDC_BUTTON2                     1038
 #define IDC_FE_ZOOM_OUT                 1038
 #define IDC_ADD_POINT                   1038
+#define IDC_LOAD_MAP_BUTTON             1038
 #define IDC_BUTTON3                     1039
 #define IDC_IMU_TEST_PASS               1039
 #define IDC_ASSURE_PATH                 1039
@@ -249,7 +251,6 @@
 #define IDC_BLADES_MR                   1147
 #define IDC_CHORD_TR                    1147
 #define IDC_OPT_Y_COOR                  1147
-#define IDC_MAP_LATITUDE                1147
 #define IDC_MAP_LATITUDE_EDIT           1147
 #define IDC_EDIT5                       1149
 #define IDC_FE_ROLL_EDIT                1149

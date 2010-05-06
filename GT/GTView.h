@@ -83,6 +83,7 @@ public:
 	void updateMapCoor(void);
 
 	inline void setEditState(int ste) {this->addOrSelect = ste;}
+	inline void setMapTex(Texture *tex) {m_Renderer->setMapTex(tex);this->Invalidate(FALSE);}
 
 	// Update the data for the IMU test
 	void updateIMUData(IMUTestData* itd);

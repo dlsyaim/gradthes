@@ -8,6 +8,8 @@
 
 // CGridView ¥∞ÃÂ ”Õº
 class CGTDoc;
+class Texture;
+
 class CGridView : public CFormView
 {
 	DECLARE_DYNCREATE(CGridView)
@@ -66,12 +68,15 @@ private:
 	__int32 *received;
 	// The state variable
 	__int32 *state;
+	// Map texture
+	Texture *mapTex;
 
 
 
 public:
 	afx_msg void OnBnClickedAddPoint();
 	afx_msg void OnBnClickedSelectPoint();
+	afx_msg void OnBnClickedLoadImageButton();
 };
 
 #ifndef _DEBUG  // debug version in GridView.cpp

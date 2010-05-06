@@ -1,7 +1,9 @@
 #include "StdAfx.h"
 #include <windows.h>
 #include <gl/glut.h>
+#include <vector>
 #include "Scene.h"
+#include "Texture.h"
 
 const int gridLines = 15;
 
@@ -94,4 +96,26 @@ void Scene::drawNavigator(void)
 	
 
 	glPopAttrib();
+}
+
+void Scene::drawMapTex(Texture *mapTex, LPRECT lpRect)
+{
+	if (!mapTex)
+		return;
+	float length = lpRect->right <= lpRect->bottom ? lpRect->right : lpRect->bottom;
+	length = length / 8.0f;
+
+
+	glPushMatrix();		
+	glEnable(GL_TEXTURE_2D);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glBindTexture(GL_TEXTURE_2D, mapTex->getTexId());		
+	glBegin(GL_POLYGON);
+	glTexCoord2f(mapTex->getX1(), mapTex->getY1()); glVertex3f(0 + length / 2.0f, 0.0f, 0 + length / 2.0f);
+	glTexCoord2f(mapTex->getX2(), mapTex->getY1()); glVertex3f(0 + length / 2.0f, 0.0f, 0 - length / 2.0f);
+	glTexCoord2f(mapTex->getX2(), mapTex->getY2()); glVertex3f(0 - length / 2.0f, 0.0f, 0 - length / 2.0f);
+	glTexCoord2f(mapTex->getX1(), mapTex->getY2()); glVertex3f(0 - length / 2.0f, 0.0f, 0 + length / 2.0f);
+	glEnd();	
+	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
 }

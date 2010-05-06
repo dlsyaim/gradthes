@@ -351,16 +351,21 @@ void CGTView::OnTimer(UINT_PTR nIDEvent)
 
 void CGTView::OnMouseMove(UINT nFlags, CPoint point)
 {
-	//if (rbDown) {
-	//	CRect rec;
-	//	GetClientRect(&rec);
-	//	CPoint middlePoint(rec.right >> 1, rec.bottom >> 1);
-	//	ClientToScreen(&middlePoint);
-	//	if (rbDown) {
-	//		m_Renderer->updateCamera(&middlePoint);
-	//		Invalidate(FALSE);
-	//	}
-	//} 
+	// Move move
+	if (rbDown) {
+		CRect rec;
+		GetClientRect(&rec);
+		CPoint middlePoint(rec.right >> 1, rec.bottom >> 1);
+		ClientToScreen(&middlePoint);
+		if (rbDown) {
+			m_Renderer->updateCamera(&middlePoint);
+			Invalidate(FALSE);
+		}
+
+		CView::OnMouseMove(nFlags, point);
+		return;
+	} 
+
 	static LONG x_coo = point.x;
 	static LONG y_coo = point.y;
 

@@ -48,6 +48,7 @@ public:
 
 	inline void setSelect(pPathPointData slc){selectedPoint = slc;}
 	inline void setSelectedNavi(int navi) {this->navi = navi;}
+	inline void setMapTex(Texture* mapTex) {this->mapTex = mapTex;}
 
 // Attributes
 private:
@@ -75,6 +76,8 @@ private:
 	pPathPointData selectedPoint;
 	// Selected navigator
 	int navi;
+	// Map texture
+	Texture* mapTex;
 
 // Operations
 	// Draw function with drawing instruments

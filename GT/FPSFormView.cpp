@@ -35,6 +35,7 @@ void CFPSFormView::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CFPSFormView, CFormView)
 	ON_WM_CREATE()
+	ON_BN_CLICKED(IDC_LOAD_MAP_BUTTON, &CFPSFormView::OnBnClickedLoadMapButton)
 END_MESSAGE_MAP()
 
 
@@ -75,7 +76,7 @@ int CFPSFormView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 
 /* 
- * Function LoadAnImage: accepts a file name and returns a HBITMAP.
+ * Function LoadAnImage: accepts a file name(JPG/GIF/BMP) and returns a HBITMAP. 
  * On error, it returns 0.
  */
 HBITMAP CFPSFormView::LoadAnImage(CString fileName)
@@ -83,63 +84,84 @@ HBITMAP CFPSFormView::LoadAnImage(CString fileName)
 	// Use IPicture stuff to use JPG / GIF files
     IPicture* p;
     IStream* s;
-    IPersistStream* ps;
+    //IPersistStream* ps;
     HGLOBAL hG;
     void* pp;
     FILE* fp;
 
 
-   // Read file into memory
-   errno_t erno = fopen_s(&fp, fileName, "rb");
-   if (fp)
-	   return NULL;
+    // Read file into memory
+    errno_t erno = fopen_s(&fp, fileName, "rb");
+    if (fp)
+		return NULL;
 
-   /*
-    * SEEK_END:End of file
-	* SEEK_CUR:Current position of file
-	* SEEK_SET:Beginning of file
-	*/
-   fseek(fp, 0, SEEK_END);
-   int fs = ftell(fp);
-   fseek(fp, 0, SEEK_SET);
-   // Allocates the specified number of bytes from the heap
-   hG = GlobalAlloc(GPTR,fs);
-   if (!hG)
-   {
-	   fclose(fp);
-       return NULL;
-   }
-   pp = (void*)hG;
-   fread(pp, 1, fs, fp);
-   fclose(fp);
+    /*
+     * SEEK_END:End of file
+	 * SEEK_CUR:Current position of file
+	 * SEEK_SET:Beginning of file
+	 */
+    fseek(fp, 0, SEEK_END);
+    int fs = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+    // Allocates the specified number of bytes from the heap
+    hG = GlobalAlloc(GPTR, fs);
+    if (!hG)
+    {
+	    fclose(fp);
+        return NULL;
+    }
+    pp = (void*)hG;
+    fread(pp, 1, fs, fp);
+    fclose(fp);
 
-   // Create an IStream stored in global memory
-   CreateStreamOnHGlobal(hG, false, &s);
-   if (!s)
-      {
-      GlobalFree(hG);
-      return NULL;
-      }
+    // Create an IStream stored in global memory
+    CreateStreamOnHGlobal(hG, false, &s);
+    if (!s)
+    {
+		GlobalFree(hG);
+        return NULL;
+    }
 
-   OleLoadPicture(s,0,false,IID_IPicture,(void**)&p);
+    OleLoadPicture(s, 0, false, IID_IPicture, (void**)&p);
 
-   if (!p)
-      {
-      s->Release();
-      GlobalFree(hG);
-      return NULL;
-      }
-   s->Release();
-   GlobalFree(hG);
+    if (!p)
+    {
+		s->Release();
+        GlobalFree(hG);
+        return NULL;
+    }
+    s->Release();
+    GlobalFree(hG);
 
-   HBITMAP hB = 0;
-   p->get_Handle((unsigned int*)&hB);
+    HBITMAP hB = 0;
+    p->get_Handle((unsigned int*)&hB);
 
-   // Copy the image. Necessary, because upon p's release,
-   // the handle is destroyed.
-   HBITMAP hBB = (HBITMAP)CopyImage(hB,IMAGE_BITMAP,0,0,
-                                    LR_COPYRETURNORG);
+    // Copy the image. Necessary, because upon p's release,
+    // the handle is destroyed.
+    HBITMAP hBB = (HBITMAP)CopyImage(hB, IMAGE_BITMAP, 0, 0, LR_COPYRETURNORG);
 
-   p->Release();
-   return hBB;
-   }
+    p->Release();
+    return hBB;
+}
+
+void CFPSFormView::OnBnClickedLoadMapButton()
+{
+	/********** Open the image file **********/
+	char strFilter[] = { 
+		"Joint Photographic Experts Group(*.jpg;*.jpeg)|*.jpg;*.jpeg|Graphic Interchange Format(*.gif)|*.gif|Bitmap(*.bmp)| *.bmp||" };
+	while (TRUE) {
+		CFileDialog fileDlg(TRUE, NULL, NULL, 0, strFilter);
+		CString fileName;	
+		if (fileDlg.DoModal() == IDOK) {
+			fileName = fileDlg.GetPathName();
+			HBITMAP hBM = LoadAnImage(fileName);
+			if (!hBM ) {
+				AfxMessageBox(_T("Invalidate image file\nChoose another one"), MB_OK | MB_ICONINFORMATION);
+				continue;
+			}
+			m_Map.SetBitmap(hBM);
+		} else {
+			break;
+		}
+	}
+}
