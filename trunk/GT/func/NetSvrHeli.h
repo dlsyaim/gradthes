@@ -5,7 +5,7 @@
 
 class CProtocolParser;
 
-class CNetSvrHeli : public CNetSvr  
+class CNetSvrHeli : public CNetSvrUdp 
 {
 public:
 // Operations
