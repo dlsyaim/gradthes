@@ -374,10 +374,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\NetSvrUdp.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Node.cpp"
 				>
 			</File>
@@ -761,10 +757,6 @@
 			</File>
 			<File
 				RelativePath=".\func\NetSvrHeli.h"
-				>
-			</File>
-			<File
-				RelativePath=".\NetSvrUdp.h"
 				>
 			</File>
 			<File
