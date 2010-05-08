@@ -938,6 +938,26 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
+				RelativePath=".\res\bitmap3.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\fe.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\fe1.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\fetb.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\fetb2.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\res\GT.ico"
 				>
 			</File>
@@ -955,6 +975,14 @@
 			</File>
 			<File
 				RelativePath=".\res\Toolbar.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\toolbar1.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\toolbar2.bmp"
 				>
 			</File>
 			<File

@@ -120,6 +120,20 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;      // fail to create
 	}
 
+	if (!m_wndFEToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC, CRect(1, 1, 1, 1), IDR_TOOLBAR1) ||
+		!m_wndFEToolBar/*.LoadBitmap(IDB_BITMAP2)*/.LoadToolBar(IDR_TOOLBAR1))
+	{
+		TRACE0("Failed to create toolbar\n");
+		return -1;      // fail to create
+	}
+	m_wndFEToolBar.SetWindowText(_T("Flight Experiment Toolbar"));
+	/*
+	 * The TRUE means should Enable Add or Remove Buttons button
+	 * and -1 means Add or Remove Buttons shows when multiple buttons do not fit in toolbar area
+	 * 
+	 */
+	m_wndFEToolBar.EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, "Customize");
+
 	CString strToolBarName;
 	bNameValid = strToolBarName.LoadString(IDS_TOOLBAR_STANDARD);
 	ASSERT(bNameValid);
@@ -143,9 +157,14 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// TODO: Delete these five lines if you don't want the toolbar and menubar to be dockable
 	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);	
 	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
+	
+	m_wndFEToolBar.EnableDocking(CBRS_ALIGN_ANY);
+
 	EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndMenuBar);
 	DockPane(&m_wndToolBar);
+	
+	DockPane(&m_wndFEToolBar);
 
 
 	// enable Visual Studio 2005 style docking window behavior
@@ -780,6 +799,8 @@ void CMainFrame::OnGyroTest()
  */
 void CMainFrame::OnFlightPathSet()
 {
+	m_wndFEToolBar.ShowWindow(SW_SHOW);
+
 	const int gridViewIndex = 0;
 	const int fpsFormViewIndex = 2;
 	/********** Toggle on the left side, switch to GridView **********/
