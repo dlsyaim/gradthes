@@ -51,6 +51,10 @@
 #define IDD_TAIL_ROTOR_TAB              334
 #define IDD_OPTTRACE_FORMVIEW           335
 #define IDD_FLIGHT_PATH_SET_FORMVIEW    336
+#define IDB_FE_BITMAP                   338
+#define IDB_BITMAP1                     340
+#define IDB_BITMAP3                     358
+#define IDR_TOOLBAR1                    359
 #define IDC_HELICOPTERNAME_EDIT         1000
 #define IDC_HELICOPTERMASS_EDIT         1001
 #define IDC_MAINBLADELENGHT_EDIT        1002
@@ -401,13 +405,15 @@
 #define ID_DATA_PROCESS                 32806
 #define ID_32807                        32807
 #define ID_OPT_TEST                     32808
+#define ID_BUTTON32810                  32810
+#define ID_BUTTON32812                  32812
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        336
-#define _APS_NEXT_COMMAND_VALUE         32809
+#define _APS_NEXT_RESOURCE_VALUE        365
+#define _APS_NEXT_COMMAND_VALUE         32813
 #define _APS_NEXT_CONTROL_VALUE         1215
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
