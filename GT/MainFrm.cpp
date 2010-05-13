@@ -53,9 +53,9 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_HELICOPTER_BEGIN + 1, OnFirstModel)
 	ON_COMMAND(ID_HELICOPTER_BEGIN + 2, OnSecondModel)
 	ON_COMMAND(ID_HELICOPTER_BEGIN + 3, OnThirdModel)
-	ON_COMMAND(ID_HELICOPTER_BEGIN + 4, OnForthModel)
-	ON_COMMAND(ID_32793, &CMainFrame::On32793)
+	ON_COMMAND(ID_HELICOPTER_BEGIN + 4, OnForthModel)	
 	ON_WM_DESTROY()
+	ON_COMMAND(ID_ROTOR_DISK_DEMARCATED, &CMainFrame::OnRotorDiskDemarcated)
 	ON_COMMAND(ID_COMMUNICATION_TEST, &CMainFrame::OnCommunicationTest)
 	ON_COMMAND(ID_SERVOACTOR_DEMARCATE, &CMainFrame::OnServoActorDemarcate)
 	ON_COMMAND(ID_GYRO_TEST, &CMainFrame::OnGyroTest)
@@ -78,6 +78,12 @@ static UINT indicators[] =
 	ID_INDICATOR_SCRL,
 };
 
+static UINT commandIDs[] = 
+{
+	IDC_FE_START,
+	IDC_FE_STOP
+};
+
 // CMainFrame construction/destruction
 
 CMainFrame::CMainFrame()
@@ -93,6 +99,8 @@ CMainFrame::~CMainFrame()
 {
 	if (popUpMenu)
 		delete popUpMenu;
+	imageList.Detach();
+	bitmap.Detach();
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -120,19 +128,122 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;      // fail to create
 	}
 
-	if (!m_wndFEToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC, CRect(1, 1, 1, 1), IDR_TOOLBAR1) ||
-		!m_wndFEToolBar/*.LoadBitmap(IDB_BITMAP2)*/.LoadToolBar(IDR_TOOLBAR1))
-	{
+	//if (!m_wndFEToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC, CRect(1, 1, 1, 1), IDR_TOOLBAR1) ||
+	//	!m_wndFEToolBar/*.LoadBitmap(IDB_BITMAP2)*/.LoadToolBar(IDR_TOOLBAR1))
+	//{
+	//	TRACE0("Failed to create toolbar\n");
+	//	return -1;      // fail to create
+	//}
+	if (!m_wndFEToolBar.CreateEx(this, 
+		TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC, 
+		CRect(1, 1, 1, 1), IDR_TOOLBAR1) ||
+		!m_wndFEToolBar.LoadToolBar(IDR_TOOLBAR1, 0, 0, TRUE, 0, 0, 0)) {
 		TRACE0("Failed to create toolbar\n");
 		return -1;      // fail to create
 	}
-	m_wndFEToolBar.SetWindowText(_T("Flight Experiment Toolbar"));
+
 	/*
 	 * The TRUE means should Enable Add or Remove Buttons button
 	 * and -1 means Add or Remove Buttons shows when multiple buttons do not fit in toolbar area
-	 * 
 	 */
-	m_wndFEToolBar.EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, "Customize");
+	// Set up bar image lists.
+	//CImageList	imageList;
+	//CBitmap		bitmap;
+
+	/*m_wndFEToolBar.SetButtons(commandIDs, sizeof(commandIDs) / sizeof(UINT));*/
+
+	// Create and set the toolbar image list.
+	/*if (!bitmap.LoadBitmap(IDB_FE_TB_BITMAP)) {
+		TRACE(_T("Load bit map failed\n"));
+	}*/
+	HBITMAP hbm = (HBITMAP)::LoadImage(NULL,
+		_T("res\\fetb_1.bmp"),
+		IMAGE_BITMAP
+		,0 , 0, LR_LOADFROMFILE);
+	if (hbm == NULL) {
+		TRACE(_T("Error code:%d\n"), GetLastError());
+	}
+	bitmap.Attach(hbm);
+	// Each image's size is 16 * 16, the initial size is 2 and the number of row for extending is 0
+	imageList.Create(16, 16, TRUE | ILC_COLOR24, 2, 0);	
+	imageList.Add(&bitmap, (CBitmap*)NULL);
+	//m_hotToolBar.SendMessage(TB_SETIMAGELIST, 0, (LPARAM)imageList.m_hImageList);
+	m_wndFEToolBar.SendMessage(TB_SETIMAGELIST, 0, (LPARAM)imageList.m_hImageList);
+
+	hbm = (HBITMAP)::LoadImage(NULL, _T("res\\fetb - disabled.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+	if (hbm == NULL) {
+		TRACE(_T("Error code:%d\n"), GetLastError());
+	}
+	bitmap.Detach();
+	bitmap.Attach(hbm);
+	disabledImageList.Create(16, 16, TRUE | ILC_COLOR24, 2, 0);
+	disabledImageList.Add(&bitmap, (CBitmap*)NULL);
+	m_wndFEToolBar.SendMessage(TB_SETDISABLEDIMAGELIST, 0, (LPARAM)disabledImageList.m_hImageList);
+
+	hbm = (HBITMAP)::LoadImage(NULL, _T("res\\fetb - hot.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+	if (hbm == NULL) {
+		TRACE(_T("Error code:%d\n"), GetLastError());
+	}
+	bitmap.Detach();
+	bitmap.Attach(hbm);
+	hotImageList.Create(16, 16, TRUE | ILC_COLOR24, 2, 0);
+	disabledImageList.Add(&bitmap, (CBitmap*)NULL);
+	m_wndFEToolBar.SendMessage(TB_SETHOTIMAGELIST, 0, (LPARAM)hotImageList.m_hImageList);
+	//m_wndFEToolBar.SendMessage(TB_SETHOTIMAGELIST, 0, (LPARAM)imageList.m_hImageList);
+	//CToolBar * toolBar = (CToolBar*)FromHandle(m_wndFEToolBar.GetSafeHwnd());
+	//toolBar->GetToolBarCtrl().SetImageList(&imageList);
+	//toolBar->GetToolBarCtrl().SetDisabledImageList(&imageList);
+	//toolBar->GetToolBarCtrl().SetHotImageList(&imageList);
+	//toolBar->SetButtons(commandIDs, sizeof(commandIDs) / sizeof(UINT));
+	//m_wndFEToolBar.SetButtons(commandIDs, sizeof(commandIDs) / sizeof(UINT));
+	m_wndFEToolBar.SetWindowText(_T("Flight Experiment Toolbar"));
+	//m_wndFEToolBar.EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, "Customize");
+	TRACE(_T("The total image's count: %d\n"), imageList.GetImageCount());
+	IMAGEINFO imageInfo;
+	//CBitmap *bm;
+	//BITMAP bima;
+	for (int i = 0; i < imageList.GetImageCount(); i++) {
+		imageList.GetImageInfo(i, &imageInfo);
+		//bm = CBitmap::FromHandle(imageInfo.hbmImage);
+		//bm->GetBitmap(&bima);
+		TRACE(_T("%d %d %d\n"), i, imageInfo.rcImage.left, imageInfo.rcImage.top);
+		//TRACE(_T("%d %d %d %d\n"), bima.bmWidth, bima.bmHeight, bima.bmPlanes, bima.bmBitsPixel);
+	}
+	//imageList.Detach();
+	//bitmap.Detach();
+	CMFCToolBarImages fetbImages, directFETBImages;
+	fetbImages.CreateFromImageList(imageList);
+
+	if(directFETBImages.Load(IDB_FE_TB_BITMAP)) {
+		TRACE(_T("Count:%d\n\
+				 images' source size:%d %d\n"), directFETBImages.GetCount()
+				 , directFETBImages.GetImageSize().cx, directFETBImages.GetImageSize().cy);
+	}
+	
+
+	TRACE(_T("Total images' count:%d\n\
+			 images' source size:%d %d\n"), fetbImages.GetCount()
+			 , fetbImages.GetImageSize().cx, fetbImages.GetImageSize().cy);
+	TRACE(_T("\
+			 images' destination size 1:%d %d\n"), fetbImages.GetImageSize(TRUE).cx, fetbImages.GetImageSize(TRUE).cy);
+	int btnCount = m_wndFEToolBar.GetCount();
+	CMFCToolBarButton* tempBtn;
+	for (int i = 0; i < btnCount; i++) {
+		tempBtn = m_wndFEToolBar.GetButton(i);
+		if (tempBtn) {
+			TRACE(_T("%d %d %d\n"), tempBtn->GetImage(), tempBtn->IsDrawImage(), tempBtn->IsDrawText());
+			tempBtn->Show(TRUE);
+		}
+	}
+	//m_wndFEToolBar.SetUserImages(&fetbImages);
+
+	////CMFCToolBarImages *defined = m_wndFEToolBar.GetImages();
+	//
+	//TRACE(_T("Totoal count:%d\nCount 1:%d\nCount 2:%d\n\
+	//		 The image offset 1:%d\n\
+	//		 The image offset 2:%d\n"), CMFCToolBar::GetImages()->GetCount(), 
+	//	m_wndToolBar.GetImages()->GetCount(), m_wndFEToolBar.GetImages()->GetCount()
+	//	, m_wndToolBar.GetImagesOffset(), m_wndFEToolBar.GetImagesOffset());
 
 	CString strToolBarName;
 	bNameValid = strToolBarName.LoadString(IDS_TOOLBAR_STANDARD);
@@ -153,7 +264,36 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;      // fail to create
 	}
 	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators)/sizeof(UINT));
+	// Just assure something
+	//CMFCToolBarImages *userDefinedImages = CMFCToolBar::GetUserImages(); doesn't work
+	//CMFCToolBarImages *defaultImages = CMFCToolBar::GetImages();
 
+	//TRACE(_T("The total images's:%d\n\
+	//		 the index of first:%d\n\
+	//		 the index of second:%d\n"), defaultImages->GetCount(),
+	//		 m_wndToolBar.GetImagesOffset(),
+	//		 m_wndFEToolBar.GetImagesOffset());
+
+	// Below is some testing codes
+	//TRACE(_T("Total default image's count: %d\n\
+	//		 ONE default image's count: %d\n\
+	//		 TWO default image's count: %d\n"), 
+	//		 defaultImages->GetCount(),
+	//		 m_wndToolBar.GetCount(),
+	//		 m_wndFEToolBar.GetCount());
+	//for (int idx = 0; idx < m_wndToolBar.GetCount(); idx++) {
+	//	TRACE(_T("%d %s\n"), idx, m_wndToolBar.GetButtonText(idx));
+	//}
+	//for (int idx = 0; idx < m_wndFEToolBar.GetCount(); idx++) {
+	//	TRACE(_T("%d %s\n"), idx, m_wndFEToolBar.GetButtonText(idx));
+	//}
+
+	//UINT nID, nStyle;
+	//int iImage;
+	//for (int idx = 0; idx < m_wndToolBar.GetCount(); idx++) {
+	//	m_wndToolBar.GetButtonInfo(idx, nID, nStyle, iImage);
+	//	TRACE("%d %d %d %d\n", idx, nID, nStyle, iImage);
+	//}
 	// TODO: Delete these five lines if you don't want the toolbar and menubar to be dockable
 	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);	
 	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
@@ -161,10 +301,14 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndFEToolBar.EnableDocking(CBRS_ALIGN_ANY);
 
 	EnableDocking(CBRS_ALIGN_ANY);
+	
+	//((CFrameWnd*)this)->EnableDocking(CBRS_ALIGN_ANY);
+
 	DockPane(&m_wndMenuBar);
 	DockPane(&m_wndToolBar);
 	
 	DockPane(&m_wndFEToolBar);
+	//DockControlBar(&m_wndFEToolBar);
 
 
 	// enable Visual Studio 2005 style docking window behavior
@@ -184,7 +328,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		if (m_UserImages.Load(_T(".\\UserImages.bmp")))
 		{
 			m_UserImages.SetImageSize(CSize(16, 16), FALSE);
-			CMFCToolBar::SetUserImages(&m_UserImages);
+			if (!CMFCToolBar::SetUserImages(&m_UserImages)) {
+				TRACE(_T("Can't set the user images\n"));
+			}
 		}
 	}
 
@@ -566,8 +712,16 @@ int CMainFrame::FindMenuItem(CMenu* Menu, LPCTSTR MenuString)
      return -1;
 }
 
-void CMainFrame::On32793()
+void CMainFrame::OnRotorDiskDemarcated()
 {
+	CSingleton *instance = CSingleton::getInstance();
+	if (!instance->getCurPHM()) {
+		AfxMessageBox(_T("No servo actor demarcated data.\nMust demarcate the servo actor first"), MB_OK | MB_ICONSTOP);
+		return;
+	} else if (instance->getCurPHM()->isDemarcated != 1) {
+		AfxMessageBox(_T("No servo actor demarcated data.\nMust demarcate the servo actor first"), MB_OK | MB_ICONSTOP);
+		return;
+	}
 	RotorDiskDemarcateDialog rddd;
 	rddd.DoModal();
 }

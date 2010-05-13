@@ -23,6 +23,9 @@ public:
 
 	//¿Í»§¶Ësocket
 	int RunSocket;
+private:
+	/*int soc;*/
+	struct sockaddr_in server_sockaddr_in;
 
 };
 

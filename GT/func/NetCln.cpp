@@ -4,7 +4,7 @@
 
 CNetCln::CNetCln()
 {
-	RunSocket =0;
+	RunSocket = 0;
 }
 
 CNetCln::~CNetCln()
@@ -35,7 +35,8 @@ int CNetCln::SendSvr(void * p,int len)
 	{
 		return 0;
 	}
-	return send(RunSocket, (char * )p, len, 0);
+	//return send(RunSocket, (char * )p, len, 0);
+	return sendto(RunSocket, (char *)p, len, 0, (struct sockaddr*)&server_sockaddr_in,  sizeof server_sockaddr_in);
 }
 
 
@@ -47,7 +48,7 @@ int CNetCln::initCln(char * ip,int Port)
 	}
 
 
-	if(1)
+	/*if(1)
 	{///Á¬½Ó
 		if(Port<=0)
 		{
@@ -83,6 +84,16 @@ int CNetCln::initCln(char * ip,int Port)
 			RunSocket = 0;
 			return 0;
 		}
+	}*/
+	// New a socket object
+	{
+		// Configuration
+		server_sockaddr_in.sin_family = AF_INET;
+		server_sockaddr_in.sin_port = htons(Port);                  // The port the server listening
+		server_sockaddr_in.sin_addr.s_addr = inet_addr(ip);         // The address of the server 
+		RunSocket = socket(AF_INET, SOCK_DGRAM, 0);
 	}
+	if (RunSocket == INVALID_SOCKET)
+		return 0;
 	return 1;
 };

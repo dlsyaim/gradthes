@@ -38,8 +38,14 @@ public:
 	inline void setIsControlParameterSet(BOOL isControlParameterSet) {this->isControlParameterSet = isControlParameterSet;}
 	inline BOOL getIsControlParameterSet(void) {return isControlParameterSet;}
 
+	inline void setIsRotorDemarcated(BOOL isRotorDemarcated) {this->isRotorDemarcated = isRotorDemarcated;}
+	inline BOOL getIsRotorDemarcated(void) {return isRotorDemarcated;}
+
 	inline PHelicopterModel getCurPHM(void) {return curPHM;}
 	inline void setCurPHM(PHelicopterModel curPHM) {this->curPHM = curPHM;}
+
+	inline pTiltDiscData getTDD(void) {return &tdd;}
+
 	void delCurPHM(void);
 	void rollBackCurPHM(BOOL isNew);
 
@@ -65,10 +71,13 @@ private:
 	BOOL isOPTTestPass;
 	BOOL isPathSet;
 	BOOL isControlParameterSet;
+	BOOL isRotorDemarcated;
 	// The name of the recent flight path file
 	CString recentFPName;
 	// The name of the recent control parameter file
 	CString recentCPName;
+	// Rotor demarcated data
+	TiltDiscData tdd;
 // Operations
 private:
 	void setCurPHM(BOOL isNew, CString helicopterName);

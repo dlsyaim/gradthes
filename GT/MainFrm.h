@@ -37,7 +37,8 @@ protected:  // control bar embedded members
 	CMFCMenuBar       m_wndMenuBar;
 	CMFCToolBar       m_wndToolBar;
 	// User added
-	CMFCToolBar       m_wndFEToolBar;
+	//CMFCToolBar       m_wndFEToolBar;
+	CMFCToolBar          m_wndFEToolBar;
 	CMFCStatusBar     m_wndStatusBar;
 	CMFCToolBarImages m_UserImages;
 
@@ -48,6 +49,11 @@ protected:  // control bar embedded members
 	// Splitter window
 	ST_SplitterWnd* m_pSplitterWnd;
 	ST_SplitterWnd* m_pSplitterWnd1;
+
+	CImageList	imageList;
+	CImageList  disabledImageList;
+	CImageList  hotImageList;
+	CBitmap		bitmap;
 	
 // Generated message map functions
 protected:
@@ -90,7 +96,7 @@ private:
 protected:
 	virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
 public:
-	afx_msg void On32793();
+	afx_msg void OnRotorDiskDemarcated();
 	afx_msg void OnDestroy();
 	afx_msg void OnCommunicationTest();
 	afx_msg void OnServoActorDemarcate();
