@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 #include "GridCtrl_src/GridCtrl.h"
 
 // CPIDCPDialog ¶Ô»°¿ò
@@ -23,4 +24,7 @@ public:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedCancel();
+	afx_msg void OnBnClickedOpenCPBtn();
+private:
+	void updateGrid(void);
 };

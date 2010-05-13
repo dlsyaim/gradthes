@@ -89,6 +89,8 @@
 #define IDC_BODY_Z_ACC_EDIT             1037
 #define IDC_LOAD_IMAGE_BUTTON           1037
 #define IDC_SEND_ROTOR_BUTTON           1037
+#define IDC_                            1037
+#define IDC_OPEN_CP_BTN                 1037
 #define IDC_BUTTON2                     1038
 #define IDC_FE_ZOOM_OUT                 1038
 #define IDC_ADD_POINT                   1038
