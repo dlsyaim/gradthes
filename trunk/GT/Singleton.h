@@ -46,6 +46,8 @@ public:
 
 	inline pTiltDiscData getTDD(void) {return &tdd;}
 
+	inline std::vector<ControlPara>* getCPV(void) {return &CPV;}
+
 	void delCurPHM(void);
 	void rollBackCurPHM(BOOL isNew);
 
@@ -78,6 +80,8 @@ private:
 	CString recentCPName;
 	// Rotor demarcated data
 	TiltDiscData tdd;
+	// Control paramters
+	std::vector<ControlPara> CPV;
 // Operations
 private:
 	void setCurPHM(BOOL isNew, CString helicopterName);

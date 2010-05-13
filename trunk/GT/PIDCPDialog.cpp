@@ -34,6 +34,7 @@ void CPIDCPDialog::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CPIDCPDialog, CDialog)
 	ON_BN_CLICKED(IDOK, &CPIDCPDialog::OnBnClickedOk)
 	ON_BN_CLICKED(IDCANCEL, &CPIDCPDialog::OnBnClickedCancel)
+	ON_BN_CLICKED(IDC_OPEN_CP_BTN, &CPIDCPDialog::OnBnClickedOpenCPBtn)
 END_MESSAGE_MAP()
 
 
@@ -165,11 +166,17 @@ void CPIDCPDialog::OnBnClickedOk()
 	c[0] = TPT_LOADCONTROLPARA;
 
 
+	std::vector<ControlPara>* PCPV = CSingleton::getInstance()->getCPV();
+	PCPV->clear();
+
 	/***** Attention the index starts from 1 *****/
 	ControlPara cp;
+	// Initialize
+	memset(&cp, 0, sizeof(cp));
 	int i, j;
-	CString paraName;
+	CString paraName, totalParaName;
 	for (i = 1; i < m_Grid.GetRowCount(); i++) {
+		paraName.Empty();
 		switch (i) {
 			case 1:
 				paraName.Append(_T("px_"));
@@ -211,8 +218,8 @@ void CPIDCPDialog::OnBnClickedOk()
 				break;
 		}
 		for (j = 1; j < m_Grid.GetColumnCount(); j++) {
-			paraName.Append(m_Grid.GetItemText(0, j));
-			memcpy(cp.paraname, paraName.GetBuffer(0), sizeof(cp.paraname));
+			totalParaName = paraName + m_Grid.GetItemText(0, j);
+			memcpy(cp.paraname, totalParaName.GetBuffer(0), sizeof(cp.paraname));
 			/*
 			 * 'l' represents long type
 			 * 'b' represents bool type
@@ -220,9 +227,10 @@ void CPIDCPDialog::OnBnClickedOk()
 			 */
 			cp.type = 'f';
 			CString itemText = m_Grid.GetItemText(i, j);
-			sscanf_s(itemText, "%f", &cp.vf);	
+			cp.vf = (float) atof((LPCTSTR)itemText);
 			memcpy(command + 2, (char *)&cp, sizeof(cp));
 			cln->SendSvr(command, sizeof(command));
+			CSingleton::getInstance()->getCPV()->push_back(cp);
 		}
 	}
 
@@ -241,7 +249,10 @@ void CPIDCPDialog::OnBnClickedOk()
 	timeString.Append(verStr);
 	instance->setRecentCPName(timeString);
 	std::ofstream ofs(timeString, std::ios::binary);
-	ofs.write((char*) &cp, sizeof(cp));
+	std::vector<ControlPara>::iterator iter;
+	for (iter = PCPV->begin(); iter != PCPV->end(); iter++) {
+		ofs.write((char *)(&(*iter)), sizeof(*iter));
+	}
 	ofs.close();
 	
 	OnOK();
@@ -253,4 +264,59 @@ void CPIDCPDialog::OnBnClickedCancel()
 	instance->setIsControlParameterSet(FALSE);
 
 	OnCancel();
+}
+
+void CPIDCPDialog::OnBnClickedOpenCPBtn()
+{
+	char szFilter[] = {"Control Parameter (*.cp)|*.cp||"};
+    std::vector<ControlPara>* PCMV = CSingleton::getInstance()->getCPV();
+
+	while (TRUE) {	
+		CFileDialog openDlg(TRUE, ".cp", NULL, 0, szFilter);
+			if (openDlg.DoModal() == IDOK) {
+				CString fileName = openDlg.GetPathName();
+				// Open file
+				std::ifstream ifs(fileName, std::ios::binary);
+				ControlPara cp;
+				while (true) {
+					ifs.read((char *)&cp, sizeof(cp));
+					if (ifs.gcount() != sizeof(cp))
+						break;
+					PCMV->push_back(cp);
+
+				}
+				ifs.close();
+				updateGrid();
+				break;
+			} else
+				break;
+	}	
+}
+
+
+void CPIDCPDialog::updateGrid(void)
+{
+	std::vector<ControlPara> *PCMV = CSingleton::getInstance()->getCPV();
+
+	if (!PCMV)
+		return;
+
+	int i, j, index = 0;
+	CString text;
+	for (i = 1; i < m_Grid.GetRowCount(); i++) {
+		for (j = 1; j < m_Grid.GetColumnCount(); j++) {
+			if ((*PCMV)[index].type == 'l') {
+				text.Format("%ld", (*PCMV)[index].vl);
+			} else if ((*PCMV)[index].type == 'b') {
+				text.Format("%d", (*PCMV)[index].vb);
+			} else if ((*PCMV)[index].type == 'f') {
+				text.Format("%f", (*PCMV)[index].vf);
+			}
+			index++;
+			m_Grid.SetItemText(i, j, text);
+		}
+	}
+	m_Grid.Invalidate();
+	
+	UpdateData(FALSE);
 }
