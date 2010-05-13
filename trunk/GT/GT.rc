@@ -83,7 +83,9 @@ IDR_GTTYPE              ICON                    "res\\GTDoc.ico"
 
 IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
 IDR_MAINFRAME_256       BITMAP                  "res\\Toolbar256.bmp"
-IDR_TOOLBAR1            BITMAP                  "res\\fetb.bmp"
+IDB_FE_TB_BITMAP        BITMAP                  "D:\\Misc\\ToolBar\\tbpaint\\fetb.bmp"
+IDB_FE_TB_BITMAP2       BITMAP                  "D:\\Misc\\ToolBar\\tbpaint\\fetb1.bmp"
+IDR_TOOLBAR1            BITMAP                  "d:\\misc\\toolbar\\tbpaint\\toolbar1.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -121,8 +123,8 @@ END
 
 IDR_TOOLBAR1 TOOLBAR  16, 16
 BEGIN
-    BUTTON      ID_BUTTON32810
-    BUTTON      ID_BUTTON32812
+    BUTTON      IDC_FE_START
+    BUTTON      IDC_FE_STOP
 END
 
 
@@ -189,7 +191,7 @@ BEGIN
     BEGIN
         MENUITEM "通讯测试",                        ID_COMMUNICATION_TEST
         MENUITEM "舵机标定",                        ID_SERVOACTOR_DEMARCATE
-        MENUITEM "旋翼盘标定",                       ID_32793
+        MENUITEM "旋翼盘标定",                       ID_ROTOR_DISK_DEMARCATED
         MENUITEM "陀螺仪测试",                       ID_GYRO_TEST
         MENUITEM "光学追踪系统测试",                    ID_OPT_TEST
         MENUITEM "GPS测试",                       ID_32777
@@ -445,13 +447,36 @@ BEGIN
     PUSHBUTTON      "发送",IDC_TAIL_ANGLE_BUTTON5,156,120,37,14
 END
 
-IDD_ROTORDISK_DEMARCATE_DIALOG DIALOGEX 0, 0, 496, 310
+IDD_ROTORDISK_DEMARCATE_DIALOG DIALOGEX 0, 0, 370, 262
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "旋翼盘标定"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    CONTROL         "",IDC_DEMARCATE_ROTORDISK_TAB,"SysTabControl32",0x0,6,6,300,138
-    PUSHBUTTON      "确定",IDC_OK_BUTTON,348,294,50,14
+    CONTROL         "",IDC_PITCH_SPIN,"msctls_updown32",UDS_ALIGNLEFT | UDS_ARROWKEYS | WS_TABSTOP,49,39,11,14
+    EDITTEXT        IDC_DY_PITCH_EDIT,9,38,40,14,ES_AUTOHSCROLL | NOT WS_TABSTOP
+    LTEXT           "俯仰角度值",IDC_STATIC,9,22,41,8
+    LTEXT           "侧滚角度值",IDC_STATIC,63,22,41,8
+    EDITTEXT        IDC_DY_ROLL_EDIT,63,38,40,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_ROLL_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_ARROWKEYS,103,38,11,14
+    LTEXT           "总距角度值",IDC_STATIC,117,22,41,8
+    EDITTEXT        IDC_DY_COLLECTIVE_EDIT,117,38,40,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_COLLECTIVE_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_ARROWKEYS,157,38,11,14
+    LTEXT           "俯仰姿态值",IDC_STATIC,192,22,41,8
+    LTEXT           "侧滚姿态值",IDC_STATIC,246,22,41,8
+    LTEXT           "总距姿态值",IDC_STATIC,300,22,41,8
+    EDITTEXT        IDC_ST_PITCH_EDIT,192,38,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ST_ROLL_EDIT,246,38,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ST_HEAD_EDIT,300,38,40,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "发送",IDC_SEND_ROTOR_BUTTON,6,108,50,14
+    PUSHBUTTON      "标定成功一组",IDC_DEMARCATED_SUC_BTN,71,108,50,14
+    CONTROL         "",IDC_ROTOR_RESULT_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,6,132,348,102
+    PUSHBUTTON      "关闭",IDCANCEL,317,246,50,14
+    EDITTEXT        IDC_CONVERTED_PITCH_EDIT,9,76,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_CONVERTED_ROLL_EDIT,63,76,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_CONVERTED_COLLECTIVE_EDIT,117,76,40,14,ES_AUTOHSCROLL
+    GROUPBOX        "输入值",IDC_STATIC,6,6,165,90
+    GROUPBOX        "观测值",IDC_STATIC,186,6,168,50
+    LTEXT           "下面为根据已标定值算出的PWM值:",IDC_STATIC,9,58,124,8
 END
 
 IDD_ROLL_ROTORDISK_TAB DIALOGEX 0, 0, 244, 118
@@ -983,9 +1008,9 @@ BEGIN
     IDD_ROTORDISK_DEMARCATE_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 489
+        RIGHTMARGIN, 363
         TOPMARGIN, 7
-        BOTTOMMARGIN, 303
+        BOTTOMMARGIN, 255
     END
 
     IDD_ROLL_ROTORDISK_TAB, DIALOG

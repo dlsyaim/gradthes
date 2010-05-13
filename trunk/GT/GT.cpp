@@ -19,7 +19,7 @@
 #define new DEBUG_NEW
 #endif
 
-#define IP_STRING "192.168.1.144"
+#define IP_STRING "192.168.154.168"
 #define TEST_IP_STRING "127.0.0.1"
 #define LOCAL_PORT 9919
 #define REMOTE_PORT 8818
@@ -144,10 +144,10 @@ BOOL CGTApp::InitInstance()
 	/*
 	 * We set up a globally unique socket client
 	 */
-	//while(cln.initCln(IP_STRING, REMOTE_PORT) == 0)
-	//{
-	//	Sleep(100);
-	//}
+	while(cln.initCln(IP_STRING, REMOTE_PORT) == 0)
+	{
+		Sleep(100);
+	}
 	// call DragAcceptFiles only if there's a suffix
 	//  In an SDI app, this should occur after ProcessShellCommand
 	return TRUE;

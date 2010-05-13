@@ -15,6 +15,7 @@ typedef struct _HelicopterModel
 {
 	char helicopterName[256];
 	struct HelicopterPara heliPara;
+	char isDemarcated;
 	struct ServoActorData sad;
 }HelicopterModel, *PHelicopterModel;
 

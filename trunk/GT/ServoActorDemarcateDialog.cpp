@@ -66,7 +66,7 @@ BOOL CServoActorDemarcateDialog::OnInitDialog()
 
 void CServoActorDemarcateDialog::OnBnClickedServoActorTestPass(void)
 {
-	AfxMessageBox("OK", MB_OK | MB_ICONINFORMATION);
+	AfxMessageBox("OK", MB_OK | MB_ICONINFORMATION); 
 	this->UpdateData();
 	/***** Must send all of the test data to the server *****/
 	/* First gain the current helicopter model */
@@ -125,6 +125,9 @@ void CServoActorDemarcateDialog::OnBnClickedServoActorTestPass(void)
 	curPHM->sad.a4MeansureAng[3] = (float)m_tabTail.tailAngle4;
 	curPHM->sad.a4MeansureAng[4] = (float)m_tabTail.tailAngle5;
 
+	// Save the permenant state
+	curPHM->isDemarcated = 1;
+
 	/********** Construct the content of the servo actor demarcated data *********/
 	char command[sizeof(ServoActorData) + 2];
 	__int16 *c = (__int16 *)command;
@@ -181,6 +184,8 @@ void CServoActorDemarcateDialog::OnBnClickedServoActorTestPass(void)
 
 	/***** Set the global flag variable *****/
 	instance->setIsServoActorDemarcated(TRUE);
+	
+	OnOK();
 }
 
 void CServoActorDemarcateDialog::OnBnClickedServoActorTestFailure(void)
@@ -189,5 +194,7 @@ void CServoActorDemarcateDialog::OnBnClickedServoActorTestFailure(void)
 	AfxMessageBox(_T("Failed to demarcate the servo actor"), MB_OK | MB_ICONSTOP);
 	CSingleton *instance = CSingleton::getInstance();
 	instance->setIsServoActorDemarcated(FALSE);
+
+	OnCancel();
 }
  

@@ -54,7 +54,9 @@
 #define IDB_FE_BITMAP                   338
 #define IDB_BITMAP1                     340
 #define IDB_BITMAP3                     358
-#define IDR_TOOLBAR1                    359
+#define IDB_FE_TB_BITMAP                365
+#define IDB_FE_TB_BITMAP2               366
+#define IDR_TOOLBAR1                    367
 #define IDC_HELICOPTERNAME_EDIT         1000
 #define IDC_HELICOPTERMASS_EDIT         1001
 #define IDC_MAINBLADELENGHT_EDIT        1002
@@ -86,10 +88,12 @@
 #define IDC_DP_PAUSE                    1037
 #define IDC_BODY_Z_ACC_EDIT             1037
 #define IDC_LOAD_IMAGE_BUTTON           1037
+#define IDC_SEND_ROTOR_BUTTON           1037
 #define IDC_BUTTON2                     1038
 #define IDC_FE_ZOOM_OUT                 1038
 #define IDC_ADD_POINT                   1038
 #define IDC_LOAD_MAP_BUTTON             1038
+#define IDC_DEMARCATED_SUC_BTN          1038
 #define IDC_BUTTON3                     1039
 #define IDC_IMU_TEST_PASS               1039
 #define IDC_ASSURE_PATH                 1039
@@ -242,6 +246,7 @@
 #define IDC_LIFT_CURVE_SLOPE_TR         1145
 #define IDC_OPT_X_COOR                  1145
 #define IDC_POINT_Z_COORDINATE          1145
+#define IDC_CONVERTED_PITCH_EDIT        1145
 #define IDC_EDIT2                       1146
 #define IDC_FE_Y_COOR                   1146
 #define IDC_DP_FPS_EDIT                 1146
@@ -249,6 +254,7 @@
 #define IDC_LIFT_CURVE_SLOPE_MR         1146
 #define IDC_BLADES_TR                   1146
 #define IDC_MAP_LONGITUDE_EDIT          1146
+#define IDC_CONVERTED_ROLL_EDIT         1146
 #define IDC_EDIT3                       1147
 #define IDC_FE_SECOND_EDIT              1147
 #define IDC_Y_INERTIA                   1147
@@ -256,24 +262,28 @@
 #define IDC_CHORD_TR                    1147
 #define IDC_OPT_Y_COOR                  1147
 #define IDC_MAP_LATITUDE_EDIT           1147
+#define IDC_DY_COLLECTIVE_EDIT          1147
 #define IDC_EDIT5                       1149
 #define IDC_FE_ROLL_EDIT                1149
 #define IDC_S_FRONTAL                   1149
 #define IDC_HINGE_OFFSET_MR             1149
 #define IDC_ZERO_LIFT_DRAG_COEFF_TR     1149
 #define IDC_OPT_Z_COOR                  1149
+#define IDC_ST_ROLL_EDIT                1149
 #define IDC_EDIT6                       1150
 #define IDC_FE_ROLL_UPPER_EDIT          1150
 #define IDC_S_SIDE                      1150
 #define IDC_I_B_MR                      1150
 #define IDC_MAX_TRUST_COEFF_TR          1150
 #define IDC_OPT_ROLL_VEL                1150
+#define IDC_ST_HEAD_EDIT                1150
 #define IDC_EDIT7                       1151
 #define IDC_FE_ROLL_LOWER_EDIT          1151
 #define IDC_S_VERT                      1151
 #define IDC_ZERO_LIFT_DRAG_COEF_MR      1151
 #define IDC_D_HUB_TO_CG_TR              1151
 #define IDC_OPT_PITCH_VEL               1151
+#define IDC_CONVERTED_COLLECTIVE_EDIT   1151
 #define IDC_EDIT14                      1152
 #define IDC_FILENAME_EDIT               1152
 #define IDC_V_TIP_MR                    1152
@@ -361,8 +371,15 @@
 #define IDC_OPT_TEST_PASS               1210
 #define IDC_OPT_TEST_FAILURE            1211
 #define IDC_EDIT4                       1212
+#define IDC_ST_PITCH_EDIT               1212
 #define IDC_SELECT_POINT                1213
 #define IDC_MAP_PICTURE_CONTROL         1214
+#define IDC_PITCH_SPIN                  1215
+#define IDC_DY_PITCH_EDIT               1216
+#define IDC_DY_ROLL_EDIT                1217
+#define IDC_ROLL_SPIN                   1218
+#define IDC_COLLECTIVE_SPIN             1219
+#define IDC_ROTOR_RESULT_LIST           1223
 #define IDC_ROLL_CURVE_CONTROL          1300
 #define IDC_PITCH_CURVE_CONTROL         1301
 #define IDC_HEAD_CURVE_CONTROL          1302
@@ -405,16 +422,15 @@
 #define ID_DATA_PROCESS                 32806
 #define ID_32807                        32807
 #define ID_OPT_TEST                     32808
-#define ID_BUTTON32810                  32810
-#define ID_BUTTON32812                  32812
+#define ID_ROTOR_DISK_DEMARCATED        32819
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        365
-#define _APS_NEXT_COMMAND_VALUE         32813
-#define _APS_NEXT_CONTROL_VALUE         1215
+#define _APS_NEXT_RESOURCE_VALUE        369
+#define _APS_NEXT_COMMAND_VALUE         32820
+#define _APS_NEXT_CONTROL_VALUE         1224
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

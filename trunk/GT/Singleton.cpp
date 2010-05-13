@@ -9,7 +9,10 @@ CSingleton::CSingleton(void)
 	isOPTTestPass = FALSE;
 	isPathSet = FALSE;
 	isControlParameterSet = FALSE;
+	isRotorDemarcated = FALSE;
 	curPHM = prePHM = NULL;
+
+	memset((char *)&tdd, 0, sizeof(tdd));
 }
 
 CSingleton::~CSingleton(void)
@@ -44,8 +47,10 @@ void CSingleton::setCurPHM(BOOL isNew, CString helicopterName)
 	if (isNew) {
 		// New a helicopter model
 		curPHM =  new HelicopterModel;
-		// Initialize 
+		// Initialize the helicopter name
 		memset(curPHM->helicopterName, 0, sizeof(curPHM->helicopterName));
+		// Initialize the state of demarcated:0 indicates no demarcated 1 indicates demarcated
+		curPHM->isDemarcated = 0;
 	} else if(helicopterName != "") {
 	    // Should check the helicopter model buffer first
 		std::vector<PHelicopterModel>::iterator iter;		
@@ -62,8 +67,10 @@ void CSingleton::setCurPHM(BOOL isNew, CString helicopterName)
 		std::ifstream ifs("uh.hm", std::ios::binary);
 		prePHM = curPHM;
 		curPHM = new HelicopterModel;
-		// Initialize 
+		// Initialize the helicopter name
 		memset(curPHM->helicopterName, 0, sizeof(curPHM->helicopterName));
+		// Initialize the state variable
+		curPHM->isDemarcated = 0;
 		while (TRUE) {			
 			ifs.read((char*) curPHM, sizeof(*curPHM));
 			countRead = ifs.gcount();
@@ -129,5 +136,6 @@ BOOL CSingleton::isReady(void)
 			isOPTTestPass && 
 			isPathSet && 
 			isControlParameterSet &&
+			isRotorDemarcated &&
 			curPHM != NULL;
 }
