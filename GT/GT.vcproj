@@ -950,11 +950,11 @@
 				>
 			</File>
 			<File
-				RelativePath="D:\Misc\ToolBar\tbpaint\fetb.bmp"
+				RelativePath=".\res\fetb.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\fetb.bmp"
+				RelativePath="D:\Misc\ToolBar\tbpaint\fetb.bmp"
 				>
 			</File>
 			<File
@@ -963,6 +963,10 @@
 			</File>
 			<File
 				RelativePath=".\res\fetb2.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\fptb.bmp"
 				>
 			</File>
 			<File
@@ -986,11 +990,15 @@
 				>
 			</File>
 			<File
+				RelativePath="d:\misc\toolbar\tbpaint\toolbar1.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\res\toolbar1.bmp"
 				>
 			</File>
 			<File
-				RelativePath="d:\misc\toolbar\tbpaint\toolbar1.bmp"
+				RelativePath="d:\misc\toolbar\tbpaint\toolbar2.bmp"
 				>
 			</File>
 			<File

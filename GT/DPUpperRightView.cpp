@@ -107,10 +107,9 @@ void CDPUpperRightView::OnBnClickedDPZoomOut()
 
 void CDPUpperRightView::updateFS(pFlyState fs)
 {
-	dpXCoor = fs->E_Pos;
-	dpYCoor = fs->N_Pos;
+	updateEdits(fs);
 
-	mapData.push_back(FPOINT(dpXCoor, dpYCoor));
+	mapData.push_back(FPOINT((float)dpXCoor, (float)dpYCoor));
 
 	updateCurve();
 
@@ -125,4 +124,21 @@ void CDPUpperRightView::updateCurve(void)
 	}
 
 	m_pSpatialCurveCtrl->Invalidate();
+}
+
+void CDPUpperRightView::updateEdits(pFlyState fs)
+{
+	dpXCoor = fs->E_Pos;
+	dpYCoor = fs->N_Pos;
+
+	CEdit* m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_DP_X_COOR));
+	CString buf;
+	buf.Format("%.4g", dpXCoor);
+	m_pEdit->SetWindowText(buf);
+
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_DP_Y_COOR));
+	buf.Format("%.4g", dpYCoor);
+	m_pEdit->SetWindowText(buf);
+
+	UpdateData(TRUE);
 }

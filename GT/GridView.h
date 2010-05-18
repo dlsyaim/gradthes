@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "GridCtrl_src/GridCtrl.h"
+#include "afxwin.h"
 
 
 #define NUM_OF_ROW 10
@@ -52,16 +53,15 @@ public:
 	inline void setReceived(__int32 *received) {this->received = received;}
 	inline void setState(__int32 *state) {this->state = state;}
 
+	void updateFormView(pPathPointData selectedPoint);
 private:
 // Operations
 	void schedulePath(void);
-	pPathPointData findBySerial(int serial);
+	pPathPointData findBySerial(std::vector<pPathPointData> *path, int serial);
+	// Resize the columns
+	void ResizeColumns(BOOL isFixedResize);
+	void setCheckBoxStates(CString label);
 // Attributes
-	// The origin path
-	std::vector<PathPointData*> path;
-	// The scheduled path
-	std::vector<PathPointData*> scheduledPath;
-
 	// The state variable
 	BOOL isPathCompleted;
 	// The point index the server just received
@@ -71,12 +71,12 @@ private:
 	// Map texture
 	Texture *mapTex;
 
-
-
 public:
 	afx_msg void OnBnClickedAddPoint();
 	afx_msg void OnBnClickedSelectPoint();
 	afx_msg void OnBnClickedLoadImageButton();
+
+	void setCheckBoxStates(int state, CString label);
 };
 
 #ifndef _DEBUG  // debug version in GridView.cpp

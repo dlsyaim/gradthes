@@ -93,6 +93,7 @@ private:
 	std::vector<float> headCurveData;
 
 	void updateCurve(void);
+	void updateEdits(pFlyState fs);
 
 public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);

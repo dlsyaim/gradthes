@@ -20,8 +20,6 @@ CHelicopterChoosingDialog::CHelicopterChoosingDialog(CWnd* pParent /*=NULL*/, BO
 {
 	this->isNew = isNew;
 	this->pHM = pHM;
-
-	
 }
 
 

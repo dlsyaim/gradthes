@@ -119,5 +119,64 @@ void CPitchTab::OnBnClickedPitchAngleButton5()
 
 __int8 CPitchTab::getActorSerial(void)
 {
-	return 2;
+	return 1;
+}
+
+void CPitchTab::Initialize(float *pwm, float *angle)
+{
+	if (!pwm || !angle)
+		return;
+	CString str;
+	CEdit* m_pEdit;
+	pitchPWM1 = (double)pwm[0];
+	str.Format("%.4g", pwm[0]);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_PITCH_PWM_EDIT1));
+	m_pEdit->SetWindowText(str);
+
+	pitchPWM2 = (double)pwm[1];
+	str.Format("%.4g", pwm[1]);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_PITCH_PWM_EDIT2));
+	m_pEdit->SetWindowText(str);
+
+	pitchPWM3 = (double)pwm[2];
+	str.Format("%.4g", pwm[2]);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_PITCH_PWM_EDIT3));
+	m_pEdit->SetWindowText(str);
+
+	pitchPWM4 = (double)pwm[3];
+	str.Format("%.4g", pwm[3]);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_PITCH_PWM_EDIT4));
+	m_pEdit->SetWindowText(str);
+
+	pitchPWM5 = (double)pwm[4];
+	str.Format("%.4g", pwm[4]);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_PITCH_PWM_EDIT5));
+	m_pEdit->SetWindowText(str);
+
+	pitchAngle1 = angle[0] / PI * 180.0f;
+	str.Format("%.4g", pitchAngle1);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_PITCH_ANGLE_EDIT1));
+	m_pEdit->SetWindowText(str);
+
+	pitchAngle2 = angle[1] / PI * 180.0f;
+	str.Format("%.4g", pitchAngle2);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_PITCH_ANGLE_EDIT2));
+	m_pEdit->SetWindowText(str);
+
+	pitchAngle3 = angle[2] / PI * 180.0f;
+	str.Format("%.4g", pitchAngle3);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_PITCH_ANGLE_EDIT3));
+	m_pEdit->SetWindowText(str);
+
+	pitchAngle4 = angle[3] / PI * 180.0f;
+	str.Format("%.4g", pitchAngle4);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_PITCH_ANGLE_EDIT4));
+	m_pEdit->SetWindowText(str);
+
+	pitchAngle5 = angle[4] / PI * 180.0f;
+	str.Format("%.4g", pitchAngle5);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_PITCH_ANGLE_EDIT5));
+	m_pEdit->SetWindowText(str);
+
+
 }

@@ -30,6 +30,7 @@ public:
 	afx_msg void OnBnClickedDefaultTestButton();
 	afx_msg void OnBnClickedCommunicationTestButton();
 	afx_msg LRESULT OnReplyMsgArrived(WPARAM w, LPARAM l);
+	afx_msg void OnBnClickCancel();
 private:
 	// Send the communication test command to the server
 	void sendCommunicationTestCommand(CString content);

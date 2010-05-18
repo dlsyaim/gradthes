@@ -1,6 +1,7 @@
 #pragma once
 #include "func\NetCln.h"
 // CIMUTestFormView ¥∞ÃÂ ”Õº
+
 class CGTDoc;
 class CIMUTestFormView : public CFormView
 {

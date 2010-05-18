@@ -125,5 +125,63 @@ void CCollectiveTab::OnBnClickedCollectiveAngleButton5()
 
 __int8 CCollectiveTab::getActorSerial(void)
 {
-	return 0;
+	return 2;
+}
+
+void CCollectiveTab::Initialize(float *pwm, float *angle)
+{
+	if (!pwm || !angle)
+		return;
+	// PWM value
+	CString str;
+	collectivePWM1 = (double)pwm[0];
+	str.Format("%.4g", pwm[0]);
+	CEdit* m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_COLLECTIVE_PWM_EDIT1)); 
+	m_pEdit->SetWindowText(str);
+
+	collectivePWM2 = (double)pwm[1];
+	str.Format("%.4g", pwm[1]);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_COLLECTIVE_PWM_EDIT2)); 
+	m_pEdit->SetWindowText(str);
+	
+	collectivePWM3 = (double)pwm[2];
+	str.Format("%.4g", pwm[2]);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_COLLECTIVE_PWM_EDIT3));
+	m_pEdit->SetWindowText(str);
+
+	collectivePWM4 = (double)pwm[3];
+	str.Format("%.4g", pwm[3]);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_COLLECTIVE_PWM_EDIT4));
+	m_pEdit->SetWindowText(str);
+
+	collectivePWM5 = (double)pwm[4];
+	str.Format("%.4g", pwm[4]);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_COLLECTIVE_PWM_EDIT5));
+	m_pEdit->SetWindowText(str);
+
+	// Angle value
+	collectiveAngle1 = angle[0] / PI * 180.0f;
+	str.Format("%.4g", collectiveAngle1);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_COLLECTIVE_ANGLE_EDIT1)); 
+	m_pEdit->SetWindowText(str);
+
+	collectiveAngle2 = angle[1] / PI * 180.0f;
+	str.Format("%.4g", collectiveAngle2);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_COLLECTIVE_ANGLE_EDIT2)); 
+	m_pEdit->SetWindowText(str);
+	
+	collectiveAngle3 = angle[2] / PI * 180.0f;
+	str.Format("%.4g", collectiveAngle3);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_COLLECTIVE_ANGLE_EDIT3)); 
+	m_pEdit->SetWindowText(str);
+	
+	collectiveAngle4 = angle[3] / PI * 180.0f;
+	str.Format("%.4g", collectiveAngle4);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_COLLECTIVE_ANGLE_EDIT4)); 
+	m_pEdit->SetWindowText(str);
+	
+	collectiveAngle5 = angle[4] / PI * 180.0f;
+	str.Format("%.4g", collectiveAngle5);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_COLLECTIVE_ANGLE_EDIT5)); 
+	m_pEdit->SetWindowText(str);
 }

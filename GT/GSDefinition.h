@@ -8,6 +8,7 @@
  * (1)helicopterName,
  * (2)HelicopterPara(parameters about the helicopter itself),
  * (3)ServoActorData(demarcated servo actor data).
+ * (4)TiltDiscData(demarcated tilt disc data).
  * And changes as time goes by.
  */
 
@@ -17,6 +18,8 @@ typedef struct _HelicopterModel
 	struct HelicopterPara heliPara;
 	char isDemarcated;
 	struct ServoActorData sad;
+	char isRotorDemarcated;
+	struct TiltDiscData tdd;
 }HelicopterModel, *PHelicopterModel;
 
 /*
@@ -29,7 +32,9 @@ typedef struct _HelicopterModel
 typedef struct _ConfigStruct
 {
 	int version;
+	char isPathSet;
 	char flightPathFileName[100];
+	char isControlSet;
 	char controlParameterFileName[100];
 }ConfigStruct, *PConfigStruct;
 

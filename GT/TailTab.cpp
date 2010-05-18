@@ -121,3 +121,62 @@ __int8 CTailTab::getActorSerial(void)
 {
 	return 3;
 }
+
+void CTailTab::Initialize(float *pwm, float *angle)
+{
+	if (!pwm || !angle)
+		return;
+	
+	CString str;
+	CEdit* m_pEdit;
+	tailPWM1 = (double)pwm[0];
+	str.Format("%.4g", pwm[0]);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_TAIL_PWM_EDIT1));
+	m_pEdit->SetWindowText(str);
+
+	tailPWM2 = (double)pwm[1];
+	str.Format("%.4g", pwm[1]);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_TAIL_PWM_EDIT2));
+	m_pEdit->SetWindowText(str);
+
+	tailPWM3 = (double)pwm[2];
+	str.Format("%.4g", pwm[2]);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_TAIL_PWM_EDIT3));
+	m_pEdit->SetWindowText(str);
+
+	tailPWM4 = (double)pwm[3];
+	str.Format("%.4g", pwm[3]);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_TAIL_PWM_EDIT4));
+	m_pEdit->SetWindowText(str);
+
+	tailPWM5 = (double)pwm[4];
+	str.Format("%.4g", pwm[4]);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_TAIL_PWM_EDIT5));
+	m_pEdit->SetWindowText(str);
+
+	tailAngle1 = angle[0] / PI * 180.0f;
+	str.Format("%.4g", tailAngle1);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_TAIL_ANGLE_EDIT1));
+	m_pEdit->SetWindowText(str);
+
+	tailAngle2 = angle[1] / PI * 180.0f;
+	str.Format("%.4g", tailAngle2);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_TAIL_ANGLE_EDIT2));
+	m_pEdit->SetWindowText(str);
+
+	tailAngle3 = angle[2] / PI * 180.0f;
+	str.Format("%.4g", tailAngle3);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_TAIL_ANGLE_EDIT3));
+	m_pEdit->SetWindowText(str);
+
+	tailAngle4 = angle[3] / PI * 180.0f;
+	str.Format("%.4g", tailAngle4);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_TAIL_ANGLE_EDIT4));
+	m_pEdit->SetWindowText(str);
+
+	tailAngle5 = angle[4] / PI * 180.0f;
+	str.Format("%.4g", tailAngle5);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_TAIL_ANGLE_EDIT5));
+	m_pEdit->SetWindowText(str);
+
+}

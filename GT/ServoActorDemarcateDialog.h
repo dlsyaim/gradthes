@@ -16,11 +16,13 @@ class CServoActorDemarcateDialog : public CDialog
 
 public:
 	CServoActorDemarcateDialog(CWnd* pParent = NULL);   // 标准构造函数
+	// Constructor with the demarcated data
+	CServoActorDemarcateDialog(pServoActorData pSAD, CWnd* pParent = NULL);
 	virtual ~CServoActorDemarcateDialog();
 
 // 对话框数据
 	enum { IDD = IDD_SERVOACTORDEMARCATE_DIALOG};
-	CTabCtrlSSL	m_tabServoActor;
+	CTabCtrlSSL	m_tabServoActor;	
 	CCollectiveTab m_tabCollective;
 	CPitchTab m_tabPitch;
 	CRollTab m_tabRoll;
@@ -34,8 +36,10 @@ public:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnBnClickedServoActorTestFailure();
 	afx_msg void OnBnClickedServoActorTestPass();
+	afx_msg void OnClickedCancel();
 private:
 	// The client point of the socket
 	CNetCln netcln;
-
+	// The pointer of the demarcated data
+	pServoActorData pSAD;
 };

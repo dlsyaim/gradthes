@@ -60,9 +60,12 @@ public:
 	afx_msg LRESULT OnFlyingStateData(WPARAM w, LPARAM l);
 
 	// Setters and getter
-	inline void setIsStart(__int32* tmp) {this->isStart = tmp;}
-	inline void setIsStop(__int32* tmp) {this->isStop = tmp;}
+	inline void setIsStart(__int32* status) {this->isStart = status;}
+	inline void setIsStop(__int32* status) {this->isStop = status;}
 	inline void setNewestFSG(pFlyStateGroup newestFSG) {this->newestFSG = newestFSG;}
+
+	void startFlightExperiment(void);
+	void stopFlightExperiment(void);
 
 private:
 // Attributes
@@ -70,6 +73,7 @@ private:
 	__int32 *isStop;
 	// The newest coming fly state group
 	pFlyStateGroup newestFSG;
+	// The data of the curves
 	std::vector<float> rollCurveData;
 	std::vector<float> pitchCurveData;
 	std::vector<float> headCurveData;
@@ -85,8 +89,10 @@ private:
 	ExperimentData ed;
 
 // Operations
+	// Update the curve
 	void updateCurve(void);
-
+	// Update the edit control
+	void updateEditControl(void);
 	// Serialize the fly state group
 	void serialize(BOOL isForce = FALSE);
 };

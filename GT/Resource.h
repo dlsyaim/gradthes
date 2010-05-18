@@ -54,9 +54,10 @@
 #define IDB_FE_BITMAP                   338
 #define IDB_BITMAP1                     340
 #define IDB_BITMAP3                     358
-#define IDB_FE_TB_BITMAP                365
-#define IDB_FE_TB_BITMAP2               366
-#define IDR_TOOLBAR1                    367
+#define IDR_FE_TOOLBAR                  367
+#define IDR_FP_TOOLBAR                  369
+#define IDB_FP_TB_BITMAP                371
+#define IDB_FE_TB_BITMAP                372
 #define IDC_HELICOPTERNAME_EDIT         1000
 #define IDC_HELICOPTERMASS_EDIT         1001
 #define IDC_MAINBLADELENGHT_EDIT        1002
@@ -75,7 +76,9 @@
 #define IDC_ROLLANGLE_EDIT              1028
 #define IDC_BODY_X_VEL_EDIT             1028
 #define IDC_PITCHANGLE_EDIT             1029
+#define IDC_PITCH_ANGLE_EDIT            1029
 #define IDC_HEADINGANGLE_EDIT           1030
+#define IDC_HEADING_ANGLE_EDIT          1030
 #define IDC_ROLLANGLEVEL_EDIT           1031
 #define IDC_BODY_X_ACC_EDIT             1031
 #define IDC_BODY_Y_VEL_EDIT             1032
@@ -89,7 +92,6 @@
 #define IDC_BODY_Z_ACC_EDIT             1037
 #define IDC_LOAD_IMAGE_BUTTON           1037
 #define IDC_SEND_ROTOR_BUTTON           1037
-#define IDC_                            1037
 #define IDC_OPEN_CP_BTN                 1037
 #define IDC_BUTTON2                     1038
 #define IDC_FE_ZOOM_OUT                 1038
@@ -100,6 +102,7 @@
 #define IDC_IMU_TEST_PASS               1039
 #define IDC_ASSURE_PATH                 1039
 #define IDC_OPEN_EXP_FILE_BTN           1039
+#define IDC_ROTOR_FAILURE_BUTTON        1039
 #define IDC_XVALUE_EDIT                 1040
 #define IDC_COLLECTIVE_PWM_BUTTON4      1040
 #define IDC_PITCH_PWM_BUTTON3           1040
@@ -278,7 +281,7 @@
 #define IDC_I_B_MR                      1150
 #define IDC_MAX_TRUST_COEFF_TR          1150
 #define IDC_OPT_ROLL_VEL                1150
-#define IDC_ST_HEAD_EDIT                1150
+#define IDC_ST_COLLECTIVE_EDIT          1150
 #define IDC_EDIT7                       1151
 #define IDC_FE_ROLL_LOWER_EDIT          1151
 #define IDC_S_VERT                      1151
@@ -361,7 +364,9 @@
 #define IDC_RADIUS_TR                   1198
 #define IDC_OPT_ROLL_ANGLE_EDIT         1199
 #define IDC_OPT_PITCHANGLE_EDIT         1200
+#define IDC_OPT_PITCH_ANGLE_EDIT        1200
 #define IDC_OPT_HEADINGANGLE_EDIT       1201
+#define IDC_OPT_HEADING_ANGLE_EDIT      1201
 #define IDC_OPT_BODY_X_VEL_EDIT         1202
 #define IDC_OPT_BODY_Y_VEL_EDIT         1203
 #define IDC_OPT_BODY_Z_VEL_EDIT         1204
@@ -425,14 +430,19 @@
 #define ID_32807                        32807
 #define ID_OPT_TEST                     32808
 #define ID_ROTOR_DISK_DEMARCATED        32819
+#define IDC_TB_FE_START                 32820
+#define IDC_TB_FE_STOP                  32821
+#define ID_ADD_POINT_CB                 32822
+#define ID_BUTTON32823                  32823
+#define ID_SELECT_POINT_CB              32823
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        369
-#define _APS_NEXT_COMMAND_VALUE         32820
-#define _APS_NEXT_CONTROL_VALUE         1224
+#define _APS_NEXT_RESOURCE_VALUE        373
+#define _APS_NEXT_COMMAND_VALUE         32824
+#define _APS_NEXT_CONTROL_VALUE         1229
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

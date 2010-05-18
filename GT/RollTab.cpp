@@ -119,5 +119,66 @@ void CRollTab::OnBnClickedRollAngleButton5()
 
 __int8 CRollTab::getActorSerial(void)
 {
-	return 1;
+	return 0;
+}
+
+void CRollTab::Initialize(float *pwm, float *angle)
+{
+	if (!pwm || !angle)
+		return;
+	CString str;
+	CEdit* m_pEdit;
+	rollPWM1 = (double)pwm[0];
+	str.Format("%.4g", pwm[0]);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_ROLL_PWM_EDIT1));
+	m_pEdit->SetWindowText(str);
+
+	rollPWM2 = (double)pwm[1];
+	str.Format("%.4g", pwm[1]);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_ROLL_PWM_EDIT2));
+	m_pEdit->SetWindowText(str);
+
+	rollPWM3 = (double)pwm[2];
+	str.Format("%.4g", pwm[2]);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_ROLL_PWM_EDIT3));
+	m_pEdit->SetWindowText(str);
+
+	rollPWM4 = (double)pwm[3];
+	str.Format("%.4g", pwm[3]);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_ROLL_PWM_EDIT4));
+	m_pEdit->SetWindowText(str);
+	
+	rollPWM5 = (double)pwm[4];
+	str.Format("%.4g", pwm[4]);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_ROLL_PWM_EDIT5));
+	m_pEdit->SetWindowText(str);
+
+	rollAngle1 = angle[0] / PI * 180.0f;
+	str.Format("%.4g", rollAngle1);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_ROLL_ANGLE_EDIT1));
+	m_pEdit->SetWindowText(str);
+
+	rollAngle2 = angle[1] / PI * 180.0f;
+	str.Format("%.4g", rollAngle2);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_ROLL_ANGLE_EDIT2));
+	m_pEdit->SetWindowText(str);
+
+
+	rollAngle3 = angle[2] / PI * 180.0f;
+	str.Format("%.4g", rollAngle3);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_ROLL_ANGLE_EDIT3));
+	m_pEdit->SetWindowText(str);
+
+
+	rollAngle4 = angle[3] / PI * 180.0f;
+	str.Format("%.4g", rollAngle4);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_ROLL_ANGLE_EDIT4));
+	m_pEdit->SetWindowText(str);
+
+
+	rollAngle5 = angle[4] / PI * 180.0f;
+	str.Format("%.4g", rollAngle5);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_ROLL_ANGLE_EDIT5));
+	m_pEdit->SetWindowText(str);
+
 }

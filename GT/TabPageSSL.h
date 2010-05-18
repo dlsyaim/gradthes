@@ -1,6 +1,10 @@
 #pragma once
 /////////////////////////////////////////////////////////////////////////////
 // CTabPageSSL declaration
+#ifndef PI
+#define PI 3.14159265358
+#endif
+
 class CNetCln;
 class CTabPageSSL : public CDialog
 {
@@ -42,6 +46,7 @@ protected:
 	virtual __int8 getActorSerial(void);
 public:
 	inline void setCln(CNetCln* cln) {this->cln = cln;}
+	virtual void Initialize(float*, float*);
 };
 
 

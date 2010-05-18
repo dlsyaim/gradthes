@@ -9,6 +9,10 @@
 #include "MsgType.h"
 // COPTFormView
 
+#ifndef PI
+#define PI 3.14159265359
+#endif
+
 IMPLEMENT_DYNCREATE(COPTFormView, CFormView)
 
 COPTFormView::COPTFormView()
@@ -40,8 +44,8 @@ void COPTFormView::DoDataExchange(CDataExchange* pDX)
 {
 	CFormView::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_OPT_ROLL_ANGLE_EDIT, phi);
-	DDX_Text(pDX, IDC_OPT_PITCHANGLE_EDIT, theta);
-	DDX_Text(pDX, IDC_OPT_HEADINGANGLE_EDIT, psi);
+	DDX_Text(pDX, IDC_OPT_PITCH_ANGLE_EDIT, theta);
+	DDX_Text(pDX, IDC_OPT_HEADING_ANGLE_EDIT, psi);
 	DDX_Text(pDX, IDC_OPT_BODY_X_VEL_EDIT, N_Speed);
 	DDX_Text(pDX, IDC_OPT_BODY_Y_VEL_EDIT, E_Speed);
 	DDX_Text(pDX, IDC_OPT_BODY_Z_VEL_EDIT, D_Speed);
@@ -163,7 +167,69 @@ void COPTFormView::updateData (pOPTTRACETestData d)
 
 LRESULT COPTFormView::OnReplyMsgArrived(WPARAM w, LPARAM l)
 {
-	UpdateData(FALSE);
+	//UpdateData(FALSE);
+	CString str;
+	CEdit *m_pEdit;
+
+	str.Format("%.4g", phi / PI * 180.0f);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_OPT_ROLL_ANGLE_EDIT));
+	m_pEdit->SetWindowText(str);
+
+	str.Format("%.4g", theta / PI * 180.0f);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_OPT_PITCH_ANGLE_EDIT));
+	m_pEdit->SetWindowText(str);
+
+	str.Format("%.4g", psi / PI * 180.0f);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_OPT_HEADING_ANGLE_EDIT));
+	m_pEdit->SetWindowText(str);
+
+	str.Format("%.4g", N_Speed);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_OPT_BODY_X_VEL_EDIT));
+	m_pEdit->SetWindowText(str);
+
+	str.Format("%.4g", E_Speed);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_OPT_BODY_Y_VEL_EDIT));
+	m_pEdit->SetWindowText(str);
+
+	str.Format("%.4g", D_Speed);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_OPT_BODY_Z_VEL_EDIT));
+	m_pEdit->SetWindowText(str);
+
+	str.Format("%.4g", N_Acc);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_OPT_BODY_X_ACC_EDIT));
+	m_pEdit->SetWindowText(str);
+
+	str.Format("%.4g", E_Acc);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_OPT_BODY_Y_ACC_EDIT));
+	m_pEdit->SetWindowText(str);
+
+	str.Format("%.4g", D_Acc);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_OPT_BODY_Z_ACC_EDIT));
+	m_pEdit->SetWindowText(str);
+
+	str.Format("%.4g", opt_n_coord);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_OPT_X_COOR));
+	m_pEdit->SetWindowText(str);
+
+	str.Format("%.4g", opt_e_coord);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_OPT_Y_COOR));
+	m_pEdit->SetWindowText(str);
+
+	str.Format("%.4g", opt_d_coord);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_OPT_Z_COOR));
+	m_pEdit->SetWindowText(str);
+
+	str.Format("%.4g", opt_roll_vel);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_OPT_ROLL_VEL));
+	m_pEdit->SetWindowText(str);
+
+	str.Format("%.4g", opt_pitch_vel);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_OPT_PITCH_VEL));
+	m_pEdit->SetWindowText(str);
+
+	str.Format("%.4g", opt_head_vel);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_OPT_HEAD_VEL));
+	m_pEdit->SetWindowText(str);
 	return TRUE;
 }
 

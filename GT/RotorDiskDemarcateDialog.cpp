@@ -6,6 +6,9 @@
 #include "RotorDiskDemarcateDialog.h"
 #include "Singleton.h"
 
+#ifndef PI
+#define PI 3.14159265358
+#endif
 
 // RotorDiskDemarcateDialog 对话框
 
@@ -25,6 +28,26 @@ RotorDiskDemarcateDialog::RotorDiskDemarcateDialog(CWnd* pParent /*=NULL*/)
 {
 	demarcatedIdx = 0;
 	size = 0;
+
+	pTDD = NULL;
+}
+
+RotorDiskDemarcateDialog::RotorDiskDemarcateDialog(pTiltDiscData pTDD, CWnd *pParent/* = NULL*/)
+	: CDialog(RotorDiskDemarcateDialog::IDD, pParent)
+	, dyPitch(0)
+	, dyRoll(0)
+	, dyCollective(0)
+	, stPitch(0)
+	, stRoll(0)
+	, stCollective(0)
+	, convertedPitch(0)
+	, convertedRoll(0)
+	, convertedCollective(0)
+{
+	this->pTDD = pTDD;
+
+	demarcatedIdx = 0;
+	size = 0;
 }
 
 RotorDiskDemarcateDialog::~RotorDiskDemarcateDialog()
@@ -40,7 +63,7 @@ void RotorDiskDemarcateDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_DY_COLLECTIVE_EDIT, dyCollective);
 	DDX_Text(pDX, IDC_ST_PITCH_EDIT, stPitch);
 	DDX_Text(pDX, IDC_ST_ROLL_EDIT, stRoll);
-	DDX_Text(pDX, IDC_ST_HEAD_EDIT, stCollective);
+	DDX_Text(pDX, IDC_ST_COLLECTIVE_EDIT, stCollective);
 	DDX_Control(pDX, IDC_PITCH_SPIN, pitchSpin);
 	DDX_Control(pDX, IDC_ROLL_SPIN, rollSpin);
 	DDX_Control(pDX, IDC_COLLECTIVE_SPIN, collectiveSpin);
@@ -63,6 +86,7 @@ BEGIN_MESSAGE_MAP(RotorDiskDemarcateDialog, CDialog)
 	ON_EN_CHANGE(IDC_DY_PITCH_EDIT, &RotorDiskDemarcateDialog::OnEnChangeDyPitchEdit)
 	ON_EN_CHANGE(IDC_DY_ROLL_EDIT, &RotorDiskDemarcateDialog::OnEnChangeDyRollEdit)
 	ON_EN_CHANGE(IDC_DY_COLLECTIVE_EDIT, &RotorDiskDemarcateDialog::OnEnChangeDyCollectiveEdit)
+	ON_BN_CLICKED(IDOK, &RotorDiskDemarcateDialog::OnBnClickedOk)
 END_MESSAGE_MAP()
 
 
@@ -138,6 +162,10 @@ BOOL RotorDiskDemarcateDialog::OnInitDialog()
    m_tabRotorDisk.AddSSLPage(_T("侧滚舵机标定"), nPageID++, &m_tabRoll);
    m_tabPitch.Create(IDD_PITCH_ROTORDISK_TAB, this);
    m_tabRotorDisk.AddSSLPage(_T("俯仰舵机标定"), nPageID++, &m_tabPitch);*/
+	 if (pTDD) {
+		 addListRows(pTDD);
+	 }
+
      return TRUE; // return TRUE unless you set the focus to a control
 }
 
@@ -219,8 +247,6 @@ void RotorDiskDemarcateDialog::OnDeltaposDyPitchSpin(NMHDR *pNMHDR, LRESULT *pRe
 	UpdateData(TRUE);
 
 	LPNMUPDOWN spin = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
-
-	// The incremental is 0.1
 	dyPitch += ((*spin).iDelta / 10.0);
 	
 	updateConvertedValue(1);
@@ -259,7 +285,7 @@ void RotorDiskDemarcateDialog::OnDeltaposCollectiveSpin(NMHDR *pNMHDR, LRESULT *
 
 void RotorDiskDemarcateDialog::OnBnClickedSendRotorButton()
 {
-	/********** Construct the content of the servo actor demarcated data *********/
+	/********** Construct the content of the rotor demarcated data *********/
 	UpdateData(TRUE);
 	
 	char command[sizeof(ServoActorTstInsData) + 2];
@@ -267,14 +293,14 @@ void RotorDiskDemarcateDialog::OnBnClickedSendRotorButton()
 	c[0] = SAT_SERVOACTOR_TST;
 	
 	ServoActorTstInsData satt;
-	satt.ActorSerial = 0;
+	satt.ActorSerial = 1;
 	satt.SetPWM = convertedPitch;
 	memcpy(&(command[2]), (char*)&satt, sizeof(satt));	
 
 	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
 	cln->SendSvr(command, sizeof(command));
 
-	satt.ActorSerial = 1;
+	satt.ActorSerial = 0;
 	satt.SetPWM = convertedRoll;
 	memcpy(&(command[2]), (char*)&satt, sizeof(satt));	
 	cln->SendSvr(command, sizeof(command));
@@ -283,73 +309,62 @@ void RotorDiskDemarcateDialog::OnBnClickedSendRotorButton()
 	satt.SetPWM = convertedCollective;
 	memcpy(&(command[2]), (char*)&satt, sizeof(satt));	
 	cln->SendSvr(command, sizeof(command));
-
-	TRACE(_T("Sent: %f %f %f\n"), dyPitch, dyRoll, dyCollective);
-	TRACE(_T("Sent: %f %f %f\n"), convertedPitch, convertedRoll, convertedCollective);
 }
 
+/********** Calibration a group of data successfully **********/
 void RotorDiskDemarcateDialog::OnBnClickedDemarcatedSucBtn()
 {
-	if (size >= 10)
+	if (size >= 10 && demarcatedIdx == size)
 	{
 		TRACE("Exceed the limit\n");
-		AfxMessageBox(_T("Reach the ceiling\n"), MB_OK | MB_ICONWARNING);
+		AfxMessageBox(_T("Reach the ceiling\nCan't add any more"), MB_OK | MB_ICONWARNING);
 		return;
 	}
-	// One group succeed
 	UpdateData(TRUE);
 
 	CSingleton *instance = CSingleton::getInstance();
-	TiltDiscData* tdd = instance->getTDD();
+	TiltDiscData* tdd = &instance->getCurPHM()->tdd;
+	
+	tdd->CommandAngs[demarcatedIdx][1] = (float)/*dyPitch*/convertedPitch;
+	tdd->CommandAngs[demarcatedIdx][0] = (float)/*dyRoll*/convertedRoll;
+	tdd->CommandAngs[demarcatedIdx][2] = (float)/*dyCollective*/convertedCollective;
 
-	tdd->CommandAngs[demarcatedIdx][0] = (float)dyPitch;
-	tdd->CommandAngs[demarcatedIdx][1] = (float)dyRoll;
-	tdd->CommandAngs[demarcatedIdx][2] = (float)dyCollective;
+	tdd->MeansureAngs[demarcatedIdx][1] = (float)(stPitch / 180.0f * PI);
+	tdd->MeansureAngs[demarcatedIdx][0] = (float)(stRoll / 180.0f * PI);
+	tdd->MeansureAngs[demarcatedIdx][2] = (float)(stCollective / 180.0f * PI);
 
-	tdd->MeansureAngs[demarcatedIdx][0] = (float)stPitch;
-	tdd->MeansureAngs[demarcatedIdx][1] = (float)stRoll;
-	tdd->MeansureAngs[demarcatedIdx][2] = (float)stCollective;
-
+	// Add a row
 	if (demarcatedIdx == size) {
-		LVITEM lvItem;
-		int nItem;
+		int nItem = addListRow(demarcatedIdx);
 		
-		CString buf;
-		buf.Format("%d", demarcatedIdx);
-		
-		lvItem.mask = LVIF_TEXT;
-		lvItem.iItem = demarcatedIdx;
-		lvItem.iSubItem = 0;
-		lvItem.pszText = (LPSTR)(LPCTSTR)buf;
-		nItem = demarcatedResult.InsertItem(&lvItem);
-
 		CString text;
-		text.Format("%f", dyPitch);
+		text.Format("%.4g", convertedPitch);
 		demarcatedResult.SetItemText(nItem, 1, text);
-		text.Format("%f", dyRoll);
+		text.Format("%.4g", convertedRoll);
 		demarcatedResult.SetItemText(nItem, 2, text);
-		text.Format("%f", dyCollective);
+		text.Format("%.4g", convertedCollective);
 		demarcatedResult.SetItemText(nItem, 3, text);
-		text.Format("%f", stPitch);
+		text.Format("%.4g", stPitch);
 		demarcatedResult.SetItemText(nItem, 4, text);
-		text.Format("%f", stRoll);
+		text.Format("%.4g", stRoll);
 		demarcatedResult.SetItemText(nItem, 5, text);
-		text.Format("%f", stCollective);
+		text.Format("%.4g", stCollective);
 		demarcatedResult.SetItemText(nItem, 6, text);
 	} else {
+		// Update a row
 		int nItem = demarcatedIdx;
 		CString text;
-		text.Format("%f", dyPitch);
+		text.Format("%.4g", convertedPitch);
 		demarcatedResult.SetItemText(nItem, 1, text);
-		text.Format("%f", dyRoll);
+		text.Format("%.4g", convertedRoll);
 		demarcatedResult.SetItemText(nItem, 2, text);
-		text.Format("%f", dyCollective);
+		text.Format("%.4g", convertedCollective);
 		demarcatedResult.SetItemText(nItem, 3, text);
-		text.Format("%f", stPitch);
+		text.Format("%.4g", stPitch);
 		demarcatedResult.SetItemText(nItem, 4, text);
-		text.Format("%f", stRoll);
+		text.Format("%.4g", stRoll);
 		demarcatedResult.SetItemText(nItem, 5, text);
-		text.Format("%f", stCollective);
+		text.Format("%.4g", stCollective);
 		demarcatedResult.SetItemText(nItem, 6, text);
 	}
 
@@ -371,38 +386,59 @@ void RotorDiskDemarcateDialog::OnBnClickedDemarcatedSucBtn()
 void RotorDiskDemarcateDialog::OnNMClickRotorResultList(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	
 	demarcatedIdx = pNMItemActivate->iItem;
 
+	CEdit *m_pEdit;
 	int iSubItem = 1;
 	CString text = demarcatedResult.GetItemText(pNMItemActivate->iItem, iSubItem++);
-	dyPitch = atof((LPCTSTR)text);
+	TRACE(text +_T("\n"));
+	convertedPitch = (float)atof((LPCTSTR)text);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_CONVERTED_PITCH_EDIT));
+	m_pEdit->SetWindowText(text);
+	
 	text = demarcatedResult.GetItemText(pNMItemActivate->iItem, iSubItem++);
-	dyRoll = atof((LPCTSTR)text);
+	TRACE(text +_T("\n"));	
+	convertedRoll = (float)atof((LPCTSTR)text);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_CONVERTED_ROLL_EDIT));
+	m_pEdit->SetWindowText(text);
+	
 	text = demarcatedResult.GetItemText(pNMItemActivate->iItem, iSubItem++);
-	dyCollective = atof((LPCTSTR)text);
+	TRACE(text +_T("\n"));
+	convertedCollective = (float)atof((LPCTSTR)text);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_CONVERTED_COLLECTIVE_EDIT));
+	m_pEdit->SetWindowText(text);
+	
 	text = demarcatedResult.GetItemText(pNMItemActivate->iItem, iSubItem++);
-	stPitch = atof((LPCTSTR)text);
+	TRACE(text +_T("\n"));
+	stPitch = (float)atof((LPCTSTR)text);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_ST_PITCH_EDIT));
+	m_pEdit->SetWindowText(text);
+	
 	text = demarcatedResult.GetItemText(pNMItemActivate->iItem, iSubItem++);
-	stRoll = atof((LPCTSTR)text);
+	TRACE(text +_T("\n"));
+	stRoll = (float)atof((LPCTSTR)text);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_ST_ROLL_EDIT));
+	m_pEdit->SetWindowText(text);
+	
 	text = demarcatedResult.GetItemText(pNMItemActivate->iItem, iSubItem++);
-	stCollective = atof((LPCTSTR)text);
-	text = demarcatedResult.GetItemText(pNMItemActivate->iItem, iSubItem++);
-
-	UpdateData(FALSE);
+	TRACE(text +_T("\n"));
+	stCollective = (float)atof((LPCTSTR)text);
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_ST_COLLECTIVE_EDIT));
+	m_pEdit->SetWindowText(text);
+	
 	*pResult = 0;
 }
 
 void RotorDiskDemarcateDialog::OnBnClickedCancel()
 {
-	if (size < 10) {
+	if (size > 0) {
 		CSingleton *instance = CSingleton::getInstance();
-		int result = AfxMessageBox(_T("Need 10 group data\nAre you sure to exit? If exit, all demarcated result will be lost.")
+		int result = AfxMessageBox(_T("Calibrating\nAre you sure to exit? If exit, all demarcated result will be saved.")
 			, MB_YESNO | MB_ICONWARNING);
 		switch (result) {
 			case IDYES:
-				// Will clear the demarcated result
-				memset(instance->getTDD(), 0, sizeof(TiltDiscData));
-				// Set the flag variable
+				// Set the state variable
 				instance->setIsRotorDemarcated(FALSE);
 				OnCancel();
 				break;
@@ -411,7 +447,6 @@ void RotorDiskDemarcateDialog::OnBnClickedCancel()
 			default:
 				break;
 		}
-
 	} else {
 		OnCancel();
 	}
@@ -419,37 +454,41 @@ void RotorDiskDemarcateDialog::OnBnClickedCancel()
 
 void RotorDiskDemarcateDialog::OnEnChangeDyPitchEdit()
 {
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 CDialog::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
-
-	UpdateData(TRUE);
-	updateConvertedValue(1);
+	CEdit* m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_DY_PITCH_EDIT));
+	CString str;
+	m_pEdit->GetWindowText(str);
+	if (str != _T("-") && str != _T("."))
+	{	
+		UpdateData(TRUE);
+		updateConvertedValue(1);
+	}
 }
 
 void RotorDiskDemarcateDialog::OnEnChangeDyRollEdit()
 {
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 CDialog::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+	CEdit* m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_DY_ROLL_EDIT));
 
-	// TODO:  在此添加控件通知处理程序代码
-	UpdateData(TRUE);
-	updateConvertedValue(2);
+	CString str;
+	m_pEdit->GetWindowText(str);
+	if (str != _T("-") && str != _T("."))
+	{	
+		UpdateData(TRUE);
+		updateConvertedValue(2);
+	}
 }
 
 void RotorDiskDemarcateDialog::OnEnChangeDyCollectiveEdit()
 {
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 CDialog::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+	
+	CEdit* m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_DY_COLLECTIVE_EDIT));
 
-	// TODO:  在此添加控件通知处理程序代码
-	UpdateData(TRUE);
-	updateConvertedValue(3);
+	CString str;
+	m_pEdit->GetWindowText(str);
+	if (str != _T("-") && str != _T("."))
+	{	
+		UpdateData(TRUE);
+		updateConvertedValue(3);
+	}
 }
 
 // Convert dyPitch into PWM
@@ -459,30 +498,30 @@ void RotorDiskDemarcateDialog::updateConvertedValue(int channel)
 	float differ;
 	switch (channel) {
 		case 1:
-			differ = curPHM->sad.a1PWMValue[0] - curPHM->sad.a1PWMValue[4];
+			differ = curPHM->sad.a3PWMValue[0] - curPHM->sad.a3PWMValue[4];
 			if (differ == 0.0f) {
 				convertedPitch = 0.0f;
 			} else {
-				convertedPitch = ((float)dyPitch - curPHM->sad.a1MeansureAng[4]) / (curPHM->sad.a1MeansureAng[0] - curPHM->sad.a1MeansureAng[4]) * differ
-					+ curPHM->sad.a1PWMValue[4];
+				convertedPitch = (float)(dyPitch / 180.0f * PI - curPHM->sad.a3MeansureAng[4]) / (curPHM->sad.a3MeansureAng[0] - curPHM->sad.a3MeansureAng[4]) * differ
+					+ curPHM->sad.a3PWMValue[4];
 			}
 			break;
 		case 2:
-			 differ = curPHM->sad.a2PWMValue[0] - curPHM->sad.a2PWMValue[4];
+			differ = curPHM->sad.a2PWMValue[0] - curPHM->sad.a2PWMValue[4];
 			if (differ == 0.0f) {
 				convertedRoll = 0.0f;
 			} else {
-				convertedRoll = ((float)dyRoll - curPHM->sad.a2MeansureAng[4]) / (curPHM->sad.a2MeansureAng[0] - curPHM->sad.a2MeansureAng[4]) * differ 
+				convertedRoll = (float)(dyRoll / 180.0f * PI - curPHM->sad.a2MeansureAng[4]) / (curPHM->sad.a2MeansureAng[0] - curPHM->sad.a2MeansureAng[4]) * differ 
 					+ curPHM->sad.a2PWMValue[4];
 			}
 			break;
 		case 3:
-			differ = curPHM->sad.a3PWMValue[0] - curPHM->sad.a3PWMValue[4];
+			differ = curPHM->sad.a1PWMValue[0] - curPHM->sad.a1PWMValue[4];
 			if (differ == 0.0f) {
 				convertedCollective = 0.0f;
 			} else {
-				convertedCollective = ((float)dyCollective - curPHM->sad.a3MeansureAng[4]) / (curPHM->sad.a3MeansureAng[0] - curPHM->sad.a3MeansureAng[4]) * differ
-					+ curPHM->sad.a3PWMValue[4];
+				convertedCollective = (float)(dyCollective / 180.0f * PI - curPHM->sad.a1MeansureAng[4]) / (curPHM->sad.a1MeansureAng[0] - curPHM->sad.a1MeansureAng[4]) * differ
+					+ curPHM->sad.a1PWMValue[4];
 			}
 			break;
 		default:
@@ -490,4 +529,79 @@ void RotorDiskDemarcateDialog::updateConvertedValue(int channel)
 	}
 
 	UpdateData(FALSE);	
+}
+
+/*
+ * Send all the demarcated data to the server
+ */
+void RotorDiskDemarcateDialog::OnBnClickedOk()
+{
+	// First get the current helicopter model
+	CSingleton *instance = CSingleton::getInstance();
+	PHelicopterModel curPHM = instance->getCurPHM();
+	curPHM->isRotorDemarcated = 1;
+	// Update the uh.hm file
+	instance->updateHelicopterModelFile();
+	// Set the state variables
+	instance->setIsRotorDemarcated(TRUE);	
+
+	CNetCln *cln = ((CGTApp*)AfxGetApp())->getCln();
+
+	char command[sizeof(TiltDiscData) + 2];
+	__int16 *c = (__int16*)command;
+	c[0] = TTS_TILTDISCSET;
+
+	memcpy(command + 2, (char *)&curPHM->tdd, sizeof(TiltDiscData));
+
+	cln->SendSvr(command, sizeof(command));
+
+	OnOK();
+}
+
+int RotorDiskDemarcateDialog::addListRow(int row)
+{
+	if (row < 0 || row > 9)
+		return -1;
+	
+	LVITEM lvItem;
+	int nItem;
+	
+	CString buf;
+	buf.Format("%d", row);
+	
+	lvItem.mask = LVIF_TEXT;
+	lvItem.iItem = row;
+	lvItem.iSubItem = 0;
+	lvItem.pszText = (LPSTR)(LPCTSTR)buf;
+	nItem = demarcatedResult.InsertItem(&lvItem);
+
+	size++;
+	demarcatedIdx = size;
+
+	return nItem;
+}
+
+void RotorDiskDemarcateDialog::addListRows(pTiltDiscData pTDD)
+{
+	if (!pTDD)
+		return;
+	int i, nItem;
+	for (i = 0; i < sizeof(pTDD->CommandAngs); i++) {
+		nItem = addListRow(i);
+		if (nItem < 0)
+			break;
+		CString text;
+		text.Format("%.4g", pTDD->CommandAngs[i][1]);
+		demarcatedResult.SetItemText(nItem, 1, text);
+		text.Format("%.4g", pTDD->CommandAngs[i][0]);
+		demarcatedResult.SetItemText(nItem, 2, text);
+		text.Format("%.4g", pTDD->CommandAngs[i][2]);
+		demarcatedResult.SetItemText(nItem, 3, text);
+		text.Format("%.4g", pTDD->MeansureAngs[i][1] / PI * 180.0f);
+		demarcatedResult.SetItemText(nItem, 4, text);
+		text.Format("%.4g", pTDD->MeansureAngs[i][0] / PI * 180.0f);
+		demarcatedResult.SetItemText(nItem, 5, text);
+		text.Format("%.4g", pTDD->MeansureAngs[i][2] / PI * 180.0f);
+		demarcatedResult.SetItemText(nItem, 6, text);
+	}
 }

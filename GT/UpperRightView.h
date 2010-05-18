@@ -43,11 +43,14 @@ public:
 
 	// Update the data
 	void updateFS(pFlyState fs);
-	// Update the curve
-	void updateCurve(void);
+
 private:
 // Attributes
 	std::vector<FPOINT> mapData;
+// Operations
+	// Update the curve
+	void updateCurve(void);
+	void updateEdits(pFlyState fs);
 
 };
 

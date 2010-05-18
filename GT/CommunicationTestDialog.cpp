@@ -41,6 +41,7 @@ BEGIN_MESSAGE_MAP(CCommunicationTestDialog, CDialog)
 	ON_BN_CLICKED(IDC_COMMUNICATIONTEST_PASS, &CCommunicationTestDialog::OnBnClickedCommunicationTestPass)
 	ON_BN_CLICKED(IDC_DEFAULTTEST_BUTTON, &CCommunicationTestDialog::OnBnClickedDefaultTestButton)
 	ON_BN_CLICKED(IDC_COMMUNICATIONTEST_BUTTON, &CCommunicationTestDialog::OnBnClickedCommunicationTestButton)
+	ON_BN_CLICKED(IDCANCEL, CCommunicationTestDialog::OnBnClickCancel)
 	ON_MESSAGE(COMMUNICATION_TEST_REPLY_MSG, &OnReplyMsgArrived)
 END_MESSAGE_MAP()
 
@@ -58,11 +59,20 @@ void CCommunicationTestDialog::OnBnClickedCommunicationTestFailure()
 		ofs.close();
 	*/	
 
-	/********** Update the global flag variable **********/
+	/********** Set the global state variable **********/
 	CSingleton* instance = CSingleton::getInstance();
 	instance->setIsCommunicationTestPass(FALSE);
 
 	CDialog::OnOK();
+}
+
+void CCommunicationTestDialog::OnBnClickCancel(void)
+{
+	/********** Set the global state variable **********/
+	CSingleton* instance = CSingleton::getInstance();
+	instance->setIsCommunicationTestPass(FALSE);
+
+	CDialog::OnCancel();
 }
 
 void CCommunicationTestDialog::OnBnClickedCommunicationTestPass()
