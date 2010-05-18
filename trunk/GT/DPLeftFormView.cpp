@@ -279,7 +279,7 @@ void CDPLeftFormView::readFSFile(void)
 	memset((char *)&ed, 0, sizeof(ed));
 	reserve.read((char*)&ed, sizeof(ed));
 
-	/* Gain the start time string and the tof */
+	/* Get the start time string and the tof */
 	dpStartTime = ed.startTime;
 	tof = ed.tof;
 
@@ -326,6 +326,8 @@ void CDPLeftFormView::readFSFile(void)
 
 void CDPLeftFormView::OnTimer(UINT_PTR nIDEvent)
 {
+	// Reacquire the limited parameters
+	UpdateData(TRUE);
 	// Update elapsed
 	elapsed += dpFPS;
 
@@ -335,6 +337,7 @@ void CDPLeftFormView::OnTimer(UINT_PTR nIDEvent)
 	dpHour = seconds / 3600;
 	dpMinute = (seconds - dpHour * 3600) / 60;
 	dpSecond = (seconds - dpHour * 3600 - dpMinute * 60);
+	UpdateData(FALSE);
 
 	if (seconds == tof)
 	{
@@ -343,6 +346,8 @@ void CDPLeftFormView::OnTimer(UINT_PTR nIDEvent)
 		elapsed = 0;
 		
 		m_SliderCtrl.SetPos(m_SliderCtrl.GetRangeMin());
+		
+		curSta = CDPLeftFormView::STOPED;
 		
 		return;
 	}	
@@ -353,11 +358,11 @@ void CDPLeftFormView::OnTimer(UINT_PTR nIDEvent)
 	pFlyState fs = getFlyState();
 
 	/*
-	 * Update the curve
+	 * Update the edits
 	 */
-	dpPitch = fs->theta;
-	dpRoll = fs->phi;
-	dpHead = fs->psi;
+	updateEdits(fs);
+
+	// Update the curve
 	updateCurve();
 
 	// Update the GPS
@@ -374,13 +379,13 @@ void CDPLeftFormView::OnTimer(UINT_PTR nIDEvent)
 
 void CDPLeftFormView::updateBuf(int seconds)
 {
-	// Position the file pointer correctly
+	// Position the file pointer
 	std::ifstream ifs(dpFileName, std::ios::binary);
 	ifs.seekg(sizeof(ExperimentData) + (seconds - 1) * sizeof(FlyStateGroup));
 	// Start to read the data
 	int bytesRead;
 	FlyStateGroup fsg;
-	// First clear
+	// First clear original data
 	buf.clear();
 	while (buf.size() != BUF_SIZE) {
 		ifs.read((char *)&fsg, sizeof(fsg));
@@ -390,7 +395,6 @@ void CDPLeftFormView::updateBuf(int seconds)
 		buf.push_back(fsg);
 	}
 	ifs.close();
-
 }
 
 void CDPLeftFormView::restoreBuf(void)
@@ -419,7 +423,7 @@ pFlyState CDPLeftFormView::getFlyState(void)
 	if (iter == buf.end()) {
 		// No found, so need to update the buf
 		updateBuf(seconds);
-		// After update, the needed fly state group must be in the begin
+		// After update, the required fly state group must be in the begin
 		iter = buf.begin();
 	}
 
@@ -430,6 +434,9 @@ pFlyState CDPLeftFormView::getFlyState(void)
 
 void CDPLeftFormView::updateCurve(void)
 {
+	// Get the upper and the lower 
+	UpdateData(TRUE);
+
 	/*
 	 * Update the curve
 	 */
@@ -503,7 +510,7 @@ void CDPLeftFormView::updateCurve(void)
 		// Get the minimum elements in vector
 		iter = min_element(pitchCurveData.begin(), pitchCurveData.end());
 		for (int i = pitchCurveData.size(); i < MAX_NUMBER_POINTS; i++) {
-			fY = /*dpPitchLower*//*0.0f*/*iter;
+			fY = *iter;
 			m_pPitchCurveCtrl->AddData(PITCH_CURVE_NAME, fX, fY);
 			fX += 0.1f;
 		}
@@ -520,7 +527,7 @@ void CDPLeftFormView::updateCurve(void)
 	if (rollCurveData.size() < MAX_NUMBER_POINTS) {
 		iter = min_element(rollCurveData.begin(), rollCurveData.end());
 		for (int i = rollCurveData.size(); i < MAX_NUMBER_POINTS; i++) {
-			fY = /*dpRollLower*//*0.0f*/*iter;
+			fY = *iter;
 			m_pRollCurveCtrl->AddData(ROLL_CURVE_NAME, fX, fY);
 			fX += 0.1f;
 		}
@@ -537,7 +544,7 @@ void CDPLeftFormView::updateCurve(void)
 	if (headCurveData.size() < MAX_NUMBER_POINTS) {
 		iter = min_element(headCurveData.begin(), headCurveData.end());
 		for (int i = headCurveData.size(); i < MAX_NUMBER_POINTS; i++) {
-			fY = /*0.0f*/*iter;
+			fY = *iter;
 			m_pHeadCurveCtrl->AddData(HEAD_CURVE_NAME, fX, fY);
 			fX += 0.1f;
 		}
@@ -561,12 +568,33 @@ void CDPLeftFormView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 		elapsed = 0;
 		
 		m_SliderCtrl.SetPos(m_SliderCtrl.GetRangeMin());
+
+		curSta = CDPLeftFormView::STOPED;
 		
 		return;
 	} else {
 		elapsed = curpos * 1000;
 	}
 
-
 	CFormView::OnHScroll(nSBCode, nPos, pScrollBar);
+}
+
+void CDPLeftFormView::updateEdits(pFlyState fs)
+{
+	dpPitch = fs->theta / PI * 180.0f;
+	dpRoll = fs->phi / PI * 180.0f;
+	dpHead = fs->psi / PI * 180.0f;
+
+	CEdit *m_pEdit = reinterpret_cast<CEdit*> (GetDlgItem(IDC_DP_ROLL_EDIT));
+	CString buf;
+	buf.Format("%.4g", dpRoll);
+	m_pEdit->SetWindowText(buf);
+
+	m_pEdit = reinterpret_cast<CEdit*> (GetDlgItem(IDC_DP_PITCH_EDIT));
+	buf.Format("%.4g", dpPitch);
+	m_pEdit->SetWindowText(buf);
+
+	m_pEdit = reinterpret_cast<CEdit*> (GetDlgItem(IDC_DP_HEAD_EDIT));
+	buf.Format("%.4g", dpHead);
+	m_pEdit->SetWindowText(buf);
 }

@@ -121,3 +121,8 @@ __int8 CTabPageSSL::getActorSerial(void)
 {
 	return 0;
 }
+
+void CTabPageSSL::Initialize(float *pwm, float *angle)
+{
+
+}

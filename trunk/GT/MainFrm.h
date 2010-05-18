@@ -37,8 +37,8 @@ protected:  // control bar embedded members
 	CMFCMenuBar       m_wndMenuBar;
 	CMFCToolBar       m_wndToolBar;
 	// User added
-	//CMFCToolBar       m_wndFEToolBar;
-	CMFCToolBar          m_wndFEToolBar;
+	CMFCToolBar       m_wndFEToolBar;
+	CMFCToolBar		  m_wndFPToolBar;		
 	CMFCStatusBar     m_wndStatusBar;
 	CMFCToolBarImages m_UserImages;
 
@@ -90,6 +90,8 @@ private:
 	void createRecentHMMenuItems(void);
 	// Get the GTView pointer
 	CGTView* getLowerRightPane(void);
+	// Set the GTView's edit state
+	void setGTViewEditState(CString buttonLabel);
 //Attributes
 	CMenu* popUpMenu;
 	
@@ -109,7 +111,13 @@ public:
 	afx_msg void OnFlightExperiment();
 	afx_msg void OnDataProcess();
 	afx_msg void OnOptTest();
+	afx_msg void OnClickedFEStart();
+	afx_msg void OnClickedFEStop();
+	afx_msg void OnClickedAddCB();
+	afx_msg void OnClickedSelectCB();
 	afx_msg LRESULT OnErrInst(WPARAM w, LPARAM l);
+
+	void setCheckBoxStates(int state, CString label);
 };
 
 

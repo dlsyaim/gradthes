@@ -39,6 +39,8 @@ public:
 	afx_msg void OnBnClickedPitchAngleButton3();
 	afx_msg void OnBnClickedPitchAngleButton4();
 	afx_msg void OnBnClickedPitchAngleButton5();
+
+	void Initialize(float* pwm, float* angle);
 protected:
 	__int8 getActorSerial(void);
 };

@@ -12,7 +12,7 @@ CSingleton::CSingleton(void)
 	isRotorDemarcated = FALSE;
 	curPHM = prePHM = NULL;
 
-	memset((char *)&tdd, 0, sizeof(tdd));
+	memset(&cs, 0, sizeof(cs));
 }
 
 CSingleton::~CSingleton(void)
@@ -20,6 +20,15 @@ CSingleton::~CSingleton(void)
 	std::vector<PHelicopterModel>::iterator iter;
 	for (iter = pHMV.begin(); iter != pHMV.end(); iter++)
 		delete *iter;
+
+	std::vector<PathPointData*>::iterator pathIter;
+	for (pathIter = path.begin(); pathIter != path.end(); pathIter++) {
+		delete *pathIter;
+	}
+
+	for (pathIter = scheduledPath.begin(); pathIter != scheduledPath.end(); pathIter++) {
+		delete *pathIter;
+	}
 }
 
 CSingleton* CSingleton::instance = 0;
@@ -51,6 +60,7 @@ void CSingleton::setCurPHM(BOOL isNew, CString helicopterName)
 		memset(curPHM->helicopterName, 0, sizeof(curPHM->helicopterName));
 		// Initialize the state of demarcated:0 indicates no demarcated 1 indicates demarcated
 		curPHM->isDemarcated = 0;
+		curPHM->isRotorDemarcated = 0;
 	} else if(helicopterName != "") {
 	    // Should check the helicopter model buffer first
 		std::vector<PHelicopterModel>::iterator iter;		
@@ -71,6 +81,7 @@ void CSingleton::setCurPHM(BOOL isNew, CString helicopterName)
 		memset(curPHM->helicopterName, 0, sizeof(curPHM->helicopterName));
 		// Initialize the state variable
 		curPHM->isDemarcated = 0;
+		curPHM->isRotorDemarcated = 0;
 		while (TRUE) {			
 			ifs.read((char*) curPHM, sizeof(*curPHM));
 			countRead = ifs.gcount();
@@ -78,14 +89,14 @@ void CSingleton::setCurPHM(BOOL isNew, CString helicopterName)
 				break;
 			tName = curPHM->helicopterName;
 			if (tName == helicopterName) {
-				// Means found in the file
+				// Found in the file
 				pHMV.push_back(curPHM);
 				ifs.close();
 				return;
 			}
 		}
 		ifs.close();
-		// Means not found in the file and not found in the buffer
+		// Not found in the file and not found in the buffer
 		delete curPHM;
 		curPHM = prePHM;
 	} else {
@@ -130,12 +141,76 @@ void CSingleton::updatePrePHM(void)
 
 BOOL CSingleton::isReady(void)
 {
-		return isCommunicationTestPass && 
-			isServoActorDemarcated && 
+	if (curPHM == NULL)
+		return FALSE;
+	if (curPHM->isDemarcated == 1)
+		isServoActorDemarcated = TRUE;
+	else
+		isServoActorDemarcated = FALSE;
+
+	if (curPHM->isRotorDemarcated == 1)
+		isRotorDemarcated = TRUE;
+	else
+		isRotorDemarcated = FALSE;
+	
+	if (cs.isControlSet == 1)
+		isControlParameterSet = TRUE;
+	else
+		isControlParameterSet = FALSE;
+
+	if (cs.isPathSet == 1)
+		isPathSet = TRUE;
+	else
+		isPathSet = FALSE;
+	
+	return	isCommunicationTestPass && 
 			isIMUTestPass && 
 			isOPTTestPass && 
-			isPathSet && 
-			isControlParameterSet &&
+			isServoActorDemarcated &&
 			isRotorDemarcated &&
-			curPHM != NULL;
+			isControlParameterSet &&
+			isPathSet;
+}
+
+void CSingleton::updateHelicopterModelFile(void)
+{
+	// Open the uh.hm file and update it	
+	std::ifstream ifs("uh.hm", std::ios::binary | std::ios::in | std::ios::out);
+	int numberOfHM;
+	ifs.seekg(0, std::ios::end);
+	numberOfHM = ifs.tellg() / sizeof(HelicopterModel);
+	ifs.seekg(0, std::ios::beg);
+	// New a temporary helicopter model array
+	PHelicopterModel tmpArray = new HelicopterModel[numberOfHM + 1];
+	// The index of the above array
+	int bytesRead, idx = 0;
+	BOOL isFound = FALSE;
+	// Start to read the file
+	while (TRUE) {
+		ifs.read((char *)(tmpArray + idx), sizeof(tmpArray[idx]));
+		bytesRead = ifs.gcount();
+		if (bytesRead != sizeof(tmpArray[idx])) { 
+			break;
+		}
+		if (!strcmp(tmpArray[idx].helicopterName, curPHM->helicopterName)) {
+			// The current helicopter model is found in the file
+			isFound = TRUE;		
+			tmpArray[idx] = *curPHM;
+		}
+		idx ++;
+	}
+	ifs.close();
+	if (!isFound) {
+		TRACE(_T("Theoretically this line of code couldn't be reached\n"));
+		tmpArray[idx++] = *curPHM;
+	}
+
+	// Start to update to the file
+	std::ofstream ofs("uh.hm", std::ios::binary | std::ios::trunc);
+	for (int i = 0; i < idx; i++) {
+		ofs.write((char *)(tmpArray + i), sizeof(tmpArray[i]));
+	}
+	ofs.close();
+
+	delete[] tmpArray;
 }

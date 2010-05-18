@@ -21,7 +21,7 @@
 #endif
 
 #ifndef ANGLE_VALUE_WIDTH
-#define ANGLE_VALUE_WIDTH 50.0f
+#define ANGLE_VALUE_WIDTH 80.0f
 #endif
 
 #ifndef RATE_LABEL_WIDTH

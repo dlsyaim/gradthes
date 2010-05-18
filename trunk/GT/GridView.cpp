@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <fstream>
 #include "GT.h"
+#include "MainFrm.h"
 #include "GridView.h"
 #include "GTDoc.h"
 #include "GTView.h"
@@ -37,10 +38,10 @@ CGridView::~CGridView()
 		delete m_pGridCtrl;
 	}
 
-	std::vector<PathPointData*>::iterator iter;
-	for (iter = path.begin(); iter != path.end(); iter++) {
-		delete *iter;
-	}
+	//std::vector<PathPointData*>::iterator iter;
+	//for (iter = path.begin(); iter != path.end(); iter++) {
+	//	delete *iter;
+	//}
 
 	if (mapTex)
 		delete mapTex;
@@ -49,7 +50,7 @@ CGridView::~CGridView()
 void CGridView::DoDataExchange(CDataExchange* pDX)
 {
 	CFormView::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_GRID, *m_pGridCtrl); 
+	DDX_GridControl(pDX, IDC_GRID, *m_pGridCtrl); 
 }
 
 BEGIN_MESSAGE_MAP(CGridView, CFormView)
@@ -106,12 +107,12 @@ int CGridView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 	GetDocument()->gridView = this;	
-	
 	if (m_pGridCtrl == NULL)
 	{
 		// Create the grid control object
 		m_pGridCtrl = new CGridCtrl;
-		if (!m_pGridCtrl) return -1;
+		if (!m_pGridCtrl) 
+			return -1;
 
 		// Create the grid control window
 		CRect rect;
@@ -129,9 +130,7 @@ int CGridView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 			m_pGridCtrl->SetColumnCount(NUM_OF_COL + 1);
 			m_pGridCtrl->SetFixedRowCount(1);
 			m_pGridCtrl->SetFixedColumnCount(1);
-		}
-		catch (CMemoryException* e)
-		{
+		} catch (CMemoryException* e) {
 			e->ReportError();
 			e->Delete();
 			return -1;
@@ -157,23 +156,26 @@ int CGridView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		
 			switch (col) {
 				case 1:
-					Item.strText.Format(_T("  X  "));
+					Item.strText.Format(_T("X"));
 					break;
 				case 2:
-					Item.strText.Format(_T("  Y  "));
+					Item.strText.Format(_T("Y"));
 					break;
 				case 3:
-					Item.strText.Format(_T("  Z  "));
+					Item.strText.Format(_T("Z"));
 					break;
 				case 4:
-					Item.strText.Format(_T("  T  "));
+					Item.strText.Format(_T("T"));
+					break;
+				case 5:
+					Item.strText.Format(_T("Action"));
 					break;
 				default:
 					break;
 		    }
 		    m_pGridCtrl->SetItem(&Item);
 		}
-
+		
 		// Just fill the row buttons
 		for (int row = 1; row < m_pGridCtrl->GetRowCount(); row++) { 
 			GV_ITEM Item;
@@ -183,14 +185,10 @@ int CGridView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 			Item.strText.Format(_T("Add"));
 			m_pGridCtrl->SetItem(&Item);
-			m_pGridCtrl->SetItemState(row, NUM_OF_COL, m_pGridCtrl->GetItemState(row, NUM_OF_COL) | GVIS_READONLY);
-			
+			m_pGridCtrl->SetItemState(row, NUM_OF_COL, m_pGridCtrl->GetItemState(row, NUM_OF_COL) | GVIS_READONLY);			
 		}
-		(*m_pGridCtrl).AutoSize();
 	}	
 
-	/* Currently we just assume the max size is 10 */
-	//path.resize(10);
 	return 0;
 }
 
@@ -203,6 +201,10 @@ void CGridView::OnSize(UINT nType, int cx, int cy)
 		GetClientRect(rect);
 		rect.bottom = rect.bottom / 2;
 		m_pGridCtrl->MoveWindow(rect);
+		// Because the grid control's client area size is 23 smaller then the CRect object which is passed
+		// as a parameter of Create function, a user-defined function is invoked for resize the columns' width
+		ResizeColumns(FALSE);
+		//TRACE("Size: %d %d %d %d\n", rect.right, rect.bottom, rect.Width(), rect.Height());
 	}
 }
 
@@ -224,7 +226,7 @@ void CGridView::OnGridStartEdit(NMHDR *pNotifyStruct, LRESULT *pResult)
 void CGridView::OnGridEndEdit(NMHDR *pNotifyStruct, LRESULT *pResult)
 {
 	NM_GRIDVIEW* pItem = (NM_GRIDVIEW*) pNotifyStruct;
-	CString itemText = m_pGridCtrl->GetItemText(pItem->iRow, pItem->iColumn);	
+	TRACE(_T("End Edit on row %d, col %d\n"), pItem->iRow, pItem->iColumn);
 }
 
 BOOL CGridView::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult) 
@@ -256,13 +258,14 @@ void CGridView::OnGridClick(NMHDR *pNotifyStruct, LRESULT* /*pResult*/)
 {
     NM_GRIDVIEW* pItem = (NM_GRIDVIEW*) pNotifyStruct;
     TRACE(_T("Clicked on row %d, col %d\n"), pItem->iRow, pItem->iColumn);
-	/***** When click the last cell, then should check if the text is 'Add' or 'Update' *****/
-
+	CSingleton *instance = CSingleton::getInstance();
+	std::vector<pPathPointData> *path = instance->getPath();
+	/********** When click the last cell, then should check if the text is 'Add' or 'Update' **********/
 	if (pItem->iColumn == NUM_OF_COL) {
 		PathPointData *ppd = NULL, *editedPoint = NULL;
 		CString label = m_pGridCtrl->GetItemText(pItem->iRow, pItem->iColumn);
 		if (label == "Add") {
-			// Contruct a new path point
+			// New a path point
 			ppd = new PathPointData();
 			memset(ppd, 0, sizeof(PathPointData));
 			// Set the serial number
@@ -289,12 +292,12 @@ void CGridView::OnGridClick(NMHDR *pNotifyStruct, LRESULT* /*pResult*/)
 			// Change the text
 			m_pGridCtrl->SetItemText(pItem->iRow, pItem->iColumn, "Update");
 			m_pGridCtrl->Invalidate();
-			// Insert			
-			path.push_back(ppd);
+			// Add the path point to the path vector
+			path->push_back(ppd);
 		} else if (label == "Update") {
-			editedPoint = findBySerial(pItem->iRow - 1);
+			editedPoint = findBySerial(path, pItem->iRow - 1);
 			if (editedPoint != NULL) {
-				// Update the point's data
+				// Update the path point's data
 				for (int i = 1; i <= NUM_OF_COL - 1; i++) {
 					CString itemText = m_pGridCtrl->GetItemText(pItem->iRow, i);
 					switch (i - 1) {
@@ -315,12 +318,13 @@ void CGridView::OnGridClick(NMHDR *pNotifyStruct, LRESULT* /*pResult*/)
 					}
 				}
 			}
-		} else
+		} else {
 			return;
+		}
 
 		// Inform the CGTView to update
 		// Set the path
-		GetDocument()->lowerRightView->setPath(&path);
+		GetDocument()->lowerRightView->setPath(path);
 		if (ppd)
 			GetDocument()->lowerRightView->addPathPoint(ppd);
 		else
@@ -341,27 +345,29 @@ void CGridView::OnBnClickedSchedulePath()
 
 void CGridView::OnBnClickedAssurePath()
 {
-	/***** Here we must send all the point to the server *****/
-	if (path.size() == 0) 
+	CSingleton* instance = CSingleton::getInstance();
+	std::vector<pPathPointData>* path = instance->getPath();
+	/********** Here we must send all the path point data to the server **********/
+	if (path->size() == 0) 
 		return;
 
-	/***** First sort the path *****/
-	sort(path.begin(), path.end(), lowerSorter);
-	/********** Construct the content of the starting path sending command *********/
+	/********** Sort the path **********/
+	sort(path->begin(), path->end(), lowerSorter);
+	/********** Construct the content of the command to start send path points *********/
 	char command[2];
 	__int16 *c = (__int16 *)command;
 	c[0] = TPT_LOADPATHPOINT_START;
 
-	/* First send the LOAD START command */
+	/********** First send the LOAD START command **********/
 	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
 	cln->SendSvr(command, sizeof(command));
 
-	/* Here we just send the first point */
+	/********** Then send the first path point **********/
 	char pointCommand[sizeof(PathPointData) + 2];
 	c = (__int16 *)pointCommand;
 	c[0] = TPT_LOADPATHPOINTS;
 
-	memcpy(pointCommand + 2, (char *)path[0], sizeof(PathPointData));
+	memcpy(pointCommand + 2, (char *)(*path)[0], sizeof(PathPointData));
 	cln->SendSvr(pointCommand, sizeof(pointCommand));	
 }
 
@@ -376,48 +382,57 @@ LRESULT CGridView::OnLoadReply(WPARAM w, LPARAM l)
 	/*
 	 * A point sent before has been received, so be ready to send the next point
 	 */
+	CSingleton* instance = CSingleton::getInstance();
+	std::vector<pPathPointData> *path = instance->getPath();
 	(*received)++;
 	__int16 *c;
 
-	/* First send the LOAD START command */
 	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
-	if ((*received) == path.size()) {
+	if ((*received) == path->size()) {
 		char overCommand[2];
 		c = (__int16 *)overCommand;
 		c[0] = TPT_LOADPATHPOINT_STOP;
 		cln->SendSvr(overCommand, sizeof (overCommand));
 		return TRUE;
 	}
-	/* Here we just send one point */
+	// Send one point 
 	char pointCommand[sizeof(PathPointData) + INSTRUCTION_LENGTH];
 	c = (__int16 *)pointCommand;
 	c[0] = TPT_LOADPATHPOINTS;
 	
-	memcpy(pointCommand + 2, (char *)(path[*received]), sizeof(PathPointData));
+	memcpy(pointCommand + 2, (char *)((*path)[*received]), sizeof(PathPointData));
 	cln->SendSvr(pointCommand, sizeof(pointCommand));
 
-	TRACE(_T("Point:%d, %f, %f, %f\n"), path[*received]->serial, path[*received]->Coordinate_X, path[*received]->Coordinate_Z);
+	TRACE(_T("Point:%d, %f, %f, %f\n"), (*path)[*received]->serial, (*path)[*received]->Coordinate_X, (*path)[*received]->Coordinate_Z);
 
 	return TRUE;
 }
 
 LRESULT CGridView::OnCheckReply(WPARAM w, LPARAM l)
 {
+
 	CSingleton *instance = CSingleton::getInstance();
+	std::vector<pPathPointData> *path = instance->getPath();
+
+	PConfigStruct pCS = instance->getCS();
 	static int version = 0;
 	CTime t = CTime::GetCurrentTime();  
-	CString timeString = t.Format("%Y-%m-%d");
+	CString timeString = t.Format("%Y-%m-%d %H-%M-%S");
 	CString verStr;	
+	
 	if (*state) {
-		/***** Set the global flag variable *****/
+		// Set the global state variable
 		instance->setIsPathSet(TRUE);
-		/* And need to save the data into the files */
+		// And need to save the data into the files
 		verStr.Format(_T("-%d.fp"), version++);
 		timeString.Append(verStr);
-		instance->setRecentFPName(timeString);
+
+		pCS->isPathSet = 1;
+		memcpy(pCS->flightPathFileName, (LPCTSTR)timeString, timeString.GetLength());
+		
 		std::ofstream ofs(timeString, std::ios::binary);
 		std::vector<PathPointData*>::iterator iter;
-		for (iter = path.begin(); iter != path.end(); iter++) {
+		for (iter = path->begin(); iter != path->end(); iter++) {
 			ofs.write((char*)(*iter), sizeof(**iter));
 		}
 		ofs.close();
@@ -429,10 +444,10 @@ LRESULT CGridView::OnCheckReply(WPARAM w, LPARAM l)
 	return TRUE;
 }
 
-pPathPointData CGridView::findBySerial(int serial)
+pPathPointData CGridView::findBySerial(std::vector<pPathPointData>* path, int serial)
 {
 	std::vector<pPathPointData>::iterator iter;
-	for (iter = path.begin(); iter != path.end(); iter++) {
+	for (iter = path->begin(); iter != path->end(); iter++) {
 		if ((*iter)->serial == serial)
 			return *iter;
 	}
@@ -440,12 +455,12 @@ pPathPointData CGridView::findBySerial(int serial)
 }
 void CGridView::OnBnClickedAddPoint()
 {
-	GetDocument()->lowerRightView->setEditState(1);
+	setCheckBoxStates("Add");
 }
 
 void CGridView::OnBnClickedSelectPoint()
 {
-	GetDocument()->lowerRightView->setEditState(2);
+	setCheckBoxStates("Select");
 }
 
 /*
@@ -480,6 +495,135 @@ void CGridView::OnBnClickedLoadImageButton()
 		} else {
 			break;
 		}
+	}
+}
+
+void CGridView::ResizeColumns(BOOL isFixedResize)
+{
+	if (isFixedResize) {
+		if (m_pGridCtrl->GetColumnCount() <= 0) 
+			return;
+	} else {
+		if (m_pGridCtrl->GetColumnCount() <= m_pGridCtrl->GetFixedColumnCount())
+			return;
+	}
+
+	int nChanged = 0;
+	int nFirstColumn = isFixedResize ? 0 : m_pGridCtrl->GetFixedColumnCount();
+	int col;
+	for (col = nFirstColumn; col < m_pGridCtrl->GetColumnCount(); col++) {
+		if (m_pGridCtrl->GetColumnWidth(col) > 0)
+			nChanged++;
+	}
+
+	if (nChanged <= 0)
+		return;
+
+	long virtualWidth = m_pGridCtrl->GetVirtualWidth();
+	CRect rect;
+	GetClientRect(&rect);
+	int nDiffer;
+	if (isFixedResize)
+		nDiffer = rect.Width()/* - virtualWidth*//*- m_pGridCtrl->GetFixedColumnWidth()*/;
+	else
+		nDiffer = rect.Width() - m_pGridCtrl->GetFixedColumnWidth();
+	if (nDiffer <= 0)
+		nDiffer = rect.Width();
+	int nAdjustment = nDiffer / nChanged;
+	for (col = nFirstColumn; col < m_pGridCtrl->GetColumnCount(); col++) {
+		// The width of columns > 1
+		if (m_pGridCtrl->GetColumnWidth(col) > 0) { 
+			if (nAdjustment > 1)
+				m_pGridCtrl->SetColumnWidth(col, /*m_pGridCtrl->GetColumnWidth(col) + */nAdjustment - 1);
+			else 
+				m_pGridCtrl->SetColumnWidth(col, /*m_pGridCtrl->GetColumnWidth(col) + */nAdjustment);
+
+		}
+	}
+	
+	//if (nDiffer > 0) {
+	//	int remainder = nDiffer % nChanged;
+	//	for (int nCount = 0, col = nFirstColumn; (col < m_pGridCtrl->GetColumnCount() && nCount < remainder); col++, nCount++)
+	//	{
+	//		if (m_pGridCtrl->GetColumnWidth(col) > 0) {
+	//			int originWidth = m_pGridCtrl->GetColumnWidth(col);
+	//			TRACE(_T("Remainder:%d\n"), originWidth);
+	//			m_pGridCtrl->SetColumnWidth(col, originWidth - 1);
+	//		}
+	//	}
+	//} else {
+	//	int remainder = (-nDiffer) % nChanged;
+	//	for (int nCount = 0, col = nFirstColumn; (col < m_pGridCtrl->GetColumnCount() && nCount < remainder); col++, nCount++)
+	//	{
+	//		if (m_pGridCtrl->GetColumnWidth(col) > 0)
+	//			m_pGridCtrl->SetColumnWidth(col, m_pGridCtrl->GetColumnWidth(col) - 1);
+	//	}
+	//}
+	TRACE(_T("Changed:%d %d %d %ld\n"), nChanged, rect.right, rect.bottom, m_pGridCtrl->GetVirtualWidth());
+	m_pGridCtrl->Invalidate();
+}
+
+void CGridView::updateFormView(pPathPointData selectedPoint)
+{
+	if (!selectedPoint)
+		return;
+
+	int nCol = 1;
+	int nRow = selectedPoint->serial + 1;
+	CString label;
+
+	label.Format("%.4g", selectedPoint->Coordinate_X);
+	m_pGridCtrl->SetItemText(nRow, nCol++, label);
+
+	label.Format("%.4g", selectedPoint->Coordinate_Y);
+	m_pGridCtrl->SetItemText(nRow, nCol++, label);
+
+	label.Format("%.4g", selectedPoint->Coordinate_Z);
+	m_pGridCtrl->SetItemText(nRow, nCol++, label);
+
+	label.Format("%.4g", selectedPoint->StayTime);
+	m_pGridCtrl->SetItemText(nRow, nCol++, label);
+
+	m_pGridCtrl->Invalidate();
+
+}
+
+void CGridView::setCheckBoxStates(int state, CString label)
+{
+	CButton* addPointButton = reinterpret_cast<CButton*>(GetDlgItem(IDC_ADD_POINT));
+	CButton* selectPointButton = reinterpret_cast<CButton*>(GetDlgItem(IDC_SELECT_POINT));
+	if (label == "Add") {
+		addPointButton->SetCheck(state);
+		selectPointButton->SetCheck(BST_UNCHECKED);
+	} else if (label == "Select") {
+		selectPointButton->SetCheck(state);
+		addPointButton->SetCheck(BST_UNCHECKED);
+	}
+}
+
+void CGridView::setCheckBoxStates(CString label)
+{
+	CButton* addPointButton = reinterpret_cast<CButton*>(GetDlgItem(IDC_ADD_POINT));
+	CButton* selectPointButton = reinterpret_cast<CButton*>(GetDlgItem(IDC_SELECT_POINT));
+	if (selectPointButton && label == "Add")
+		selectPointButton->SetCheck(BST_UNCHECKED);
+	else if (label == "Select")
+		addPointButton->SetCheck(BST_UNCHECKED);
+
+	int checkState;
+	if (label == "Add")
+		checkState = addPointButton->GetCheck();
+	else if (label == "Select")
+		checkState = selectPointButton->GetCheck();
+	((CMainFrame*)AfxGetMainWnd())->setCheckBoxStates(checkState, label);
+
+	if (checkState == BST_CHECKED) {
+		if (label == "Add")
+			GetDocument()->lowerRightView->setEditState(1);
+		else
+			GetDocument()->lowerRightView->setEditState(2);
+	} else {
+		GetDocument()->lowerRightView->setEditState(-1);
 	}
 }
 

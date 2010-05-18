@@ -44,9 +44,11 @@ public:
 	inline PHelicopterModel getCurPHM(void) {return curPHM;}
 	inline void setCurPHM(PHelicopterModel curPHM) {this->curPHM = curPHM;}
 
-	inline pTiltDiscData getTDD(void) {return &tdd;}
-
 	inline std::vector<ControlPara>* getCPV(void) {return &CPV;}
+	inline PConfigStruct getCS(void) {return &cs;}
+
+	inline std::vector<pPathPointData> * getPath(void){return &path;}
+	inline std::vector<pPathPointData> * getScheduledPath(void){return &scheduledPath;}
 
 	void delCurPHM(void);
 	void rollBackCurPHM(BOOL isNew);
@@ -54,6 +56,8 @@ public:
 	void updatePrePHM(void);
 
 	void updateBuffer(BOOL isNew, PHelicopterModel phm);
+
+	void updateHelicopterModelFile(void);
 
 	BOOL isReady(void);
 // Attributes
@@ -63,7 +67,6 @@ private:
 	PHelicopterModel curPHM;
 	// The previous helicopter model 
 	PHelicopterModel prePHM;
-
 	// Helicopter model buffer
 	std::vector<PHelicopterModel> pHMV;
 	// Flag variables 
@@ -78,10 +81,14 @@ private:
 	CString recentFPName;
 	// The name of the recent control parameter file
 	CString recentCPName;
-	// Rotor demarcated data
-	TiltDiscData tdd;
 	// Control paramters
 	std::vector<ControlPara> CPV;
+	// Path points
+	std::vector<pPathPointData> path;
+	// Scheduled path points
+	std::vector<pPathPointData> scheduledPath;
+	// Configuration struct
+	ConfigStruct cs;
 // Operations
 private:
 	void setCurPHM(BOOL isNew, CString helicopterName);

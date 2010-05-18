@@ -12,6 +12,7 @@
 
 #include "GTDoc.h"
 #include "GTView.h"
+#include "GridView.h"
 #include "GPSTestDialog.h"
 #include "Scene.h"
 
@@ -66,7 +67,7 @@ CGTView::CGTView()
 	// Default is -1
 	moveOrUp = -1;
 
-	// Default is nothing
+	// Default state is -1, neither add nor select
 	addOrSelect = -1;
 
 	// Initializing
@@ -360,6 +361,8 @@ void CGTView::OnMouseMove(UINT nFlags, CPoint point)
 		if (rbDown) {
 			m_Renderer->updateCamera(&middlePoint);
 			Invalidate(FALSE);
+			// The model view matrix and the project matrix may be changed, need to update the map coordinates
+			updateMapCoor();
 		}
 
 		CView::OnMouseMove(nFlags, point);
@@ -409,6 +412,7 @@ void CGTView::OnMouseMove(UINT nFlags, CPoint point)
 					default:
 						break;
 				}
+				GetDocument()->gridView->updateFormView(selectedPathPoint);
 			}
 		}
 	}
@@ -648,19 +652,20 @@ void CGTView::OnLButtonDown(UINT nFlags, CPoint point)
 		if (iter == mapCoor.end()) {   
 			// Not found the point
 			if (addOrSelect == 1) {
-				
+				// TODO:Be adding state, so add a point to 
 			} else if (addOrSelect == 2){
-				// Select, should check if selected the navigator
+				// Be selecting state, check if select the navigator
 				selected = selectNavigator(&point);
 				m_Renderer->setSelectedNavi(selected);
 			}
 		} else { 
-			// Found
+			// Found the point
 			if (addOrSelect == 1) {
-				// Add, do nothing
+				// Be adding state, do nothing
 			} else if (addOrSelect == 2) { 
-				// Select
+				// Be selecting state
 				m_Renderer->setSelect(selectedPathPoint);
+				GetDocument()->gridView->updateFormView(selectedPathPoint);
 			}
 		}
 	}
@@ -683,11 +688,10 @@ void CGTView::addPathPoint(pPathPointData p)
 {
 	CRect rect;
 	GetClientRect(&rect);
-	// Project
 	GLint viewport[4];
 	GLdouble mvmatrix[16], projmatrix[16];
 
-	GLdouble wx, wy, wz; /* Returned window x, y, z coords */
+	GLdouble wx, wy, wz; /* Returned window x, y, z coordinates */
 
 	glGetIntegerv(GL_VIEWPORT, viewport);
 	glGetDoublev(GL_MODELVIEW_MATRIX, mvmatrix);
@@ -705,11 +709,10 @@ void CGTView::updatePathPoint(pPathPointData p)
 {
 	CRect rect;
 	GetClientRect(&rect);
-	// Project
 	GLint viewport[4];
 	GLdouble mvmatrix[16], projmatrix[16];
 
-	GLdouble wx, wy, wz; /* Returned window x, y, z coords */
+	GLdouble wx, wy, wz; /* Returned window x, y, z coordinates */
 
 	glGetIntegerv(GL_VIEWPORT, viewport);
 	glGetDoublev(GL_MODELVIEW_MATRIX, mvmatrix);
@@ -720,7 +723,7 @@ void CGTView::updatePathPoint(pPathPointData p)
 	// Get the updated point's pointer
 	std::map<pPathPointData, POINT>::iterator iter;
 	for (iter = mapCoor.begin(); iter != mapCoor.end(); iter++) {
-		if (iter->first->serial = p->serial)
+		if (iter->first->serial == p->serial)
 			break;
 	}
 	if (iter == mapCoor.end()) {
@@ -733,6 +736,10 @@ void CGTView::updatePathPoint(pPathPointData p)
 
 }
 
+/* 
+ * Because the view's size or the model view matrix or the project matrix may be changes, 
+ * 
+ */
 void CGTView::updateMapCoor(void)
 {
 	CRect rect;
@@ -744,7 +751,7 @@ void CGTView::updateMapCoor(void)
 	GLint viewport[4];
 	GLdouble mvmatrix[16], projmatrix[16];
 
-	GLdouble wx, wy, wz; /* Returned window x, y, z coords */
+	GLdouble wx, wy, wz; /* Returned window x, y, z coordinates */
 
 	glGetIntegerv(GL_VIEWPORT, viewport);
 	glGetDoublev(GL_MODELVIEW_MATRIX, mvmatrix);
@@ -767,11 +774,10 @@ int CGTView::selectNavigator(CPoint* pP)
 
 	CRect rect;
 	GetClientRect(&rect);
-	// Project
 	GLint viewport[4];
 	GLdouble mvmatrix[16], projmatrix[16];
 
-	GLdouble wx, wy, wz; /* Returned window x, y, z coords */
+	GLdouble wx, wy, wz; /* Returned window x, y, z coordinates */
 
 	glGetIntegerv(GL_VIEWPORT, viewport);
 	glGetDoublev(GL_MODELVIEW_MATRIX, mvmatrix);

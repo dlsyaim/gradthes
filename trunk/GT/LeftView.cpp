@@ -13,7 +13,6 @@
 #include "GTDoc.h"
 #include "Singleton.h"
 #include "MsgType.h"
-
 #include "UpperRightView.h"
 
 #define CURVE_WIDTH 280
@@ -179,68 +178,19 @@ BOOL CLeftView::OnEraseBkgnd(CDC* pDC)
 
 void CLeftView::OnBnClickedFEStart()
 {
-	/***** Here we start flight experiment *****/
-	
-	/***** First check all the configuration *****/
-	CSingleton* instance = CSingleton::getInstance();
-	if (!instance->isReady()) {
-		AfxMessageBox(_T("Some requirement not satisfied\n"), MB_OK | MB_ICONSTOP);
-		return;
-	}
-	
-	UpdateData(TRUE);
-	if (feFileName.GetLength() == 0) {
-		AfxMessageBox(_T("Experiment file name required"), MB_OK | MB_ICONSTOP);
-		return;
-	}
-
-	/***** Gain the socket client *****/
-	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
-	
-	__int16* c;	
-	if (instance->getCurPHM()) {
-		/***** Firstly send the helicopter parameters to the server *****/
-		char heliPara[sizeof(HelicopterPara) + 2];
-		c = (__int16 *)heliPara;
-		c[0] = TPT_LOADHELIPARA;
-		memcpy(heliPara + 2, (char*)(&instance->getCurPHM()->heliPara), sizeof(instance->getCurPHM()->heliPara));
-		cln->SendSvr(heliPara, sizeof(heliPara));
-
-		/***** Secondly send the servo actor demarcated data to the server *****/
-		char servoData[sizeof(ServoActorData) + 2];
-		c = (__int16 *)servoData;
-		c[0] = TAS_ACTORSET;
-		memcpy(servoData + 2, (char *)(&instance->getCurPHM()->sad), sizeof(instance->getCurPHM()->sad));
-		cln->SendSvr(servoData, sizeof(servoData));
-
-		/***** Finally send a start-command to the server *****/
-		char startCommand[2];
-		c = (__int16 *)startCommand;
-		c[0] = TFT_STARTTASK;
-		cln->SendSvr(startCommand, sizeof(startCommand));
-
-		/* Make the button unable */
-		CButton* startBtn = (CButton*)GetDlgItem(IDC_FE_START);
-		startBtn->EnableWindow(FALSE);
-	}	
-
+	startFlightExperiment();
 }
 
 void CLeftView::OnBnClickedFEStop()
 {
-	char command[2];
-	__int16 *c = (__int16 *)command;
-	c[0] = TFT_STOPTASK;
-
-	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
-	cln->SendSvr(command, sizeof(command));	
+	stopFlightExperiment();
 }
 
 
 LRESULT CLeftView::OnStartTaskReply(WPARAM w, LPARAM l)
 {
 	if(*isStart) {
-		AfxMessageBox(_T("Start task successfully"), MB_OK | MB_ICONSTOP);
+		TRACE(_T("Start task successfully"));
 	
 		CSingleton* instance = CSingleton::getInstance();
 		// Base file name
@@ -257,12 +207,7 @@ LRESULT CLeftView::OnStartTaskReply(WPARAM w, LPARAM l)
 		// Get the start time
 		startTime = CTime::GetCurrentTime();
 		memcpy(ed.startTime, startTime.Format("%Y-%m-%d %H:%M:%S").GetBuffer(0), startTime.Format("%Y-%m-%d %H:%M:%S").GetLength());
-		
 	} else {
-		/* Make the button able */
-		CButton* startBtn = (CButton*)GetDlgItem(IDC_FE_START);
-		startBtn->EnableWindow(TRUE);
-
 		AfxMessageBox(_T("Failed to start task"), MB_OK | MB_ICONSTOP);
 	}
 	return TRUE;
@@ -271,15 +216,8 @@ LRESULT CLeftView::OnStartTaskReply(WPARAM w, LPARAM l)
 LRESULT CLeftView::OnStopTaskReply(WPARAM w, LPARAM l)
 {
 	if(*isStop) {
-		AfxMessageBox(_T("Stop task successfully"), MB_OK | MB_ICONSTOP);
-		endTime = CTime::GetCurrentTime();
-		
-		CTimeSpan tof = endTime - startTime;
-		ed.tof = tof.GetTotalSeconds();
-		
-		/* Force to serialize */
-		serialize(TRUE);
-
+		CButton* startBtn = (CButton*)GetDlgItem(IDC_FE_START);
+		startBtn->EnableWindow(FALSE);
 	} else {
 		AfxMessageBox(_T("Failed to stop task"), MB_OK | MB_ICONSTOP);
 	}
@@ -323,11 +261,9 @@ LRESULT CLeftView::OnFlyingStateData(WPARAM w, LPARAM l)
 	/*
 	 * Update the edit control
 	 */
-	fePitch = newestFSG->states[FLYSTATEGROUPNUMBER - 1].theta;
-	feHead = newestFSG->states[FLYSTATEGROUPNUMBER - 1].psi;
-	feRoll = newestFSG->states[FLYSTATEGROUPNUMBER - 1].phi;
+	updateEditControl();
 	
-	// Then we can update the curve now
+	// Then update the curve
 	updateCurve();
 
 	/*
@@ -336,7 +272,7 @@ LRESULT CLeftView::OnFlyingStateData(WPARAM w, LPARAM l)
 	GetDocument()->lowerRightView->updateFS(&(newestFSG->states[FLYSTATEGROUPNUMBER - 1]));
 
 	/*
-	 * We still need to update the GPS
+	 * Update the GPS
 	 */
 	GetDocument()->upperRightView->updateFS(&(newestFSG->states[FLYSTATEGROUPNUMBER - 1]));
 
@@ -344,16 +280,35 @@ LRESULT CLeftView::OnFlyingStateData(WPARAM w, LPARAM l)
 	 * Finally we should store the fly state into files when the buffer is full
 	 */
 	serialize();
-	
-
-	UpdateData(FALSE);
-
 	return TRUE;
+}
+
+void CLeftView::updateEditControl(void)
+{
+	fePitch = newestFSG->states[FLYSTATEGROUPNUMBER - 1].theta / PI * 180.0f;
+	feHead = newestFSG->states[FLYSTATEGROUPNUMBER - 1].psi / PI * 180.0f;
+	feRoll = newestFSG->states[FLYSTATEGROUPNUMBER - 1].phi / PI * 180.0f;
+
+	CEdit* m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_FE_PITCH_EDIT));
+	CString buffer;
+	buffer.Format("%.4g", fePitch);
+	m_pEdit->SetWindowText(buffer);
+
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_FE_ROLL_EDIT));
+	buffer.Format("%.4g", feRoll);
+	m_pEdit->SetWindowText(buffer);
+
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_FE_HEAD_EDIT));
+	buffer.Format("%.4g", feHead);
+	m_pEdit->SetWindowText(buffer);
 }
 
 void CLeftView::updateCurve(void)
 {
-/*
+	// Get the upper and the lower 
+	UpdateData(TRUE);
+    
+	/*
 	 * Update the curve
 	 */
 	float fX, fY;
@@ -367,7 +322,7 @@ void CLeftView::updateCurve(void)
 
 	if (pitchCurveData.size() == MAX_NUMBER_POINTS) {
 		/*
-		 * So we need to update the vector
+		 * So update the internal vector
 		 */
 		pitchCurveData.erase(pitchCurveData.begin());
 		pitchCurveData.push_back(fY);
@@ -384,7 +339,7 @@ void CLeftView::updateCurve(void)
 
 	if (rollCurveData.size() == MAX_NUMBER_POINTS) {
 		/*
-		 * So we need to update the vector
+		 * So update the internal vector
 		 */
 		rollCurveData.erase(rollCurveData.begin());
 		rollCurveData.push_back(fY);
@@ -401,7 +356,7 @@ void CLeftView::updateCurve(void)
 
 	if (headCurveData.size() == MAX_NUMBER_POINTS) {
 		/*
-		 * So we need to update the vector
+		 * So update the internal vector
 		 */
 		headCurveData.erase(headCurveData.begin());
 		headCurveData.push_back(fY);
@@ -424,7 +379,7 @@ void CLeftView::updateCurve(void)
 	}
 	if (pitchCurveData.size() < MAX_NUMBER_POINTS) {
 		for (int i = pitchCurveData.size(); i < MAX_NUMBER_POINTS; i++) {
-			fY = /*fePitchLower*/0.0f;
+			fY = 0.0f;
 			m_pPitchCurveCtrl->AddData(PITCH_CURVE_NAME, fX, fY);
 			fX += 0.1f;
 		}
@@ -440,7 +395,7 @@ void CLeftView::updateCurve(void)
 	}
 	if (rollCurveData.size() < MAX_NUMBER_POINTS) {
 		for (int i = rollCurveData.size(); i < MAX_NUMBER_POINTS; i++) {
-			fY = /*feRollLower*/0.0f;
+			fY = 0.0f;
 			m_pRollCurveCtrl->AddData(ROLL_CURVE_NAME, fX, fY);
 			fX += 0.1f;
 		}
@@ -477,7 +432,7 @@ void CLeftView::serialize(BOOL isForce/* = FALSE*/)
 
 		if (bufFSG.size() == MAX_BUFFER_NUM) {
 			std::ofstream ofs(fullFileName, std::ios::binary || std::ios::app);
-			/* Calculate the file size */
+			// Calculate the file size 
 			ofs.seekp(0, std::ios::end);
 			int endSize = ofs.tellp();
 			
@@ -493,7 +448,7 @@ void CLeftView::serialize(BOOL isForce/* = FALSE*/)
 		fullFileName = feFileName + _T(".fs");
 
 		std::ofstream ofs(fullFileName, std::ios::binary || std::ios::app);
-		/* Calculate the file size */
+		// Calculate the file size
 		ofs.seekp(0, std::ios::end);
 		int endSize = ofs.tellp();
 
@@ -510,4 +465,79 @@ void CLeftView::serialize(BOOL isForce/* = FALSE*/)
 		ofs.close();
 		bufFSG.clear();
 	}
+}
+
+void CLeftView::startFlightExperiment(void)
+{
+	/***** Here we start flight experiment *****/
+	
+	/***** First check all the configuration *****/
+	CSingleton* instance = CSingleton::getInstance();
+	if (!instance->isReady()) {
+		AfxMessageBox(_T("Some requirement not satisfied\n"), MB_OK | MB_ICONSTOP);
+		return;
+	}
+	
+	UpdateData(TRUE);
+	if (feFileName.GetLength() == 0) {
+		AfxMessageBox(_T("Experiment file name required"), MB_OK | MB_ICONSTOP);
+		return;
+	}
+
+	/***** Get the socket client *****/
+	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
+	
+	__int16* c;	
+	PHelicopterModel curPHM = instance->getCurPHM();
+	if (curPHM) {
+		/***** Firstly send the helicopter parameters to the server *****/
+		char heliPara[sizeof(HelicopterPara) + 2];
+		c = (__int16 *)heliPara;
+		c[0] = TPT_LOADHELIPARA;
+		memcpy(heliPara + 2, (char*)(&curPHM->heliPara), sizeof(curPHM->heliPara));
+		cln->SendSvr(heliPara, sizeof(heliPara));
+
+		/***** Secondly send the servo actor demarcated data to the server *****/
+		char servoData[sizeof(ServoActorData) + 2];
+		c = (__int16 *)servoData;
+		c[0] = TAS_ACTORSET;
+		memcpy(servoData + 2, (char *)(&curPHM->sad), sizeof(curPHM->sad));
+		cln->SendSvr(servoData, sizeof(servoData));
+
+		/***** Thirdly send the rotor actor demarcated data to the server *****/
+		char rotorData[sizeof(TiltDiscData) + 2];
+		c = (__int16 *)rotorData;
+		c[0] = TTS_TILTDISCSET;
+		memcpy(rotorData + 2, (char *)(&curPHM->tdd), sizeof(curPHM->tdd));
+		cln->SendSvr(rotorData, sizeof(rotorData));
+
+		/***** Finally send a start-command to the server *****/
+		char startCommand[2];
+		c = (__int16 *)startCommand;
+		c[0] = TFT_STARTTASK;
+		cln->SendSvr(startCommand, sizeof(startCommand));
+
+		// Make the button unable 
+		CButton* startBtn = (CButton*)GetDlgItem(IDC_FE_START);
+		startBtn->EnableWindow(FALSE);
+	}	
+}
+
+void CLeftView::stopFlightExperiment(void)
+{
+	char command[2];
+	__int16 *c = (__int16 *)command;
+	c[0] = TFT_STOPTASK;
+
+	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
+	cln->SendSvr(command, sizeof(command));	
+
+	endTime = CTime::GetCurrentTime();
+		
+	CTimeSpan tof = endTime - startTime;
+	ed.tof = tof.GetTotalSeconds();
+		
+	// Force to serialize
+	serialize(TRUE);
+
 }

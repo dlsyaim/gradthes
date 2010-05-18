@@ -39,6 +39,8 @@ public:
 	afx_msg void OnBnClickedRollAngleButton3();
 	afx_msg void OnBnClickedRollAngleButton4();
 	afx_msg void OnBnClickedRollAngleButton5();
+
+	void Initialize(float *pwm, float *angle);
 protected:
 	__int8 getActorSerial(void);
 };

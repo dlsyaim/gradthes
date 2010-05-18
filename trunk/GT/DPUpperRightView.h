@@ -46,6 +46,8 @@ private:
 // Attributes
 	std::vector<FPOINT> mapData;
 
+// Operations
+	void updateEdits(pFlyState fs);
 };
 
 #ifndef _DEBUG  // debug version in DPUpperRightView.cpp

@@ -172,7 +172,6 @@ void CGSProtocolParser::OnStopTaskReply(void *Target, __int32 Len)
 		m_pDoc->leftView->setIsStop(tmp);
 		::SendMessage(m_pDoc->leftView->m_hWnd, STOP_TASK_REPLY_MSG, 0, 0);
 	}
-
 }
 
 

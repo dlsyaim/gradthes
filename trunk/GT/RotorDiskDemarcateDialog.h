@@ -11,6 +11,7 @@ class RotorDiskDemarcateDialog : public CDialog
 
 public:
 	RotorDiskDemarcateDialog(CWnd* pParent = NULL);   // 标准构造函数
+	RotorDiskDemarcateDialog(pTiltDiscData pTDD, CWnd* pParent = NULL);
 	virtual ~RotorDiskDemarcateDialog();
 
 // 对话框数据
@@ -35,6 +36,7 @@ private:
 	//int origin_x2, origin_y2;
 	//int origin_x3, origin_y3;
 	//int step;
+	pTiltDiscData pTDD;
 public:
 	double dyPitch;
 	double dyRoll;
@@ -64,4 +66,9 @@ public:
 //Operations
 private:
 	void updateConvertedValue(int channel);
+	int  addListRow(int row);
+	void addListRows(pTiltDiscData pTDD);
+	void updateListRow(void);
+public:
+	afx_msg void OnBnClickedOk();
 };

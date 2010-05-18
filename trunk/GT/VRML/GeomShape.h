@@ -9,7 +9,9 @@
 #define ZZ 2
 #define WW 3
 
+#ifndef PI
 #define PI               3.14159265359
+#endif
 #define CONE_RESOLUTION 10
 #define CYLINDER_RESOLUTION 10
 #define RING_NUMBER     6

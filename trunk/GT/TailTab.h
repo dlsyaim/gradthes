@@ -39,6 +39,8 @@ public:
 	afx_msg void OnBnClickedTailAngleButton3();
 	afx_msg void OnBnClickedTailAngleButton4();
 	afx_msg void OnBnClickedTailAngleButton5();
+
+	void Initialize(float *pwm, float *angle);
 private:
 	__int8 getActorSerial(void);
 };

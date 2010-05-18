@@ -10,6 +10,10 @@
 
 // CIMUTestFormView
 
+#ifndef PI
+#define PI 3.14159265359
+#endif
+
 IMPLEMENT_DYNCREATE(CIMUTestFormView, CFormView)
 
 CIMUTestFormView::CIMUTestFormView()
@@ -34,8 +38,8 @@ CIMUTestFormView::~CIMUTestFormView()
 void CIMUTestFormView::DoDataExchange(CDataExchange* pDX)
 {
 	CFormView::DoDataExchange(pDX);
-	DDX_Text(pDX, IDC_HEADINGANGLE_EDIT, headingAngle);
-	DDX_Text(pDX, IDC_PITCHANGLE_EDIT, pitchAngle);
+	DDX_Text(pDX, IDC_HEADING_ANGLE_EDIT, headingAngle);
+	DDX_Text(pDX, IDC_PITCH_ANGLE_EDIT, pitchAngle);
 	DDX_Text(pDX, IDC_ROLL_ANGLE_EDIT, rollAngle);
 	DDX_Text(pDX, IDC_BODY_X_VEL_EDIT, n_x_Vel);
 	DDX_Text(pDX, IDC_BODY_Y_VEL_EDIT, e_y_Vel);
@@ -103,14 +107,14 @@ void CIMUTestFormView::OnBnClickedIMUTestStart()
 
 void CIMUTestFormView::OnBnClickedIMUTestPass()
 {
-	/***** Set the global flag variable *****/
+	/***** Set the global state variable *****/
 	CSingleton *instance = CSingleton::getInstance();
 	instance->setIsIMUTestPass(TRUE);
 }
 
 void CIMUTestFormView::OnBnClickedIMUTestFailure()
 {
-	/***** Set the global flag variable *****/
+	/***** Set the global state variable *****/
 	CSingleton *instance = CSingleton::getInstance();
 	instance->setIsIMUTestPass(FALSE);
 }
@@ -142,12 +146,50 @@ void CIMUTestFormView::updateData(IMUTestData *itd)
 	rollAngle = itd->phi;
 	pitchAngle = itd->psi;
 	headingAngle = itd->theta;
-
 }
 
 
 LRESULT CIMUTestFormView::OnTestDataReply(WPARAM w, LPARAM l)
 {
-	UpdateData(FALSE);
+	//UpdateData(FALSE);
+	CString str;
+	CEdit* m_pEdit;
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_HEADING_ANGLE_EDIT));
+	str.Format("%.4g", headingAngle / PI * 180.0f);
+	m_pEdit->SetWindowText(str);
+
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_PITCH_ANGLE_EDIT));
+	str.Format("%.4g", pitchAngle / PI * 180.0f);
+	m_pEdit->SetWindowText(str);
+
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_ROLL_ANGLE_EDIT));
+	str.Format("%.4g", rollAngle / PI * 180.0f);
+	m_pEdit->SetWindowText(str);
+
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_BODY_X_VEL_EDIT));
+	str.Format("%.4g", n_x_Vel);
+	m_pEdit->SetWindowText(str);
+
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_BODY_Y_VEL_EDIT));
+	str.Format("%.4g", e_y_Vel);
+	m_pEdit->SetWindowText(str);
+
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_BODY_Z_VEL_EDIT));
+	str.Format("%.4g", d_z_Vel);
+	m_pEdit->SetWindowText(str);
+
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_BODY_X_ACC_EDIT));
+	str.Format("%.4g", n_x_Acc);
+	m_pEdit->SetWindowText(str);
+
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_BODY_Y_ACC_EDIT));
+	str.Format("%.4g", e_y_Acc);
+	m_pEdit->SetWindowText(str);
+
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_BODY_Z_ACC_EDIT));
+	str.Format("%.4g", d_z_Acc);
+	m_pEdit->SetWindowText(str);
+
+
 	return TRUE;
 }

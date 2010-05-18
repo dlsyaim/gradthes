@@ -388,6 +388,7 @@ BOOL CGridCtrl::Initialise()
 // creates the control - use like any other window create control
 BOOL CGridCtrl::Create(const RECT& rect, CWnd* pParentWnd, UINT nID, DWORD dwStyle)
 {
+	TRACE(_T("Create:Right:%d Width:%d\n"), rect.right, rect.right);
     ASSERT(pParentWnd->GetSafeHwnd());
 
     if (!CWnd::Create(GRIDCTRL_CLASSNAME, NULL, dwStyle, rect, pParentWnd, nID))
@@ -4918,6 +4919,7 @@ void CGridCtrl::ExpandColumnsToFit(BOOL bExpandFixed /*=TRUE*/)
 
     long virtualWidth = GetVirtualWidth();
     int nDifference = rect.Width() -(int) virtualWidth;
+	TRACE(_T("%d %d %d\n"), rect.Width(), virtualWidth, nNumColumnsAffected);
     int nColumnAdjustment = nDifference / nNumColumnsAffected;
 
     for (col = nFirstColumn; col < GetColumnCount(); col++)

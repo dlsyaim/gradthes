@@ -7,6 +7,7 @@
 #include <vector>
 #include <fstream>
 #include "GT.h"
+#include "GTDoc.h"
 #include "ST_SplitterWnd.h"
 #include "MainFrm.h"
 #include "HelicopterChoosingDialog.h"
@@ -67,7 +68,11 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_FLIGHT_EXPERIMENT, &CMainFrame::OnFlightExperiment)
 	ON_COMMAND(ID_DATA_PROCESS, &CMainFrame::OnDataProcess)
 	ON_COMMAND(ID_OPT_TEST, &CMainFrame::OnOptTest)
+	ON_COMMAND(IDC_TB_FE_START, &CMainFrame::OnClickedFEStart)
+	ON_COMMAND(IDC_TB_FE_STOP, &CMainFrame::OnClickedFEStop)
 	ON_MESSAGE(ERROR_INSTRUCTION, &CMainFrame::OnErrInst)
+	ON_COMMAND(ID_ADD_POINT_CB, &CMainFrame::OnClickedAddCB)
+	ON_COMMAND(ID_SELECT_POINT_CB, &CMainFrame::OnClickedSelectCB)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -78,11 +83,6 @@ static UINT indicators[] =
 	ID_INDICATOR_SCRL,
 };
 
-static UINT commandIDs[] = 
-{
-	IDC_FE_START,
-	IDC_FE_STOP
-};
 
 // CMainFrame construction/destruction
 
@@ -121,129 +121,52 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// prevent the menu bar from taking the focus on activation
 	CMFCPopupMenu::SetForceMenuFocus(FALSE);
 
-	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
+	if (!m_wndToolBar.CreateEx(this, 
+		TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
 		!m_wndToolBar.LoadToolBar(theApp.m_bHiColorIcons ? IDR_MAINFRAME_256 : IDR_MAINFRAME))
 	{
 		TRACE0("Failed to create toolbar\n");
 		return -1;      // fail to create
 	}
 
-	//if (!m_wndFEToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC, CRect(1, 1, 1, 1), IDR_TOOLBAR1) ||
-	//	!m_wndFEToolBar/*.LoadBitmap(IDB_BITMAP2)*/.LoadToolBar(IDR_TOOLBAR1))
-	//{
-	//	TRACE0("Failed to create toolbar\n");
-	//	return -1;      // fail to create
-	//}
 	if (!m_wndFEToolBar.CreateEx(this, 
-		TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC, 
-		CRect(1, 1, 1, 1), IDR_TOOLBAR1) ||
-		!m_wndFEToolBar.LoadToolBar(IDR_TOOLBAR1, 0, 0, TRUE, 0, 0, 0)) {
+		TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC | TBSTYLE_TOOLTIPS , 
+		CRect(1, 1, 1, 1), IDR_FE_TOOLBAR) ||
+		!m_wndFEToolBar.LoadToolBar(IDR_FE_TOOLBAR, 0, 0, TRUE, 0, 0, IDB_FE_TB_BITMAP)) {
 		TRACE0("Failed to create toolbar\n");
 		return -1;      // fail to create
 	}
 
-	/*
-	 * The TRUE means should Enable Add or Remove Buttons button
-	 * and -1 means Add or Remove Buttons shows when multiple buttons do not fit in toolbar area
-	 */
-	// Set up bar image lists.
-	//CImageList	imageList;
-	//CBitmap		bitmap;
-
-	/*m_wndFEToolBar.SetButtons(commandIDs, sizeof(commandIDs) / sizeof(UINT));*/
-
-	// Create and set the toolbar image list.
-	/*if (!bitmap.LoadBitmap(IDB_FE_TB_BITMAP)) {
-		TRACE(_T("Load bit map failed\n"));
-	}*/
-	HBITMAP hbm = (HBITMAP)::LoadImage(NULL,
-		_T("res\\fetb_1.bmp"),
-		IMAGE_BITMAP
-		,0 , 0, LR_LOADFROMFILE);
-	if (hbm == NULL) {
-		TRACE(_T("Error code:%d\n"), GetLastError());
-	}
-	bitmap.Attach(hbm);
-	// Each image's size is 16 * 16, the initial size is 2 and the number of row for extending is 0
-	imageList.Create(16, 16, TRUE | ILC_COLOR24, 2, 0);	
-	imageList.Add(&bitmap, (CBitmap*)NULL);
-	//m_hotToolBar.SendMessage(TB_SETIMAGELIST, 0, (LPARAM)imageList.m_hImageList);
-	m_wndFEToolBar.SendMessage(TB_SETIMAGELIST, 0, (LPARAM)imageList.m_hImageList);
-
-	hbm = (HBITMAP)::LoadImage(NULL, _T("res\\fetb - disabled.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-	if (hbm == NULL) {
-		TRACE(_T("Error code:%d\n"), GetLastError());
-	}
-	bitmap.Detach();
-	bitmap.Attach(hbm);
-	disabledImageList.Create(16, 16, TRUE | ILC_COLOR24, 2, 0);
-	disabledImageList.Add(&bitmap, (CBitmap*)NULL);
-	m_wndFEToolBar.SendMessage(TB_SETDISABLEDIMAGELIST, 0, (LPARAM)disabledImageList.m_hImageList);
-
-	hbm = (HBITMAP)::LoadImage(NULL, _T("res\\fetb - hot.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-	if (hbm == NULL) {
-		TRACE(_T("Error code:%d\n"), GetLastError());
-	}
-	bitmap.Detach();
-	bitmap.Attach(hbm);
-	hotImageList.Create(16, 16, TRUE | ILC_COLOR24, 2, 0);
-	disabledImageList.Add(&bitmap, (CBitmap*)NULL);
-	m_wndFEToolBar.SendMessage(TB_SETHOTIMAGELIST, 0, (LPARAM)hotImageList.m_hImageList);
-	//m_wndFEToolBar.SendMessage(TB_SETHOTIMAGELIST, 0, (LPARAM)imageList.m_hImageList);
-	//CToolBar * toolBar = (CToolBar*)FromHandle(m_wndFEToolBar.GetSafeHwnd());
-	//toolBar->GetToolBarCtrl().SetImageList(&imageList);
-	//toolBar->GetToolBarCtrl().SetDisabledImageList(&imageList);
-	//toolBar->GetToolBarCtrl().SetHotImageList(&imageList);
-	//toolBar->SetButtons(commandIDs, sizeof(commandIDs) / sizeof(UINT));
-	//m_wndFEToolBar.SetButtons(commandIDs, sizeof(commandIDs) / sizeof(UINT));
 	m_wndFEToolBar.SetWindowText(_T("Flight Experiment Toolbar"));
-	//m_wndFEToolBar.EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, "Customize");
-	TRACE(_T("The total image's count: %d\n"), imageList.GetImageCount());
-	IMAGEINFO imageInfo;
-	//CBitmap *bm;
-	//BITMAP bima;
-	for (int i = 0; i < imageList.GetImageCount(); i++) {
-		imageList.GetImageInfo(i, &imageInfo);
-		//bm = CBitmap::FromHandle(imageInfo.hbmImage);
-		//bm->GetBitmap(&bima);
-		TRACE(_T("%d %d %d\n"), i, imageInfo.rcImage.left, imageInfo.rcImage.top);
-		//TRACE(_T("%d %d %d %d\n"), bima.bmWidth, bima.bmHeight, bima.bmPlanes, bima.bmBitsPixel);
-	}
-	//imageList.Detach();
-	//bitmap.Detach();
-	CMFCToolBarImages fetbImages, directFETBImages;
-	fetbImages.CreateFromImageList(imageList);
 
-	if(directFETBImages.Load(IDB_FE_TB_BITMAP)) {
-		TRACE(_T("Count:%d\n\
-				 images' source size:%d %d\n"), directFETBImages.GetCount()
-				 , directFETBImages.GetImageSize().cx, directFETBImages.GetImageSize().cy);
+	if (!m_wndFPToolBar.CreateEx(this, 
+		TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC | TBSTYLE_TOOLTIPS , 
+		CRect(1, 1, 1, 1), IDR_FP_TOOLBAR) ||
+		!m_wndFPToolBar.LoadToolBar(IDR_FP_TOOLBAR, 0, 0, TRUE, 0, 0, IDB_FP_TB_BITMAP)) {
+		TRACE0("Failed to create toolbar\n");
+		return -1;      // fail to create
 	}
-	
 
-	TRACE(_T("Total images' count:%d\n\
-			 images' source size:%d %d\n"), fetbImages.GetCount()
-			 , fetbImages.GetImageSize().cx, fetbImages.GetImageSize().cy);
-	TRACE(_T("\
-			 images' destination size 1:%d %d\n"), fetbImages.GetImageSize(TRUE).cx, fetbImages.GetImageSize(TRUE).cy);
-	int btnCount = m_wndFEToolBar.GetCount();
-	CMFCToolBarButton* tempBtn;
-	for (int i = 0; i < btnCount; i++) {
-		tempBtn = m_wndFEToolBar.GetButton(i);
-		if (tempBtn) {
-			TRACE(_T("%d %d %d\n"), tempBtn->GetImage(), tempBtn->IsDrawImage(), tempBtn->IsDrawText());
-			tempBtn->Show(TRUE);
+	m_wndFPToolBar.SetWindowText(_T("Flight Path"));
+	// Get the count of buttons
+	int buttonCount = m_wndFPToolBar.GetCount();
+	CMFCToolBarButton* m_pButton;
+	for (int nButton = 0; nButton < buttonCount; nButton++) {
+		m_pButton = m_wndFPToolBar.GetButton(nButton);
+		m_pButton->SetStyle(TBBS_CHECKBOX);
+		switch(nButton) {
+			case 0:
+				m_wndFPToolBar.SetButtonText(nButton, "Add");
+				break;
+			case 1:
+				m_wndFPToolBar.SetButtonText(nButton, "Select");
+				break;
+			default:
+				break;
 		}
 	}
-	//m_wndFEToolBar.SetUserImages(&fetbImages);
 
-	////CMFCToolBarImages *defined = m_wndFEToolBar.GetImages();
-	//
-	//TRACE(_T("Totoal count:%d\nCount 1:%d\nCount 2:%d\n\
-	//		 The image offset 1:%d\n\
-	//		 The image offset 2:%d\n"), CMFCToolBar::GetImages()->GetCount(), 
-	//	m_wndToolBar.GetImages()->GetCount(), m_wndFEToolBar.GetImages()->GetCount()
-	//	, m_wndToolBar.GetImagesOffset(), m_wndFEToolBar.GetImagesOffset());
+
 
 	CString strToolBarName;
 	bNameValid = strToolBarName.LoadString(IDS_TOOLBAR_STANDARD);
@@ -264,52 +187,19 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;      // fail to create
 	}
 	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators)/sizeof(UINT));
-	// Just assure something
-	//CMFCToolBarImages *userDefinedImages = CMFCToolBar::GetUserImages(); doesn't work
-	//CMFCToolBarImages *defaultImages = CMFCToolBar::GetImages();
 
-	//TRACE(_T("The total images's:%d\n\
-	//		 the index of first:%d\n\
-	//		 the index of second:%d\n"), defaultImages->GetCount(),
-	//		 m_wndToolBar.GetImagesOffset(),
-	//		 m_wndFEToolBar.GetImagesOffset());
-
-	// Below is some testing codes
-	//TRACE(_T("Total default image's count: %d\n\
-	//		 ONE default image's count: %d\n\
-	//		 TWO default image's count: %d\n"), 
-	//		 defaultImages->GetCount(),
-	//		 m_wndToolBar.GetCount(),
-	//		 m_wndFEToolBar.GetCount());
-	//for (int idx = 0; idx < m_wndToolBar.GetCount(); idx++) {
-	//	TRACE(_T("%d %s\n"), idx, m_wndToolBar.GetButtonText(idx));
-	//}
-	//for (int idx = 0; idx < m_wndFEToolBar.GetCount(); idx++) {
-	//	TRACE(_T("%d %s\n"), idx, m_wndFEToolBar.GetButtonText(idx));
-	//}
-
-	//UINT nID, nStyle;
-	//int iImage;
-	//for (int idx = 0; idx < m_wndToolBar.GetCount(); idx++) {
-	//	m_wndToolBar.GetButtonInfo(idx, nID, nStyle, iImage);
-	//	TRACE("%d %d %d %d\n", idx, nID, nStyle, iImage);
-	//}
 	// TODO: Delete these five lines if you don't want the toolbar and menubar to be dockable
 	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);	
 	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
-	
 	m_wndFEToolBar.EnableDocking(CBRS_ALIGN_ANY);
+	m_wndFPToolBar.EnableDocking(CBRS_ALIGN_ANY);
 
 	EnableDocking(CBRS_ALIGN_ANY);
 	
-	//((CFrameWnd*)this)->EnableDocking(CBRS_ALIGN_ANY);
-
 	DockPane(&m_wndMenuBar);
 	DockPane(&m_wndToolBar);
-	
 	DockPane(&m_wndFEToolBar);
-	//DockControlBar(&m_wndFEToolBar);
-
+	DockPane(&m_wndFPToolBar);
 
 	// enable Visual Studio 2005 style docking window behavior
 	CDockingManager::SetDockingMode(DT_SMART);
@@ -347,15 +237,12 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	lstBasicCommands.AddTail(ID_EDIT_PASTE);
 	lstBasicCommands.AddTail(ID_EDIT_UNDO);
 	lstBasicCommands.AddTail(ID_APP_ABOUT);
-	
-	//lstBasicCommands.AddTail(ID_AHRS_START);
-
 	lstBasicCommands.AddTail(ID_VIEW_STATUS_BAR);
 	lstBasicCommands.AddTail(ID_VIEW_TOOLBAR);
 
 	CMFCToolBar::SetBasicCommands(lstBasicCommands);
 
-	// Read the helicopter names from Registry
+	// Read the helicopter names from the Registry
 	readHMFromRegistry();
 	// Create the recent helicopter model name menu items
 	createRecentHMMenuItems();
@@ -715,14 +602,28 @@ int CMainFrame::FindMenuItem(CMenu* Menu, LPCTSTR MenuString)
 void CMainFrame::OnRotorDiskDemarcated()
 {
 	CSingleton *instance = CSingleton::getInstance();
-	if (!instance->getCurPHM()) {
+	PHelicopterModel curPHM = instance->getCurPHM();
+	if (!curPHM) {
 		AfxMessageBox(_T("No servo actor demarcated data.\nMust demarcate the servo actor first"), MB_OK | MB_ICONSTOP);
 		return;
-	} else if (instance->getCurPHM()->isDemarcated != 1) {
+	} else if (curPHM->isDemarcated != 1) {
 		AfxMessageBox(_T("No servo actor demarcated data.\nMust demarcate the servo actor first"), MB_OK | MB_ICONSTOP);
 		return;
 	}
-	RotorDiskDemarcateDialog rddd;
+	// First set all the demarcated servo data to server
+	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
+	/********** Construct the servo actor demarcated result **********/
+	char command[sizeof(ServoActorData) + 2];
+	__int16 *c = (__int16*)command;
+	c[0] = TAS_ACTORSET;
+	memcpy(command + 2, (char *)&instance->getCurPHM()->sad, sizeof(instance->getCurPHM()->sad));
+	cln->SendSvr(command, sizeof(command));
+
+	if (curPHM->isRotorDemarcated == 0) {
+		memset(&curPHM->tdd, 0, sizeof(curPHM->tdd));
+	}
+	RotorDiskDemarcateDialog rddd(&curPHM->tdd);
+	// TODO: The further action could be added below
 	rddd.DoModal();
 }
 
@@ -905,12 +806,15 @@ void CMainFrame::OnServoActorDemarcate()
 {
 	// Get the globally unique instance
 	CSingleton *instance = CSingleton::getInstance();
-	if (!instance->getCurPHM())
+	PHelicopterModel curPHM = instance->getCurPHM();
+	if (!curPHM)
 	{
-		AfxMessageBox(_T("A helicopter model required.\nSo you must firstly choose a helicopter model"), MB_OK | MB_ICONSTOP);
+		AfxMessageBox(_T("A helicopter model required.\nSo you must choose a helicopter model firstly "), MB_OK | MB_ICONSTOP);
 		return;
 	}
-	CServoActorDemarcateDialog sadd;
+	if (curPHM->isDemarcated == 0)
+		memset(&curPHM->sad, 0, sizeof(curPHM->sad));
+	CServoActorDemarcateDialog sadd(&curPHM->sad);
 	// TODO: Further processing may be added below
 	switch (sadd.DoModal()) {
 		case IDOK:
@@ -953,7 +857,6 @@ void CMainFrame::OnGyroTest()
  */
 void CMainFrame::OnFlightPathSet()
 {
-	m_wndFEToolBar.ShowWindow(SW_SHOW);
 
 	const int gridViewIndex = 0;
 	const int fpsFormViewIndex = 2;
@@ -976,6 +879,10 @@ void CMainFrame::OnFlightPathSet()
 	if (getLowerRightPane()) {
 		getLowerRightPane()->setRenderMode(CGTView::FLIGHT_PATH_SET);
 	}
+
+    // Show the toolbar
+	m_wndFPToolBar.ShowPane(TRUE, FALSE, TRUE);
+	RecalcLayout();
 }
 
 /*
@@ -1008,6 +915,10 @@ void CMainFrame::OnFlightExperiment()
 	// Change the render mode
 	if (getLowerRightPane())
 		getLowerRightPane()->setRenderMode(CGTView::FLIGHT_EXPERIMENT);
+
+	// Show the toolbar
+	m_wndFEToolBar.ShowPane(TRUE, FALSE, TRUE);
+	RecalcLayout();
 }
 
 void CMainFrame::OnDataProcess()
@@ -1155,3 +1066,99 @@ CGTView* CMainFrame::getLowerRightPane(void)
 	}
 	return pView;	
 }
+
+void CMainFrame::OnClickedFEStart()
+{
+	((CGTApp*)AfxGetApp())->getDoc()->leftView->startFlightExperiment();
+}
+
+void CMainFrame::OnClickedFEStop()
+{
+	((CGTApp*)AfxGetApp())->getDoc()->leftView->stopFlightExperiment();
+}
+
+void CMainFrame::OnClickedAddCB()
+{
+	setGTViewEditState("Add");
+}
+
+void CMainFrame::OnClickedSelectCB()
+{
+	setGTViewEditState("Select");
+	
+}
+
+void CMainFrame::setGTViewEditState(CString buttonLabel)
+{
+	int idx;
+	CString buttonText;
+	for (idx = 0; idx < m_wndFPToolBar.GetCount(); idx++) {
+		m_wndFPToolBar.GetButtonText(idx, buttonText);
+		if (buttonText == buttonLabel)
+			break;
+	}
+
+	if (idx == m_wndFPToolBar.GetCount()) {
+		return;
+	}
+
+	CMFCToolBarButton* button;
+	UINT nStyle;
+	for (int i = 0; i < m_wndFPToolBar.GetCount(); i++) {
+		button = m_wndFPToolBar.GetButton(i);
+		nStyle = button->m_nStyle;
+		if (i != idx) {
+			button->SetStyle(nStyle & ~TBBS_CHECKED);
+		}
+	}
+	m_wndFPToolBar.Invalidate();
+	button = m_wndFPToolBar.GetButton(idx);
+	nStyle = button->m_nStyle;
+
+	// Attention: This style is the style before the mouse click takes effect.
+	if ((nStyle & TBBS_CHECKED) == TBBS_CHECKED) {
+		getLowerRightPane()->setEditState(-1);
+		((CGTApp*)AfxGetApp())->getDoc()->gridView->setCheckBoxStates(BST_UNCHECKED, buttonLabel);
+	} else {
+		if (buttonLabel == "Add")
+			getLowerRightPane()->setEditState(1);
+		else if (buttonLabel == "Select") {
+			getLowerRightPane()->setEditState(2);
+		}
+		((CGTApp*)AfxGetApp())->getDoc()->gridView->setCheckBoxStates(BST_CHECKED, buttonLabel);
+	}
+}
+
+void CMainFrame::setCheckBoxStates(int state, CString buttonLabel)
+{
+	int idx;
+	CString buttonText;
+	for (idx = 0; idx < m_wndFPToolBar.GetCount(); idx++) {
+		m_wndFPToolBar.GetButtonText(idx, buttonText);
+		if (buttonText == buttonLabel)
+			break;
+	}
+
+	if (idx == m_wndFPToolBar.GetCount()) {
+		return;
+	}
+
+	CMFCToolBarButton* button;
+	UINT nStyle;
+	for (int i = 0; i < m_wndFPToolBar.GetCount(); i++) {
+		button = m_wndFPToolBar.GetButton(i);
+		nStyle = button->m_nStyle;
+		if (i != idx) {
+			button->SetStyle(nStyle & ~TBBS_CHECKED);
+		} else {
+			if (state == BST_UNCHECKED) {
+				button->SetStyle(nStyle & ~TBBS_CHECKED);
+			} else if (state == BST_CHECKED) {
+				button->SetStyle(nStyle | TBBS_CHECKED);
+			}
+		}
+	}
+	m_wndFPToolBar.Invalidate();
+	
+}
+

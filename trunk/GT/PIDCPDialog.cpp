@@ -27,7 +27,7 @@ CPIDCPDialog::~CPIDCPDialog()
 void CPIDCPDialog::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_CUSTOM_PID_CP, m_Grid);
+	DDX_GridControl(pDX, IDC_CUSTOM_PID_CP, m_Grid);
 }
 
 
@@ -100,6 +100,7 @@ BOOL CPIDCPDialog::OnInitDialog()
 		}
 		m_Grid.SetItem(&Item);
 	}
+	m_Grid.ExpandColumnsToFit(FALSE);
 
 	// Just fill the column headings
 	for (row = 1; row < m_Grid.GetRowCount(); row++) {
@@ -147,8 +148,9 @@ BOOL CPIDCPDialog::OnInitDialog()
 			default:
 				break;
 		}
-		m_Grid.SetItem(&Item);
+		m_Grid.SetItem(&Item);		
 	}
+	m_Grid.ExpandRowsToFit(FALSE);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -157,21 +159,23 @@ BOOL CPIDCPDialog::OnInitDialog()
 void CPIDCPDialog::OnBnClickedOk()
 {
 	this->UpdateData(TRUE);
-	/***** Gain the socket cliet  *****/
+	/********** Get the socket cliet  **********/
 	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
 
-	/***** Construct the command's data *****/
+	/********** Construct the control parameters' data **********/
 	char command[sizeof(ControlPara) + 2];
 	__int16* c = (__int16*)command;
 	c[0] = TPT_LOADCONTROLPARA;
 
+	CSingleton *instance = CSingleton::getInstance();
+	PConfigStruct pCS = instance->getCS();
 
-	std::vector<ControlPara>* PCPV = CSingleton::getInstance()->getCPV();
+	std::vector<ControlPara>* PCPV = instance->getCPV();
 	PCPV->clear();
 
 	/***** Attention the index starts from 1 *****/
 	ControlPara cp;
-	// Initialize
+	// Initialize to zero
 	memset(&cp, 0, sizeof(cp));
 	int i, j;
 	CString paraName, totalParaName;
@@ -234,26 +238,26 @@ void CPIDCPDialog::OnBnClickedOk()
 		}
 	}
 
-	/***** Save the control paramters into files *****/
-
-	CSingleton *instance = CSingleton::getInstance();
+    /********** Set the global state variable **********/
+	instance->setIsControlParameterSet(TRUE);
+	
+	/********** Save the control paramters into files **********/	
 	static int version = 0;
 	CTime t = CTime::GetCurrentTime();  
-	CString timeString = t.Format("%Y-%m-%d");
+	CString timeString = t.Format("%Y-%m-%d %H-%M-%S");
 	CString verStr;	
-	
-	/***** Set the global flag variable *****/
-	instance->setIsControlParameterSet(TRUE);
-	/* And need to save the data into the files */
 	verStr.Format(_T("-%d.cp"), version++);
 	timeString.Append(verStr);
-	instance->setRecentCPName(timeString);
+	
 	std::ofstream ofs(timeString, std::ios::binary);
 	std::vector<ControlPara>::iterator iter;
 	for (iter = PCPV->begin(); iter != PCPV->end(); iter++) {
 		ofs.write((char *)(&(*iter)), sizeof(*iter));
 	}
 	ofs.close();
+
+	pCS->isControlSet = 1;
+	memcpy(pCS->controlParameterFileName, (LPCTSTR)timeString, timeString.GetLength());
 	
 	OnOK();
 }
@@ -283,7 +287,6 @@ void CPIDCPDialog::OnBnClickedOpenCPBtn()
 					if (ifs.gcount() != sizeof(cp))
 						break;
 					PCMV->push_back(cp);
-
 				}
 				ifs.close();
 				updateGrid();
@@ -310,7 +313,7 @@ void CPIDCPDialog::updateGrid(void)
 			} else if ((*PCMV)[index].type == 'b') {
 				text.Format("%d", (*PCMV)[index].vb);
 			} else if ((*PCMV)[index].type == 'f') {
-				text.Format("%f", (*PCMV)[index].vf);
+				text.Format("%.4g", (*PCMV)[index].vf);
 			}
 			index++;
 			m_Grid.SetItemText(i, j, text);

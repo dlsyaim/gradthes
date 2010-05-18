@@ -102,25 +102,20 @@ BOOL CUpperRightView::OnEraseBkgnd(CDC* pDC)
 
 void CUpperRightView::OnBnClickedFEZoomIn()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	m_pSpatialCurveCtrl->Zoom(TRUE);
 }
 
 void CUpperRightView::OnBnClickedFEZoomOut()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	m_pSpatialCurveCtrl->Zoom(FALSE);
 }
 
 
 void CUpperRightView::updateFS(pFlyState fs)
 {
-	feXCoor = fs->N_Pos;
-	feYCoor = fs->E_Pos;
-
 	mapData.push_back(FPOINT(feXCoor, feYCoor));
 
 	updateCurve();
-
-	UpdateData(FALSE);
 }
 
 void CUpperRightView::updateCurve(void)
@@ -131,4 +126,19 @@ void CUpperRightView::updateCurve(void)
 	}
 
 	m_pSpatialCurveCtrl->Invalidate();
+}
+
+void CUpperRightView::updateEdits(pFlyState fs)
+{
+	feXCoor = fs->N_Pos;
+	feYCoor = fs->E_Pos;
+
+	CEdit* m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_FE_X_COOR));
+	CString text;
+	text.Format("%.4g", feXCoor);
+	m_pEdit->SetWindowText(text);
+
+	m_pEdit = reinterpret_cast<CEdit*>(GetDlgItem(IDC_FE_Y_COOR));
+	text.Format("%.4g", feYCoor);
+	m_pEdit->SetWindowText(text);
 }
