@@ -4,6 +4,7 @@
 #include "TabPageSSL.h"
 #include "afxcmn.h"
 // RotorDiskDemarcateDialog 对话框
+class CHelicopterChoosingController;
 
 class RotorDiskDemarcateDialog : public CDialog
 {
@@ -13,6 +14,9 @@ public:
 	RotorDiskDemarcateDialog(CWnd* pParent = NULL);   // 标准构造函数
 	RotorDiskDemarcateDialog(pTiltDiscData pTDD, CWnd* pParent = NULL);
 	virtual ~RotorDiskDemarcateDialog();
+
+	CHelicopterChoosingController *controller;
+	TiltDiscData copyTdd;
 
 // 对话框数据
 	enum { IDD = IDD_ROTORDISK_DEMARCATE_DIALOG };

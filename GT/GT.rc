@@ -16,7 +16,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// 中文(中华人民共和国) resources
+// Chinese (P.R.C.) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 #ifdef _WIN32
@@ -53,11 +53,11 @@ BEGIN
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)\r\n"
     "LANGUAGE 4, 2\r\n"
     "#pragma code_page(936)\r\n"
-    "#include ""res\\GT.rc2""  // 非 Microsoft Visual C++ 编辑的资源\r\n"
-    "#include ""l.CHS\\afxres.rc""          // 标准组件\r\n"
-    "#include ""l.CHS\\afxprint.rc""        // 打印/打印预览资源\r\n"
+    "#include ""res\\GT.rc2""  // ·? Microsoft Visual C++ ±à?-μ?×ê?′\r\n"
+    "#include ""l.CHS\\afxres.rc""          // ±ê×?×é?t\r\n"
+    "#include ""l.CHS\\afxprint.rc""        // ′òó?/′òó??¤àà×ê?′\r\n"
     "#if !defined(_AFXDLL)\r\n"
-    "#include ""l.CHS\\afxribbon.rc""               // MFC 功能区和控件条资源\r\n"
+    "#include ""l.CHS\\afxribbon.rc""               // MFC 1|?ü??oí???tì?×ê?′\r\n"
     "#endif\r\n"
     "#endif\r\n"
     "\0"
@@ -146,7 +146,7 @@ BEGIN
     BEGIN
         MENUITEM "新建",                          ID_NEW_HELICOPTER_MODEL
         MENUITEM SEPARATOR
-        MENUITEM "最近的模型",                       65535
+        MENUITEM "最近的模型",                       ID_32824
     END
     POPUP "系统测试"
     BEGIN
@@ -168,7 +168,10 @@ BEGIN
     POPUP "实验"
     BEGIN
         MENUITEM "飞行实验",                        ID_FLIGHT_EXPERIMENT
-        MENUITEM "数据处理",                        ID_DATA_PROCESS
+    END
+    POPUP "数据回放"
+    BEGIN
+        MENUITEM "数据回放",                        ID_DATA_PROCESS
     END
     POPUP "帮助(&H)"
     BEGIN
@@ -235,7 +238,7 @@ BEGIN
     DEFPUSHBUTTON   "确定",IDOK,113,41,50,14,WS_GROUP
 END
 
-IDD_HELICOPTERCHOOSING_DIALOG DIALOGEX 0, 0, 460, 286
+IDD_HELICOPTERCHOOSING_DIALOG DIALOGEX 0, 0, 442, 280
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "机型选择"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -568,6 +571,8 @@ BEGIN
     GROUPBOX        "状态",IDC_STATIC,0,300,120,30
     CONTROL         "增加",IDC_ADD_POINT,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,3,310,50,14
     CONTROL         "选择",IDC_SELECT_POINT,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,64,310,50,14
+    PUSHBUTTON      "加载文件",IDC_LOAD_FILE_BUTTON,63,275,50,14
+    PUSHBUTTON      "确定",IDC_SAVE_FP_BUTTON,126,275,50,14
 END
 
 IDD_IMU_TEST_FORMVIEW DIALOGEX 0, 0, 266, 224
@@ -832,6 +837,26 @@ BEGIN
     PUSHBUTTON      "加载地图",IDC_LOAD_MAP_BUTTON,273,264,50,14
 END
 
+IDD_CP_NAME_PREFIX_DIALOG DIALOGEX 0, 0, 196, 40
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "文件名前缀"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,78,24,50,14
+    LTEXT           "文件名前缀(例如PID):",IDC_STATIC,9,8,76,8
+    EDITTEXT        IDC_CP_NAME_PREFIX_EDIT,94,5,80,14,ES_AUTOHSCROLL
+END
+
+IDD_FP_NAME_PREFIX_DIALOG DIALOGEX 0, 0, 160, 40
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "文件名前缀"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,54,24,50,14
+    LTEXT           "文件名前缀(例如FP):",IDC_STATIC,9,8,73,8
+    EDITTEXT        IDC_FP_NAME_PREFIX_EDIT,88,5,62,14,ES_AUTOHSCROLL
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -891,9 +916,9 @@ BEGIN
     IDD_HELICOPTERCHOOSING_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 453
+        RIGHTMARGIN, 435
         TOPMARGIN, 7
-        BOTTOMMARGIN, 279
+        BOTTOMMARGIN, 273
     END
 
     IDD_COMMUNICATIONTEST_DIALOG, DIALOG
@@ -1062,9 +1087,32 @@ BEGIN
         RIGHTMARGIN, 257
         BOTTOMMARGIN, 134
     END
+
+    IDD_CP_NAME_PREFIX_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 189
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 33
+    END
+
+    IDD_FP_NAME_PREFIX_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 153
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 33
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// HTML
+//
+
+IDR_HTML_CPNAMEPREFIXDIALOG HTML                    "CPNamePrefixDialog.htm"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1188,6 +1236,10 @@ END
 STRINGTABLE 
 BEGIN
     AFX_IDS_PREVIEW_CLOSE   "关闭打印预览模式\n取消预览"
+    IDS_HELICOPTER_REQUIRED "必须先选择一个飞机模型"
+    IDS_EXIT_SERVO_DEMARCATE "确定取消吗？\n如果取消，那么任何修改都将无效"
+    IDS_EXIT_ROTOR_DEMARCATE "确定取消吗？\n如果取消，任何已标定的数据都将作废"
+    IDS_EXCEED_LIMIT        "已标定完10组"
 END
 
 STRINGTABLE 
@@ -1211,19 +1263,13 @@ END
 
 STRINGTABLE 
 BEGIN
-    ID_ROTOR_DISK_DEMARCATED "开始实验"
     IDC_TB_FE_START         "\n开始实验"
     IDC_TB_FE_STOP          "\n停止实验"
     ID_ADD_POINT_CB         "\n增加"
     ID_SELECT_POINT_CB      "\n选择"
 END
 
-STRINGTABLE 
-BEGIN
-    ID_COMMUNICATION_TEST   "开始实验"
-END
-
-#endif    // 中文(中华人民共和国) resources
+#endif    // Chinese (P.R.C.) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

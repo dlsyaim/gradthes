@@ -5,6 +5,7 @@
 #include "GT.h"
 #include "RotorDiskDemarcateDialog.h"
 #include "Singleton.h"
+#include "HelicopterChoosingController.h"
 
 #ifndef PI
 #define PI 3.14159265358
@@ -48,10 +49,16 @@ RotorDiskDemarcateDialog::RotorDiskDemarcateDialog(pTiltDiscData pTDD, CWnd *pPa
 
 	demarcatedIdx = 0;
 	size = 0;
+
+	controller = new CHelicopterChoosingController();
+
+	memcpy(&copyTdd, pTDD, sizeof(TiltDiscData));
 }
 
 RotorDiskDemarcateDialog::~RotorDiskDemarcateDialog()
 {
+	if (controller)
+		delete controller;
 }
 
 void RotorDiskDemarcateDialog::DoDataExchange(CDataExchange* pDX)
@@ -162,11 +169,12 @@ BOOL RotorDiskDemarcateDialog::OnInitDialog()
    m_tabRotorDisk.AddSSLPage(_T("侧滚舵机标定"), nPageID++, &m_tabRoll);
    m_tabPitch.Create(IDD_PITCH_ROTORDISK_TAB, this);
    m_tabRotorDisk.AddSSLPage(_T("俯仰舵机标定"), nPageID++, &m_tabPitch);*/
-	 if (pTDD) {
-		 addListRows(pTDD);
-	 }
+	CSingleton *instance = CSingleton::getInstance();
+	if (instance->getCurPHM()->isRotorDemarcated) {
+		addListRows(pTDD);
+	}
 
-     return TRUE; // return TRUE unless you set the focus to a control
+    return TRUE; // return TRUE unless you set the focus to a control
 }
 
 //void RotorDiskDemarcateDialog::OnPaint()
@@ -316,22 +324,21 @@ void RotorDiskDemarcateDialog::OnBnClickedDemarcatedSucBtn()
 {
 	if (size >= 10 && demarcatedIdx == size)
 	{
-		TRACE("Exceed the limit\n");
-		AfxMessageBox(_T("Reach the ceiling\nCan't add any more"), MB_OK | MB_ICONWARNING);
+		AfxMessageBox(IDS_EXCEED_LIMIT, MB_OK | MB_ICONWARNING);
 		return;
 	}
 	UpdateData(TRUE);
 
 	CSingleton *instance = CSingleton::getInstance();
-	TiltDiscData* tdd = &instance->getCurPHM()->tdd;
+	//TiltDiscData* tdd = &instance->getCurPHM()->tdd;
 	
-	tdd->CommandAngs[demarcatedIdx][1] = (float)/*dyPitch*/convertedPitch;
-	tdd->CommandAngs[demarcatedIdx][0] = (float)/*dyRoll*/convertedRoll;
-	tdd->CommandAngs[demarcatedIdx][2] = (float)/*dyCollective*/convertedCollective;
+	copyTdd.CommandAngs[demarcatedIdx][1] = (float)/*dyPitch*/convertedPitch;
+	copyTdd.CommandAngs[demarcatedIdx][0] = (float)/*dyRoll*/convertedRoll;
+	copyTdd.CommandAngs[demarcatedIdx][2] = (float)/*dyCollective*/convertedCollective;
 
-	tdd->MeansureAngs[demarcatedIdx][1] = (float)(stPitch / 180.0f * PI);
-	tdd->MeansureAngs[demarcatedIdx][0] = (float)(stRoll / 180.0f * PI);
-	tdd->MeansureAngs[demarcatedIdx][2] = (float)(stCollective / 180.0f * PI);
+	copyTdd.MeansureAngs[demarcatedIdx][1] = (float)(stPitch / 180.0f * PI);
+	copyTdd.MeansureAngs[demarcatedIdx][0] = (float)(stRoll / 180.0f * PI);
+	copyTdd.MeansureAngs[demarcatedIdx][2] = (float)(stCollective / 180.0f * PI);
 
 	// Add a row
 	if (demarcatedIdx == size) {
@@ -434,12 +441,11 @@ void RotorDiskDemarcateDialog::OnBnClickedCancel()
 {
 	if (size > 0) {
 		CSingleton *instance = CSingleton::getInstance();
-		int result = AfxMessageBox(_T("Calibrating\nAre you sure to exit? If exit, all demarcated result will be saved.")
-			, MB_YESNO | MB_ICONWARNING);
+		int result = AfxMessageBox(IDS_EXIT_ROTOR_DEMARCATE, MB_YESNO | MB_ICONWARNING);
 		switch (result) {
 			case IDYES:
 				// Set the state variable
-				instance->setIsRotorDemarcated(FALSE);
+				//instance->setIsRotorDemarcated(FALSE);
 				OnCancel();
 				break;
 			case IDNO:
@@ -541,7 +547,15 @@ void RotorDiskDemarcateDialog::OnBnClickedOk()
 	PHelicopterModel curPHM = instance->getCurPHM();
 	curPHM->isRotorDemarcated = 1;
 	// Update the uh.hm file
-	instance->updateHelicopterModelFile();
+	//instance->updateHelicopterModelFile();
+	if (memcmp(&copyTdd, pTDD, sizeof(TiltDiscData))) {
+		memcpy(pTDD, &copyTdd, sizeof(TiltDiscData));
+		if (controller->checkModel(instance->getCurHelicopterModelFileName())) {
+			controller->saveModelFile(curPHM);
+		} else {
+			controller->updateModelFile(curPHM);
+		}
+	}
 	// Set the state variables
 	instance->setIsRotorDemarcated(TRUE);	
 

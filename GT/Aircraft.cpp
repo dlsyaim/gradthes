@@ -5,204 +5,104 @@
 #include "Scene.h"
 #include "Terrain.h"
 #include "Texture.h"
+#include "Utility.h"
 
 
 Aircraft::Aircraft(void):
-meshes(0),
-xrot(0.0),
-yrot(0.0),
-zrot(0.0),
-x(0.0),
-y(0.0),
-z(0.0)
+	xrot_(0.0),
+	yrot_(0.0),
+	zrot_(0.0),
+	x_(0.0f),
+	y_(0.0f),
+	z_(-600.0f)
 {
-	terrain = new Terrain();
+	terrain_ = new Terrain();
 }
 
 Aircraft::~Aircraft(void)
 {
-	if (terrain)
-		delete terrain;
+	if (terrain_)
+		delete terrain_;
 }
 
-void Aircraft::loadAircraft(void)
+void Aircraft::loadAircraft(const char *filePath)
 {
+	meshes_ = loadVRML((char *)filePath);
 
-}
-
-void Aircraft::loadAircraft(char *filePath)
-{
-	meshes = loadVRML(filePath);
-
-	terrain->LoadRawFile("..\\terrains\\terrain.raw");
+	terrain_->LoadRawFile("..\\terrains\\terrain.raw");
 	std::string texPath = "..\\Instruments\\Textures\\Terrain.tga";
-	terrain->getTerrainTex()->loadTexture(texPath);
+	terrain_->getTerrainTex()->loadTexture(texPath);
 }
 
 // Attention: This function needs to be consummated
-void Aircraft::drawWithAutoSize(LPRECT lpRect)
+void Aircraft::drawWithAutoSize(const RECT &rect)
 {
 	// When the client area minimized, just return.
-	if (lpRect->right == 0 || lpRect->bottom == 0)
+	if (rect.right == 0 || rect.bottom == 0)
 		return;
-	/*
-	 * Because this LPRECT represents the client area's size, so upper-left cornor is (0, 0)
-	 */
-	static LONG originRight = lpRect->right;
-	static LONG originBottom = lpRect->bottom;
-
-	static float distance = -600.0f;
+	
 	// Calculate the differences
-	float diff;
-	diff = max((float) originRight / lpRect->right, (float) originBottom / lpRect->bottom);
-	if (diff == 1.0f) {
-		diff = min ((float) originRight / lpRect->right, (float) originBottom / lpRect->bottom);
-	}
-	originRight = lpRect->right;
-	originBottom = lpRect->bottom;
-	distance = distance * diff;
+	float diff = calculateDifferences(rect);
+	z_ = z_ + diff;	
+	y_ = -150.0f;
+	x_ = 0.0f;
 
-	glPushMatrix();
-	glDisable(GL_BLEND);
-	glColor3f(1.0f, 1.0f, 1.0f);
-	/*
-	 * Whe the client area's size changes, then the aircraft must update acoordingly.
-	 * And to accommplish this target, we just traslate deeper towards Z-axis negative direction to make
-	 * the aircaft smaller
-	 */
-	// First translate 600.0f towards Z-axis negative direction
-	glTranslatef(0.0f, 0.0f, distance);
-	// Then translate 50.0f towards Y-axis negative direction
-	glTranslatef(0.0f, -150.0f, 0.0f);
-
-	// To make the aircraft's coordinate system same as the test environment's coordinate system
-	//glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
-	//glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
-	// First rotate around the y-axis, means heading
-	glRotatef(yrot, 0.0f, 1.0f, 0.0f);
-	// Second rotate around the x-axis, means pitch
-	glRotatef(-xrot, 1.0f, 0.0f, 0.0f);
-	// Third rotate around the z-axis, means roll
-	glRotatef(zrot, 0.0f, 0.0f, 1.0f);
-	glEnable(GL_DEPTH_TEST);
-	glBegin(GL_TRIANGLES);
-		for ( int i = 0; i < (int)meshes.size(); i++ ) {
-			for ( int j = 0; j < (int)meshes[i].numFaces; j++ ) {
-				glNormal3f(meshes[i].normals[(int) meshes[i].faces[j].x].x, meshes[i].normals[(int) meshes[i].faces[j].x].y, meshes[i].normals[(int) meshes[i].faces[j].x].z);
-				glVertex3f(meshes[i].vertices[(int) meshes[i].faces[j].x].x, meshes[i].vertices[(int) meshes[i].faces[j].x].y, meshes[i].vertices[(int) meshes[i].faces[j].x].z);
-
-				glNormal3f(meshes[i].normals[(int) meshes[i].faces[j].y].x, meshes[i].normals[(int) meshes[i].faces[j].y].y, meshes[i].normals[(int) meshes[i].faces[j].y].z);
-				glVertex3f(meshes[i].vertices[(int) meshes[i].faces[j].y].x, meshes[i].vertices[(int) meshes[i].faces[j].y].y, meshes[i].vertices[(int) meshes[i].faces[j].y].z);
-
-				glNormal3f(meshes[i].normals[(int) meshes[i].faces[j].z].x, meshes[i].normals[(int) meshes[i].faces[j].z].y, meshes[i].normals[(int) meshes[i].faces[j].z].z);
-				glVertex3f(meshes[i].vertices[(int) meshes[i].faces[j].z].x, meshes[i].vertices[(int) meshes[i].faces[j].z].y, meshes[i].vertices[(int) meshes[i].faces[j].z].z);
-			}
-		}
-	glEnd();
-	glEnable(GL_BLEND);
-	glPopMatrix();
+	drawModel();
+	
 }
 
 // Attention: This function needs to be consummated
-void Aircraft::drawWithInstruments(LPRECT lpRect)
+void Aircraft::drawWithInstruments(const RECT &rect)
 {
 	// When the client area minimized, just return.
-	if (lpRect->right == 0 || lpRect->bottom == 0)
+	if (rect.right == 0 || rect.bottom == 0)
 		return;
-	/*
-	 * Because this LPRECT represents the client area's size, so upper-left cornor is (0, 0)
-	 */
-	static LONG originRight = lpRect->right;
-	static LONG originBottom = lpRect->bottom;
 
-	const float x_offset = 300.0f;
-	const float y_offset = -50.0f;
-
-	static float distance = -600.0f;
 	// Calculate the differences
-	float diff;
-	diff = max((float) originRight / lpRect->right, (float) originBottom / lpRect->bottom);
-	if (diff == 1.0f) {
-		diff = min ((float) originRight / lpRect->right, (float) originBottom / lpRect->bottom);
-	}
-	originRight = lpRect->right;
-	originBottom = lpRect->bottom;
-	distance = distance * diff;
+	float diff = calculateDifferences(rect);
+	z_ = z_ + diff;
+	y_ = -50.0f;
+	x_ = 300.0f;
 
-	glPushMatrix();
-	glDisable(GL_BLEND);
-	glColor3f(1.0f, 1.0f, 1.0f);
-	/*
-	 * Whe the client area's size changes, then the aircraft must update acoordingly.
-	 * And to accommplish this target, we just traslate deeper towards Z-axis negative direction to make
-	 * the aircaft smaller
-	 */
-	// First translate 600.0f towards Z-axis negative direction
-	glTranslatef(x_offset, y_offset, distance);
-
-
-	//// To make the aircraft's head toward left
-	//glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
-	//glRotatef(-xrot, 1.0f, 0.0f, 0.0f);
-	//glRotatef(-yrot, 0.0f, 1.0f, 0.0f);
-	//glRotatef(-zrot, 0.0f, 0.0f, 1.0f);
-	// First rotate around the y-axis, means heading
-	glRotatef(yrot, 0.0f, 1.0f, 0.0f);
-	// Second rotate around the x-axis, means pitch
-	glRotatef(-xrot, 1.0f, 0.0f, 0.0f);
-	// Third rotate around the z-axis, means roll
-	glRotatef(zrot, 0.0f, 0.0f, 1.0f);
-	glEnable(GL_DEPTH_TEST);
-	glBegin(GL_TRIANGLES);
-		for ( int i = 0; i < (int)meshes.size(); i++ ) {
-			for ( int j = 0; j < (int)meshes[i].numFaces; j++ ) {
-				glNormal3f(meshes[i].normals[(int) meshes[i].faces[j].x].x, meshes[i].normals[(int) meshes[i].faces[j].x].y, meshes[i].normals[(int) meshes[i].faces[j].x].z);
-				glVertex3f(meshes[i].vertices[(int) meshes[i].faces[j].x].x, meshes[i].vertices[(int) meshes[i].faces[j].x].y, meshes[i].vertices[(int) meshes[i].faces[j].x].z);
-
-				glNormal3f(meshes[i].normals[(int) meshes[i].faces[j].y].x, meshes[i].normals[(int) meshes[i].faces[j].y].y, meshes[i].normals[(int) meshes[i].faces[j].y].z);
-				glVertex3f(meshes[i].vertices[(int) meshes[i].faces[j].y].x, meshes[i].vertices[(int) meshes[i].faces[j].y].y, meshes[i].vertices[(int) meshes[i].faces[j].y].z);
-
-				glNormal3f(meshes[i].normals[(int) meshes[i].faces[j].z].x, meshes[i].normals[(int) meshes[i].faces[j].z].y, meshes[i].normals[(int) meshes[i].faces[j].z].z);
-				glVertex3f(meshes[i].vertices[(int) meshes[i].faces[j].z].x, meshes[i].vertices[(int) meshes[i].faces[j].z].y, meshes[i].vertices[(int) meshes[i].faces[j].z].z);
-			}
-		}
-	glEnd();
-	glEnable(GL_BLEND);
-	glPopMatrix();
+	drawModel();
 }
 
-void Aircraft::update(double *stat) {
-	yrot = stat[0];
-	xrot = stat[1];
-	zrot = stat[2];
+void Aircraft::update(const double *stat) {
+	ASSERT(stat != NULL);
+
+	yrot_ = stat[0];
+	xrot_ = stat[1];
+	zrot_ = stat[2];
 }
 
-void Aircraft::update(FlyState *fs) {
-	/***** Attention this is a radian *****/
-	yrot = fs->psi * 180 / PI;
-	xrot = fs->theta * 180 / PI;
-	zrot = fs->phi * 180 / PI;
-}
-
-void Aircraft::update(IMUTestData *itd)
-{
-	yrot = itd->psi * 180 / PI;
-	xrot = itd->theta * 180 / PI;
-	zrot = itd->phi * 180 / PI;
-}
-
-void Aircraft::update(pOPTTRACETestData otd)
+void Aircraft::update(const FlyState &fs)
 {
 	/***** Attention this is a radian *****/
-	yrot = otd->psi * 180 / PI;
-	xrot = otd->theta * 180 / PI;
-	zrot = otd->phi * 180 / PI;
+	yrot_ = fs.psi * 180 / PI;
+	xrot_ = fs.theta * 180 / PI;
+	zrot_ = fs.phi * 180 / PI;
+}
+
+void Aircraft::update(const IMUTestData &itd)
+{
+	/***** Attention this is a radian *****/
+	yrot_ = itd.psi * 180 / PI;
+	xrot_ = itd.theta * 180 / PI;
+	zrot_ = itd.phi * 180 / PI;
+}
+
+void Aircraft::update(const OPTTRACETestData &otd)
+{
+	/***** Attention this is a radian *****/
+	yrot_ = otd.psi * 180 / PI;
+	xrot_ = otd.theta * 180 / PI;
+	zrot_ = otd.phi * 180 / PI;
 }
 
 /*
  * The draw function's entry
  */
-void Aircraft::draw(LPRECT lpRect, BOOL isTerrain/* = TRUE*/, BOOL isInstr/* = FALSE*/)
+void Aircraft::draw(const RECT &rect, BOOL isTerrain/* = TRUE*/, BOOL isInstr/* = FALSE*/)
 {
 	if (isTerrain) {
 		glPushMatrix();
@@ -210,21 +110,21 @@ void Aircraft::draw(LPRECT lpRect, BOOL isTerrain/* = TRUE*/, BOOL isInstr/* = F
 			glTranslatef(0.0f, 0.0f, -5.0f);
 			glTranslatef(-1.0f, -1.0f, 0.0f);
 			glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
-			glRotatef(-xrot, 1.0f, 0.0f, 0.0f);
-			glRotatef(-yrot, 0.0f, 1.0f, 0.0f);
-			glRotatef(-zrot, 0.0f, 0.0f, 1.0f);
+			glRotatef(-xrot_, 1.0f, 0.0f, 0.0f);
+			glRotatef(-yrot_, 0.0f, 1.0f, 0.0f);
+			glRotatef(-zrot_, 0.0f, 0.0f, 1.0f);
 			Scene::drawCoordinateSystem();
 			glPopMatrix();
 
 			// Render the terrain.
 			glPushMatrix();
 			glTranslatef(-512.0f, -20.0f, -512.0f);
-			terrain->RenderHeightMap();
+			terrain_->RenderHeightMap();
 			glPopMatrix();
 
 			// Render the skybox
 			glPushMatrix();
-			glTranslatef(x, y, z);
+			glTranslatef(x_, y_, z_);
 
 			glPopMatrix();
 			
@@ -233,26 +133,26 @@ void Aircraft::draw(LPRECT lpRect, BOOL isTerrain/* = TRUE*/, BOOL isInstr/* = F
 			glColor3f(1.0f, 1.0f, 1.0f);
 			// -800.0f is an experienced value. 
 			//glTranslatef(0.0f, 0.0f, -800.0f);
-			glTranslatef(x, y, z);
+			glTranslatef(x_, y_, z_);
 			// To make the aircraft's coordinate system same as the test environment's coordinate system.
 			// First rotate around the y-axis, means heading
-			glRotatef(yrot, 0.0f, 1.0f, 0.0f);
+			glRotatef(yrot_, 0.0f, 1.0f, 0.0f);
 			// Second rotate around the x-axis, means pitch
-			glRotatef(-xrot, 1.0f, 0.0f, 0.0f);
+			glRotatef(-xrot_, 1.0f, 0.0f, 0.0f);
 			// Third rotate around the z-axis, means roll
-			glRotatef(zrot, 0.0f, 0.0f, 1.0f);
+			glRotatef(zrot_, 0.0f, 0.0f, 1.0f);
 			glEnable(GL_DEPTH_TEST);
 			glBegin(GL_TRIANGLES);
-				for ( int i = 0; i < (int)meshes.size(); i++ ) {
-					for ( int j = 0; j < (int)meshes[i].numFaces; j++ ) {
-						glNormal3f(meshes[i].normals[(int) meshes[i].faces[j].x].x, meshes[i].normals[(int) meshes[i].faces[j].x].y, meshes[i].normals[(int) meshes[i].faces[j].x].z);
-						glVertex3f(meshes[i].vertices[(int) meshes[i].faces[j].x].x, meshes[i].vertices[(int) meshes[i].faces[j].x].y, meshes[i].vertices[(int) meshes[i].faces[j].x].z);
+				for ( int i = 0; i < (int)meshes_.size(); i++ ) {
+					for ( int j = 0; j < (int)meshes_[i].numFaces; j++ ) {
+						glNormal3f(meshes_[i].normals[(int) meshes_[i].faces[j].x].x, meshes_[i].normals[(int) meshes_[i].faces[j].x].y, meshes_[i].normals[(int) meshes_[i].faces[j].x].z);
+						glVertex3f(meshes_[i].vertices[(int) meshes_[i].faces[j].x].x, meshes_[i].vertices[(int) meshes_[i].faces[j].x].y, meshes_[i].vertices[(int) meshes_[i].faces[j].x].z);
 
-						glNormal3f(meshes[i].normals[(int) meshes[i].faces[j].y].x, meshes[i].normals[(int) meshes[i].faces[j].y].y, meshes[i].normals[(int) meshes[i].faces[j].y].z);
-						glVertex3f(meshes[i].vertices[(int) meshes[i].faces[j].y].x, meshes[i].vertices[(int) meshes[i].faces[j].y].y, meshes[i].vertices[(int) meshes[i].faces[j].y].z);
+						glNormal3f(meshes_[i].normals[(int) meshes_[i].faces[j].y].x, meshes_[i].normals[(int) meshes_[i].faces[j].y].y, meshes_[i].normals[(int) meshes_[i].faces[j].y].z);
+						glVertex3f(meshes_[i].vertices[(int) meshes_[i].faces[j].y].x, meshes_[i].vertices[(int) meshes_[i].faces[j].y].y, meshes_[i].vertices[(int) meshes_[i].faces[j].y].z);
 
-						glNormal3f(meshes[i].normals[(int) meshes[i].faces[j].z].x, meshes[i].normals[(int) meshes[i].faces[j].z].y, meshes[i].normals[(int) meshes[i].faces[j].z].z);
-						glVertex3f(meshes[i].vertices[(int) meshes[i].faces[j].z].x, meshes[i].vertices[(int) meshes[i].faces[j].z].y, meshes[i].vertices[(int) meshes[i].faces[j].z].z);
+						glNormal3f(meshes_[i].normals[(int) meshes_[i].faces[j].z].x, meshes_[i].normals[(int) meshes_[i].faces[j].z].y, meshes_[i].normals[(int) meshes_[i].faces[j].z].z);
+						glVertex3f(meshes_[i].vertices[(int) meshes_[i].faces[j].z].x, meshes_[i].vertices[(int) meshes_[i].faces[j].z].y, meshes_[i].vertices[(int) meshes_[i].faces[j].z].z);
 					}
 				}
 			glEnd();
@@ -261,9 +161,59 @@ void Aircraft::draw(LPRECT lpRect, BOOL isTerrain/* = TRUE*/, BOOL isInstr/* = F
 		glPopMatrix();
 	} else if (isInstr) {
 		// Adjust the aircraft's position
-		drawWithInstruments(lpRect);
+		drawWithInstruments(rect);
 	} else {
 		// No terrain will be drawn
-		drawWithAutoSize(lpRect);
+		drawWithAutoSize(rect);
 	}
+}
+
+void Aircraft::drawModel(void)
+{
+	glPushMatrix();
+	glDisable(GL_BLEND);
+	glColor3f(1.0f, 1.0f, 1.0f);
+	/*
+	 * Whe the client area's size changes, then the aircraft update acoordingly.
+	 * And to accommplish this target, we just traslate deeper towards Z-axis negative direction to make
+	 * the aircaft smaller
+	 */
+	glTranslatef(x_, y_, z_);
+
+	// To make the aircraft's coordinate system same as the test environment's coordinate system
+	// First rotate around the y-axis, means heading
+	glRotatef(yrot_, 0.0f, 1.0f, 0.0f);
+	// Second rotate around the x-axis, means pitch
+	glRotatef(-xrot_, 1.0f, 0.0f, 0.0f);
+	// Third rotate around the z-axis, means roll
+	glRotatef(zrot_, 0.0f, 0.0f, 1.0f);
+	glEnable(GL_DEPTH_TEST);
+	glBegin(GL_TRIANGLES);
+		for ( int i = 0; i < (int)meshes_.size(); i++ ) {
+			for ( int j = 0; j < (int)meshes_[i].numFaces; j++ ) {
+				glNormal3f(meshes_[i].normals[(int) meshes_[i].faces[j].x].x, 
+					meshes_[i].normals[(int) meshes_[i].faces[j].x].y, 
+					meshes_[i].normals[(int) meshes_[i].faces[j].x].z);
+				glVertex3f(meshes_[i].vertices[(int) meshes_[i].faces[j].x].x, 
+					meshes_[i].vertices[(int) meshes_[i].faces[j].x].y, 
+					meshes_[i].vertices[(int) meshes_[i].faces[j].x].z);
+
+				glNormal3f(meshes_[i].normals[(int) meshes_[i].faces[j].y].x, 
+					meshes_[i].normals[(int) meshes_[i].faces[j].y].y, 
+					meshes_[i].normals[(int) meshes_[i].faces[j].y].z);
+				glVertex3f(meshes_[i].vertices[(int) meshes_[i].faces[j].y].x, 
+					meshes_[i].vertices[(int) meshes_[i].faces[j].y].y, 
+					meshes_[i].vertices[(int) meshes_[i].faces[j].y].z);
+
+				glNormal3f(meshes_[i].normals[(int) meshes_[i].faces[j].z].x, 
+					meshes_[i].normals[(int) meshes_[i].faces[j].z].y, 
+					meshes_[i].normals[(int) meshes_[i].faces[j].z].z);
+				glVertex3f(meshes_[i].vertices[(int) meshes_[i].faces[j].z].x, 
+					meshes_[i].vertices[(int) meshes_[i].faces[j].z].y, 
+					meshes_[i].vertices[(int) meshes_[i].faces[j].z].z);
+			}
+		}
+	glEnd();
+	glEnable(GL_BLEND);
+	glPopMatrix();
 }

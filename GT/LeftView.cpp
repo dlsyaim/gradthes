@@ -8,12 +8,14 @@
 #include <GL/glut.h>
 #include "CurveCtrl.h"
 #include "GT.h"
+#include "MainFrm.h"
 #include "LeftView.h"
 #include "GTView.h"
 #include "GTDoc.h"
 #include "Singleton.h"
 #include "MsgType.h"
 #include "UpperRightView.h"
+#include "FlightExperimentController.h"
 
 #define CURVE_WIDTH 280
 #define CURVE_HEIGHT 110
@@ -60,6 +62,8 @@ CLeftView::CLeftView()
 
 	// The experiment data
 	memset(&ed, 0, sizeof(ed));
+
+	controller = new CFlightExperimentController();
 }
 
 CLeftView::~CLeftView()
@@ -70,6 +74,9 @@ CLeftView::~CLeftView()
 		delete m_pPitchCurveCtrl;
 	if (m_pHeadCurveCtrl)
 		delete m_pHeadCurveCtrl;
+
+	if (controller)
+		delete controller;
 }
 
 void CLeftView::DoDataExchange(CDataExchange* pDX)
@@ -207,6 +214,7 @@ LRESULT CLeftView::OnStartTaskReply(WPARAM w, LPARAM l)
 		// Get the start time
 		startTime = CTime::GetCurrentTime();
 		memcpy(ed.startTime, startTime.Format("%Y-%m-%d %H:%M:%S").GetBuffer(0), startTime.Format("%Y-%m-%d %H:%M:%S").GetLength());
+
 	} else {
 		AfxMessageBox(_T("Failed to start task"), MB_OK | MB_ICONSTOP);
 	}
@@ -424,6 +432,7 @@ void CLeftView::updateCurve(void)
 
 void CLeftView::serialize(BOOL isForce/* = FALSE*/)
 {
+	//static int count = 1;
 	if (!isForce) {
 		bufFSG.push_back(*newestFSG);
 
@@ -431,44 +440,53 @@ void CLeftView::serialize(BOOL isForce/* = FALSE*/)
 		fullFileName = feFileName + _T(".fs");
 
 		if (bufFSG.size() == MAX_BUFFER_NUM) {
-			std::ofstream ofs(fullFileName, std::ios::binary || std::ios::app);
-			// Calculate the file size 
-			ofs.seekp(0, std::ios::end);
-			int endSize = ofs.tellp();
-			
-			std::vector<FlyStateGroup>::iterator iter;
-			for (iter = bufFSG.begin(); iter != bufFSG.end(); iter++) {
-				ofs.write((char*) &(*iter), sizeof(*iter));
-			}
-			ofs.close();
+			//std::ofstream ofs(fullFileName, std::ios::binary || std::ios::app);
+			//// Calculate the file size 
+			//ofs.seekp(0, std::ios::end);
+			//int endSize = ofs.tellp();
+			//
+			//std::vector<FlyStateGroup>::iterator iter;
+			//for (iter = bufFSG.begin(); iter != bufFSG.end(); iter++) {
+			//	ofs.write((char*) &(*iter), sizeof(*iter));
+			//}
+			//ofs.close();
+			//if (count == 1) {
+			controller->saveFlyDataFile(fullFileName, &bufFSG);
+			/*	++count;
+			} else {
+
+			}*/
 			bufFSG.clear();
 		}	
 	} else {
 		CString fullFileName;
 		fullFileName = feFileName + _T(".fs");
 
-		std::ofstream ofs(fullFileName, std::ios::binary || std::ios::app);
-		// Calculate the file size
-		ofs.seekp(0, std::ios::end);
-		int endSize = ofs.tellp();
+		//std::ofstream ofs(fullFileName, std::ios::binary || std::ios::app);
+		//// Calculate the file size
+		//ofs.seekp(0, std::ios::end);
+		//int endSize = ofs.tellp();
 
-		std::vector<FlyStateGroup>::iterator iter;
-		for (iter = bufFSG.begin(); iter != bufFSG.end(); iter++) {
-			ofs.write((char*) &(*iter), sizeof(*iter));
-		}
+		//std::vector<FlyStateGroup>::iterator iter;
+		//for (iter = bufFSG.begin(); iter != bufFSG.end(); iter++) {
+		//	ofs.write((char*) &(*iter), sizeof(*iter));
+		//}
+		controller->saveFlyDataFile(fullFileName, &bufFSG);
 
 		/*
 		 * And we must serialize ed into the file's header
 		 */
-		ofs.seekp(0, std::ios::beg);
+		/*ofs.seekp(0, std::ios::beg);
 		ofs.write((char *)&ed, sizeof(ed));
-		ofs.close();
+		ofs.close();*/
+		controller->addFlyDataFileHeader(fullFileName, &ed);
 		bufFSG.clear();
 	}
 }
 
 void CLeftView::startFlightExperiment(void)
 {
+	((CMainFrame*)AfxGetMainWnd())->enableMenuItems(FALSE);
 	/***** Here we start flight experiment *****/
 	
 	/***** First check all the configuration *****/
@@ -532,6 +550,7 @@ void CLeftView::stopFlightExperiment(void)
 	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
 	cln->SendSvr(command, sizeof(command));	
 
+	// Update...
 	endTime = CTime::GetCurrentTime();
 		
 	CTimeSpan tof = endTime - startTime;
@@ -539,5 +558,7 @@ void CLeftView::stopFlightExperiment(void)
 		
 	// Force to serialize
 	serialize(TRUE);
+
+	((CMainFrame*)AfxGetMainWnd())->enableMenuItems(TRUE);
 
 }

@@ -19,6 +19,7 @@ public:
 	void updatePitch(double pitchAngle);
 	// Update roll 
 	void updateRoll(double rollAngle);
+	void draw(void);
 private:
 	double heading;
 	double pitch;

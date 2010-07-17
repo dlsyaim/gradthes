@@ -31,6 +31,7 @@
 #define IDD_HELICOPTERCHOOSING_DIALOG   310
 #define IDD_COMMUNICATIONTEST_DIALOG    311
 #define IDD_SERVOACTORDEMARCATE_DIALOG  312
+#define IDR_HTML_CPNAMEPREFIXDIALOG     313
 #define IDD_GPSTEST_DIALOG              314
 #define IDD_COLLECTIVE_TAB              317
 #define IDD_ROLL_TAB                    318
@@ -58,6 +59,8 @@
 #define IDR_FP_TOOLBAR                  369
 #define IDB_FP_TB_BITMAP                371
 #define IDB_FE_TB_BITMAP                372
+#define IDD_CP_NAME_PREFIX_DIALOG       373
+#define IDD_FP_NAME_PREFIX_DIALOG       374
 #define IDC_HELICOPTERNAME_EDIT         1000
 #define IDC_HELICOPTERMASS_EDIT         1001
 #define IDC_MAINBLADELENGHT_EDIT        1002
@@ -252,6 +255,8 @@
 #define IDC_OPT_X_COOR                  1145
 #define IDC_POINT_Z_COORDINATE          1145
 #define IDC_CONVERTED_PITCH_EDIT        1145
+#define IDC_CP_NAME_PREFIX_EDIT         1145
+#define IDC_FP_NAME_PREFIX_EDIT         1145
 #define IDC_EDIT2                       1146
 #define IDC_FE_Y_COOR                   1146
 #define IDC_DP_FPS_EDIT                 1146
@@ -387,6 +392,8 @@
 #define IDC_ROLL_SPIN                   1218
 #define IDC_COLLECTIVE_SPIN             1219
 #define IDC_ROTOR_RESULT_LIST           1223
+#define IDC_LOAD_FILE_BUTTON            1229
+#define IDC_SAVE_FP_BUTTON              1230
 #define IDC_ROLL_CURVE_CONTROL          1300
 #define IDC_PITCH_CURVE_CONTROL         1301
 #define IDC_HEAD_CURVE_CONTROL          1302
@@ -433,16 +440,21 @@
 #define IDC_TB_FE_START                 32820
 #define IDC_TB_FE_STOP                  32821
 #define ID_ADD_POINT_CB                 32822
-#define ID_BUTTON32823                  32823
 #define ID_SELECT_POINT_CB              32823
+#define ID_32824                        32824
+#define ID_32825                        32825
+#define IDS_HELICOPTER_REQUIRED         61446
+#define IDS_EXIT_SERVO_DEMARCATE        61447
+#define IDS_EXIT_ROTOR_DEMARCATE        61448
+#define IDS_EXCEED_LIMIT                61449
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        373
-#define _APS_NEXT_COMMAND_VALUE         32824
-#define _APS_NEXT_CONTROL_VALUE         1229
-#define _APS_NEXT_SYMED_VALUE           310
+#define _APS_NEXT_RESOURCE_VALUE        375
+#define _APS_NEXT_COMMAND_VALUE         32826
+#define _APS_NEXT_CONTROL_VALUE         1231
+#define _APS_NEXT_SYMED_VALUE           314
 #endif
 #endif

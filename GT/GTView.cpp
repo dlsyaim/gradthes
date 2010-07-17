@@ -120,6 +120,18 @@ void CGTView::OnDraw(CDC* /*pDC*/)
 	GetClientRect(&m_rect);
 	m_Renderer->draw(&m_rect, renderMode);
 
+	//const GLubyte* ver;
+	//ver =  glGetString(GL_VERSION);
+	//TRACE("Version: %s\n", ver);
+	//ver =  glGetString(GL_VENDOR);
+	//TRACE("Version: %s\n", ver);
+	////ver =  glGetString(GL_SHADING_LANGUAGE_VERSION);
+	////TRACE("Version: %s\n", ver);
+	//ver =  glGetString(GL_RENDERER);
+	//TRACE("Version: %s\n", ver);
+	//ver =  glGetString(GL_EXTENSIONS);
+	//TRACE("Version: %s\n", ver);
+
 	// Swap the front and back framebuffer
 	SwapBuffers(wglGetCurrentDC());
 }
@@ -270,7 +282,6 @@ void CGTView::OnSize(UINT nType, int cx, int cy)
 {
 	CView::OnSize(nType, cx, cy);
 	
-	// TODO: 
 	wglMakeCurrent(m_pDC->GetSafeHdc(), m_hRC);
 
 	m_left = -cx / 2.0;
@@ -299,7 +310,6 @@ void CGTView::OnDestroy()
 {
 	CView::OnDestroy();
 
-	// TODO: 
 	wglMakeCurrent(NULL, NULL);
 	wglDeleteContext(m_hRC);
 	delete m_pDC;
@@ -328,7 +338,6 @@ void CGTView::OnStopTimer(void)
 
 void CGTView::OnTimer(UINT_PTR nIDEvent)
 {
-	// TODO: 
 	CGTDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 	if (!pDoc | !m_Renderer)
@@ -425,7 +434,6 @@ void CGTView::OnMouseMove(UINT nFlags, CPoint point)
 
 BOOL CGTView::PreTranslateMessage(MSG* pMsg)
 {
-	// TODO: 
 	// We know the WM_KEYDOWN and WM_CHAR message are two messages whose source are different.
 	// If a WM_KEYDOWN message arrives, we leave the handling of pressing lower 26 english letters to the WM_CHAR messages.
 	if (pMsg->message == WM_KEYDOWN) {
@@ -458,7 +466,6 @@ BOOL CGTView::PreTranslateMessage(MSG* pMsg)
 
 void CGTView::OnAHRSStart()
 {
-	// TODO: 
 	commandData[0] = 0xfe;
 	commandData[1] = 0x83;
 	m_Port.WriteToPort(commandData,2);
@@ -466,7 +473,6 @@ void CGTView::OnAHRSStart()
 
 void CGTView::OnAHRSStop()
 {
-	// TODO:
 	commandData[0] = 0xfe;
 	commandData[1] = 0xfe;
 	m_Port.WriteToPort(commandData,2);
@@ -523,8 +529,6 @@ long CGTView::OnCommunication(WPARAM ch, LPARAM port)
 
 void CGTView::OnRButtonDown(UINT nFlags, CPoint point)
 {
-	// TODO: 
-
 	rbDown = !rbDown;
 	CView::OnRButtonDown(nFlags, point);
 }
@@ -636,6 +640,10 @@ void CGTView::updateFS(pFlyState fs)
 	m_Renderer->updateData(fs);
 	Invalidate();
 }
+
+/*
+ * 
+ */
 void CGTView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	if (renderMode == CGTView::FLIGHT_PATH_SET) 
@@ -652,7 +660,8 @@ void CGTView::OnLButtonDown(UINT nFlags, CPoint point)
 		if (iter == mapCoor.end()) {   
 			// Not found the point
 			if (addOrSelect == 1) {
-				// TODO:Be adding state, so add a point to 
+				// TODO: Be adding status, so add a point 
+				addPointByMouse(&point);
 			} else if (addOrSelect == 2){
 				// Be selecting state, check if select the navigator
 				selected = selectNavigator(&point);
@@ -733,7 +742,6 @@ void CGTView::updatePathPoint(pPathPointData p)
 
 	iter->second.x = (LONG)wx;
 	iter->second.y = rect.bottom - (LONG)wy - 1;
-
 }
 
 /* 
@@ -802,4 +810,35 @@ int CGTView::selectNavigator(CPoint* pP)
 		return 3;
 
 	return -1;	
+}
+
+void CGTView::addPointByMouse(LPPOINT lpPoint)
+{
+	CRect rect;
+	GetClientRect(&rect);
+	GLint viewport[4];
+	GLdouble mvmatrix[16], projmatrix[16];
+
+	// OpenGL y coordinate position
+	GLint realy;
+	GLdouble wx, wy, wz, wx1, wy1, wz1, wx0, wz0; /* Returned world x, y, z coordinates */
+
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	realy = viewport[3] - (GLint)lpPoint->y - 1;
+
+	glGetDoublev(GL_MODELVIEW_MATRIX, mvmatrix);
+	glGetDoublev(GL_PROJECTION_MATRIX, projmatrix);
+
+	gluUnProject((GLdouble)lpPoint->x, (GLdouble)realy, 0.0, mvmatrix, projmatrix, viewport, &wx, &wy, &wz);
+	
+	gluUnProject((GLdouble)lpPoint->x, (GLdouble)realy, 1.0, mvmatrix, projmatrix, viewport, &wx1, &wy1, &wz1);
+
+	if (wy == wy1) {
+		wz0 = wx0 = 0.0;
+	} else {
+		wz0 = (wy1 * wz - wy * wz1) / (wy1 - wy);
+		wx0 = (wy1 * wx - wy * wx1) / (wy1 - wy);
+	}
+	
+	GetDocument()->gridView->addRow(wx0, wz0);
 }

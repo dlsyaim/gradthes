@@ -44,9 +44,10 @@ protected:
 	// Operations
 	void sendTestData(double value);
 	virtual __int8 getActorSerial(void);
+	virtual void Initialize(float*, float*);
 public:
 	inline void setCln(CNetCln* cln) {this->cln = cln;}
-	virtual void Initialize(float*, float*);
+	
 };
 
 

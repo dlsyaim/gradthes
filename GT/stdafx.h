@@ -42,6 +42,7 @@
 
 #include "define\FlyInsDefine.h"
 #include "define\FlyStructDefine.h"
+#include <afxdhtml.h>
 
 
 #ifdef _UNICODE

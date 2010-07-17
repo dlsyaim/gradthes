@@ -154,7 +154,7 @@ void Renderer::draw(void)
 	panel->draw(lpRect);
 
 	// Draw aircraft
-	aircraft->draw(lpRect, FALSE, TRUE);
+	aircraft->draw(*lpRect, FALSE, TRUE);
 }
 
 // Initialize the illumination and material
@@ -271,6 +271,18 @@ void Renderer::updateCamera(LPPOINT lpPoint)
 void Renderer::updateCamera(int virtualKey)
 {
 	camera->Update(virtualKey);
+}
+
+void Renderer::resetCamera(int m)
+{
+	if (m == CGTView::FLIGHT_PATH_SET) {
+		camera->PositionCamera(
+				60.0f, 40.0f, 60.0f,
+				0.0f, 0.0f, 0.0f,
+				0.0f, 1.0f, 0.0f);
+	} else {
+		camera->PositionCamera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f);
+	}
 }
 
 // Draw fonts.
@@ -512,7 +524,7 @@ void Renderer::draw(LPRECT lpRect, int renderMode)
 					glLoadIdentity();
 					camera->Look();
 					glClear(GL_DEPTH_BUFFER_BIT);
-					aircraft->draw(lpRect);
+					aircraft->draw(*lpRect);
 					break;
 				case 2:
 					break;
@@ -598,7 +610,7 @@ void Renderer::drawWithoutInstruments(void)
 
 	glDisable(GL_DEPTH_TEST);
 	// Draw aircraft without terrains
-	aircraft->draw(lpRect, FALSE);
+	aircraft->draw(*lpRect, FALSE);
 }
 
 
@@ -632,7 +644,7 @@ void Renderer::drawPath(void)
 	glDisable(GL_LIGHTING);
 	if (pPath) {
 		glPushAttrib(GL_POINT_BIT | GL_COLOR_BUFFER_BIT);
-		glColor3f(0.0f, 0.0f, 0.0f);
+		glColor3f(1.0f, 1.0f, 1.0f);
 
 		std::vector<PathPointData*>::iterator iter;
 		// Draw lines
@@ -681,7 +693,7 @@ void Renderer::updateData(CString aLine)
 
 void Renderer::updateData(pFlyState fs)
 {
-	aircraft->update(fs);
+	aircraft->update(*fs);
 
 	/*
 	 * We should update the stat first
@@ -693,14 +705,14 @@ void Renderer::updateData(pFlyState fs)
 
 void Renderer::updateData(pIMUTestData itd)
 {
-	aircraft->update(itd);
+	aircraft->update(*itd);
 
 	updateStat(itd);
 }
 
 void Renderer::updateData(pOPTTRACETestData otd)
 {
-	aircraft->update(otd);
+	aircraft->update(*otd);
 	
 	updateStat(otd);
 }

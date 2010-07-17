@@ -28,6 +28,8 @@ public:
 	void updateCamera(void);
 	void updateCamera(int virtualKey);	
 	void updateCamera(LPPOINT lpPoint);
+	// Reset camera
+	void resetCamera(int m);
 
 	// Setters and getters
 	inline void setBase(GLuint base) {this->base = base;}
