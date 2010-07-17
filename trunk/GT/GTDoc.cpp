@@ -41,7 +41,6 @@ CGTDoc::CGTDoc()
 		CFile::shareDenyNone, &e
 		)) {
 			if (sharedFile) {
-				sharedFile->Close();
 				delete sharedFile;
 				sharedFile = NULL;
 			}

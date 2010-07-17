@@ -104,7 +104,7 @@
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="2"
-			CharacterSet="1"
+			CharacterSet="0"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -151,7 +151,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="mtxlib.lib libcimtd.lib vr.lib wrl.lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;$(ProjectDir)Lib&quot;"
+				IgnoreDefaultLibraryNames="libcmtd.lib;MSVCRTD.lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -250,11 +253,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FileHandler.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\FlapsIndicator.cpp"
 				>
 			</File>
 			<File
+				RelativePath=".\FlightExperimentController.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\FlightModel.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\FlightPathSetController.cpp"
 				>
 			</File>
 			<File
@@ -318,6 +333,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\HelicopterChoosingController.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\HelicopterChoosingDialog.cpp"
 				>
 			</File>
@@ -347,6 +366,10 @@
 			</File>
 			<File
 				RelativePath=".\MainFrm.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MainFrmController.cpp"
 				>
 			</File>
 			<File
@@ -394,6 +417,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PIDCPDialogController.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\PitchRotorDiskTab.cpp"
 				>
 			</File>
@@ -435,6 +462,10 @@
 			</File>
 			<File
 				RelativePath=".\ServoActor.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ServoActorDemarcateController.cpp"
 				>
 			</File>
 			<File
@@ -530,11 +561,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Utility.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Vector3D.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\VerticalVelocityIndicator.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\VRMLLoader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\XMLReader.cpp"
 				>
 			</File>
 		</Filter>
@@ -612,11 +655,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FileHandler.h"
+				>
+			</File>
+			<File
 				RelativePath=".\FlapsIndicator.h"
 				>
 			</File>
 			<File
+				RelativePath=".\FlightExperimentController.h"
+				>
+			</File>
+			<File
 				RelativePath=".\FlightModel.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FlightPathSetController.h"
 				>
 			</File>
 			<File
@@ -696,6 +751,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\HelicopterChoosingController.h"
+				>
+			</File>
+			<File
 				RelativePath=".\HelicopterChoosingDialog.h"
 				>
 			</File>
@@ -725,6 +784,10 @@
 			</File>
 			<File
 				RelativePath=".\MainFrm.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MainFrmController.h"
 				>
 			</File>
 			<File
@@ -780,6 +843,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PIDCPDialogController.h"
+				>
+			</File>
+			<File
 				RelativePath=".\PitchRotorDiskTab.h"
 				>
 			</File>
@@ -825,6 +892,10 @@
 			</File>
 			<File
 				RelativePath=".\ServoActor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ServoActorDemarcateController.h"
 				>
 			</File>
 			<File
@@ -908,6 +979,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Utility.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Vector3D.h"
 				>
 			</File>
@@ -916,15 +991,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\VRMLLoader.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\VRMLLoader.h"
-				>
-			</File>
-			<File
-				RelativePath=".\XMLReader.cpp"
 				>
 			</File>
 			<File
@@ -1014,6 +1081,11 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\CPNamePrefixDialog.htm"
+			DeploymentContent="true"
+			>
+		</File>
 		<File
 			RelativePath=".\ReadMe.txt"
 			>

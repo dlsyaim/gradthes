@@ -6,9 +6,19 @@
 #include "GT.h"
 #include "PIDCPDialog.h"
 #include "Singleton.h"
+#include "PIDCPDialogController.h"
 
 #define ROW_COUNT 12
 #define COL_COUNT 9
+
+bool operator== (const ControlPara &cp1, const ControlPara &cp2)
+{
+	return !strcmp(cp1.paraname, cp2.paraname)
+		&& cp1.type == cp2.type
+		&& cp1.vb == cp2.vb
+		&& cp1.vf == cp2.vf
+		&& cp1.vl == cp2.vl;
+}
 
 // CPIDCPDialog 对话框
 
@@ -17,11 +27,13 @@ IMPLEMENT_DYNAMIC(CPIDCPDialog, CDialog)
 CPIDCPDialog::CPIDCPDialog(CWnd* pParent /*=NULL*/)
 	: CDialog(CPIDCPDialog::IDD, pParent)
 {
-
+	controller = new CPIDCPDialogController();
 }
 
 CPIDCPDialog::~CPIDCPDialog()
 {
+	if (controller)
+		delete controller;
 }
 
 void CPIDCPDialog::DoDataExchange(CDataExchange* pDX)
@@ -152,12 +164,19 @@ BOOL CPIDCPDialog::OnInitDialog()
 	}
 	m_Grid.ExpandRowsToFit(FALSE);
 
+	CSingleton* instance = CSingleton::getInstance();
+	if (instance->getCPV()->size()) {
+		updateGrid();
+	}
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
 
 void CPIDCPDialog::OnBnClickedOk()
 {
+	
+
 	this->UpdateData(TRUE);
 	/********** Get the socket cliet  **********/
 	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
@@ -170,10 +189,22 @@ void CPIDCPDialog::OnBnClickedOk()
 	CSingleton *instance = CSingleton::getInstance();
 	PConfigStruct pCS = instance->getCS();
 
-	std::vector<ControlPara>* PCPV = instance->getCPV();
-	PCPV->clear();
+	std::vector<ControlPara>* PCPV = instance->getTempCPV();
+	//PCPV->clear();
+	std::vector<ControlPara> copy;
+	bool isChange = false;
+	if (PCPV->empty()) {
+		isChange = true;
+	} else {
+		std::vector<ControlPara>::iterator iter;
+		for (iter = PCPV->begin(); iter != PCPV->end(); iter++) {
+			copy.push_back(*iter);
+		}
+		PCPV->clear();
+	}
+	
 
-	/***** Attention the index starts from 1 *****/
+	// Attention the index starts from 1
 	ControlPara cp;
 	// Initialize to zero
 	memset(&cp, 0, sizeof(cp));
@@ -234,53 +265,83 @@ void CPIDCPDialog::OnBnClickedOk()
 			cp.vf = (float) atof((LPCTSTR)itemText);
 			memcpy(command + 2, (char *)&cp, sizeof(cp));
 			cln->SendSvr(command, sizeof(command));
-			CSingleton::getInstance()->getCPV()->push_back(cp);
+			PCPV->push_back(cp);
 		}
 	}
-
-    /********** Set the global state variable **********/
+	/*if (copy == *PCPV) {
+		TRACE("Works\n");
+	} else {
+		TRACE("Also works\n");
+	}*/
+	if (!isChange) {
+		if (copy == *PCPV) {
+			isChange = false;
+		} else {
+			isChange = true;
+		}
+	}
+    // Set the global state variable
 	instance->setIsControlParameterSet(TRUE);
+
+	
 	
 	/********** Save the control paramters into files **********/	
-	static int version = 0;
-	CTime t = CTime::GetCurrentTime();  
-	CString timeString = t.Format("%Y-%m-%d %H-%M-%S");
-	CString verStr;	
-	verStr.Format(_T("-%d.cp"), version++);
-	timeString.Append(verStr);
-	
-	std::ofstream ofs(timeString, std::ios::binary);
-	std::vector<ControlPara>::iterator iter;
-	for (iter = PCPV->begin(); iter != PCPV->end(); iter++) {
-		ofs.write((char *)(&(*iter)), sizeof(*iter));
+	//static int version = 0;
+	//CTime t = CTime::GetCurrentTime();  
+	//CString timeString = t.Format("%Y-%m-%d %H-%M-%S");
+	//CString verStr;	
+	//verStr.Format(_T("-%d.cp"), version++);
+	//timeString.Append(verStr);
+	//
+	//std::ofstream ofs(timeString, std::ios::binary);
+	//std::vector<ControlPara>::iterator iter;
+	//for (iter = PCPV->begin(); iter != PCPV->end(); iter++) {
+	//	ofs.write((char *)(&(*iter)), sizeof(*iter));
+	//}
+	//ofs.close();
+	if (isChange) {
+		CString namePrefix;
+		while (true) {
+			CPIDNamePrefixDialog pnp;
+			if (pnp.DoModal() == IDOK) {
+				if (pnp.namePrefix.GetLength() != 0) {
+					namePrefix = pnp.namePrefix;
+					break;
+				}
+			}
+		}
+		controller->saveControlParaFile(namePrefix, PCPV);
 	}
-	ofs.close();
-
-	pCS->isControlSet = 1;
-	memcpy(pCS->controlParameterFileName, (LPCTSTR)timeString, timeString.GetLength());
 	
+	instance->updateCurCP();
+
+	//pCS->isControlSet = 1;
+	//memcpy(pCS->controlParameterFileName, (LPCTSTR)timeString, timeString.GetLength());
+	TRACE("Current CP: %s\n", instance->getCS()->controlParameterFileName);
 	OnOK();
 }
 
 void CPIDCPDialog::OnBnClickedCancel()
 {
 	CSingleton* instance = CSingleton::getInstance();
-	instance->setIsControlParameterSet(FALSE);
+	//instance->setIsControlParameterSet(FALSE);
+
+	TRACE("Current CP: %s\n", instance->getCS()->controlParameterFileName);
 
 	OnCancel();
 }
 
 void CPIDCPDialog::OnBnClickedOpenCPBtn()
 {
-	char szFilter[] = {"Control Parameter (*.cp)|*.cp||"};
-    std::vector<ControlPara>* PCMV = CSingleton::getInstance()->getCPV();
+	char szFilter[] = {"All Files (*.*)|*.*||"};
+    std::vector<ControlPara>* PCMV = CSingleton::getInstance()->getTempCPV();
 
 	while (TRUE) {	
-		CFileDialog openDlg(TRUE, ".cp", NULL, 0, szFilter);
+		CFileDialog openDlg(TRUE, NULL, NULL, 0, szFilter);
 			if (openDlg.DoModal() == IDOK) {
 				CString fileName = openDlg.GetPathName();
 				// Open file
-				std::ifstream ifs(fileName, std::ios::binary);
+				/*std::ifstream ifs(fileName, std::ios::binary);
 				ControlPara cp;
 				while (true) {
 					ifs.read((char *)&cp, sizeof(cp));
@@ -288,7 +349,10 @@ void CPIDCPDialog::OnBnClickedOpenCPBtn()
 						break;
 					PCMV->push_back(cp);
 				}
-				ifs.close();
+				ifs.close();*/
+				controller->openControlParaFile(fileName, PCMV);
+				
+				// Update the grid
 				updateGrid();
 				break;
 			} else
@@ -299,9 +363,9 @@ void CPIDCPDialog::OnBnClickedOpenCPBtn()
 
 void CPIDCPDialog::updateGrid(void)
 {
-	std::vector<ControlPara> *PCMV = CSingleton::getInstance()->getCPV();
+	std::vector<ControlPara> *PCMV = CSingleton::getInstance()->getTempCPV();
 
-	if (!PCMV)
+	if (PCMV->size() == 0)
 		return;
 
 	int i, j, index = 0;
@@ -322,4 +386,42 @@ void CPIDCPDialog::updateGrid(void)
 	m_Grid.Invalidate();
 	
 	UpdateData(FALSE);
+}
+// E:\Workspace\Visual Studio 2008\GraduationThesis\GT\PIDCPDialog.cpp : implementation file
+//
+
+
+// CPIDNamePrefixDialog dialog
+
+IMPLEMENT_DYNAMIC(CPIDNamePrefixDialog, CDialog)
+
+CPIDNamePrefixDialog::CPIDNamePrefixDialog(CWnd* pParent /*=NULL*/)
+	: CDialog(CPIDNamePrefixDialog::IDD, pParent)
+	, namePrefix(_T(""))
+{
+
+}
+
+CPIDNamePrefixDialog::~CPIDNamePrefixDialog()
+{
+}
+
+void CPIDNamePrefixDialog::DoDataExchange(CDataExchange* pDX)
+{
+	CDialog::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_CP_NAME_PREFIX_EDIT, namePrefix);
+}
+
+
+BEGIN_MESSAGE_MAP(CPIDNamePrefixDialog, CDialog)
+	ON_BN_CLICKED(IDOK, &CPIDNamePrefixDialog::OnBnClickedOk)
+END_MESSAGE_MAP()
+
+
+// CPIDNamePrefixDialog message handlers
+
+void CPIDNamePrefixDialog::OnBnClickedOk()
+{
+	// TODO: Add your control notification handler code here
+	OnOK();
 }

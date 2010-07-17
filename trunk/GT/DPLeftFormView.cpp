@@ -277,34 +277,63 @@ void CDPLeftFormView::readFSFile(void)
 
 	ExperimentData ed;
 	memset((char *)&ed, 0, sizeof(ed));
-	reserve.read((char*)&ed, sizeof(ed));
+	/*int pos, totalPos = 0;
+	reserve>>pos>>" ";
+	reserve>>pos>>" ";
+	totalPos += pos;
+	reserve.seekg(pos, std::ios::cur);
+	reserve>>pos>>" ";
+	totalPos += pos;
+	reserve.seekg(pos, std::ios::cur);
 
-	/* Get the start time string and the tof */
-	dpStartTime = ed.startTime;
-	tof = ed.tof;
+	reserve>>pos>>" ";
+	totalPos += pos;
+	reserve.seekg(pos, std::ios::cur);
+	reserve.read((char*)&ed, sizeof(ed));*/
+
+
 
 	// The total size of the fly state except for the experiment data
-	reserve.seekg(0, std::ios::end);
-	int totalSize = reserve.tellg();
-	size = (totalSize - sizeof(ExperimentData)) / sizeof(FlyStateGroup);
-	reserve.close();
-	/*
-	 * Loop to calculate the size
-	 */
-	while (ed.subExperimentData[0] != '\0') {
-		reserve.open(ed.subExperimentData, std::ios::binary);
-		reserve.read((char *)&ed, sizeof(ed));
-		reserve.seekg(0, std::ios::end);
-		totalSize = reserve.tellg();
-		size += ((totalSize - sizeof(ExperimentData)) / sizeof(FlyStateGroup));
-		reserve.close();
-	}
+	//reserve.seekg(0, std::ios::end);
+	//int totalSize = reserve.tellg();
+	//size = (totalSize - sizeof(ExperimentData)) / sizeof(FlyStateGroup);
+	//reserve.close();
+	///*
+	// * Loop to calculate the size
+	// */
+	//while (ed.subExperimentData[0] != '\0') {
+	//	reserve.open(ed.subExperimentData, std::ios::binary);
+	//	reserve.read((char *)&ed, sizeof(ed));
+	//	reserve.seekg(0, std::ios::end);
+	//	totalSize = reserve.tellg();
+	//	size += ((totalSize - sizeof(ExperimentData)) / sizeof(FlyStateGroup));
+	//	reserve.close();
+	//}
 
 	/*
 	 * Then we start to read the first fly state file with the unit of the FlyStateGroup
 	 */
 	ifs.open(dpFileName, std::ios::binary);
-	ifs.seekg(sizeof(ExperimentData), std::ios::beg);
+	char spa;
+	int fileVersion;
+	ifs>>fileVersion;
+	int number;
+	ifs>>number;
+	ifs.seekg(number + 1, std::ios::cur);
+
+	ifs>>number;
+	ifs.seekg(number + 1, std::ios::cur);
+
+	ifs>>number;
+	ifs.seekg(number + 1, std::ios::cur);
+
+	ifs.read((char*)&ed, sizeof(ed));
+
+	/* Get the start time string and the tof */
+	dpStartTime = ed.startTime;
+	tof = ed.tof;
+
+	//ifs.seekg(totalPos, std::ios::cur);
 	FlyStateGroup fsg;
 	int bytesRead;
 	while (buf.size() != BUF_SIZE) {
@@ -418,7 +447,7 @@ pFlyState CDPLeftFormView::getFlyState(void)
 	 * First get the fly state group according to seconds
 	 */
 	FlyStateGroup fsg;
-	fsg.serial = seconds;
+	fsg.serial = seconds + 1;
 	std::vector<FlyStateGroup>::iterator iter = std::find(buf.begin(), buf.end(), fsg);
 	if (iter == buf.end()) {
 		// No found, so need to update the buf

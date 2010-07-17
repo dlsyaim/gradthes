@@ -27,6 +27,7 @@
 #include "GSDefinition.h"
 #include "Singleton.h"
 #include "MsgType.h"
+#include "MainFrmController.h"
 
 /*
  * 48000 is an estimated number
@@ -93,6 +94,8 @@ CMainFrame::CMainFrame()
 
 	popUpMenu = NULL;
 
+	controller = new CMainFrmController();
+
 }
 
 CMainFrame::~CMainFrame()
@@ -101,6 +104,9 @@ CMainFrame::~CMainFrame()
 		delete popUpMenu;
 	imageList.Detach();
 	bitmap.Detach();
+
+	if (controller)
+		delete controller;
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -247,6 +253,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// Create the recent helicopter model name menu items
 	createRecentHMMenuItems();
 
+	
+	this->m_bAutoMenuEnable = FALSE;
+
 	return 0;
 }
 
@@ -335,13 +344,15 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 
 void CMainFrame::OnNewModel()
 {
-	// New a dialog
+	// Open a helicopter choosing dialog
 	CSingleton* instance = CSingleton::getInstance();
-	CHelicopterChoosingDialog *mcd = new CHelicopterChoosingDialog(this, TRUE, instance->getHelicopterModel());
+	HelicopterModel hm;
+	CHelicopterChoosingDialog *mcd = new CHelicopterChoosingDialog(this, TRUE, &hm/*instance->getHelicopterModel()*/);
 	switch (mcd->DoModal()) {
 		case IDOK:
 			// First add the helicopter name string
-			AddName(mcd->m_bodyTab.helicopterName);
+			//AddName(mcd->m_bodyTab.helicopterName);
+			AddName(instance->getCurHelicopterModelFileName());
 			// Then update menu items
 			UpdateMenu();
 			// Set the window's title
@@ -352,6 +363,7 @@ void CMainFrame::OnNewModel()
 		default:
 			break;
 	}	
+	delete mcd;
 }
 
 // Deprecated
@@ -499,36 +511,34 @@ void CMainFrame::OnSelectModel(int idx)
 	if (idx < 0 && idx > 4) 
 		return;
 
-	CString name = helicopterNames[idx];
-	/*
-	 * All the helicopter models are saved into one single file
-	 */
-	
+	CString fileName = helicopterNames[idx];
+	HelicopterModel hm;
 	CSingleton* instance = CSingleton::getInstance();
-	PHelicopterModel pHM = instance->getHelicopterModel(FALSE, name);
-	if (!pHM) {
-		DeleteName(name);
-		DeleteMenu(name);
+	bool res = instance->getTempPHM(fileName, &hm);
+	if (!res) {
+		DeleteName(fileName);
+		DeleteMenu(fileName);
 		CString meg;
-		meg.Format("No such a model: %s\n", name);
+		meg.Format("模型不存在: %s\n", fileName);
 		AfxMessageBox((LPCTSTR)meg, MB_OK | MB_ICONSTOP);
 		return;
 	} else {
-		CHelicopterChoosingDialog *hcd = new CHelicopterChoosingDialog(this, FALSE, pHM);
+		CHelicopterChoosingDialog *hcd = new CHelicopterChoosingDialog(this, FALSE, &hm);
 		switch (hcd->DoModal()) {
 			case IDOK:
 				// First add the helicopter name string
-				AddName(hcd->m_bodyTab.helicopterName);
+				AddName(instance->getCurHelicopterModelFileName());
 				// Then update menu items
 				UpdateMenu();
 				// Set the window's titles
-				this->SetWindowText(pHM->helicopterName);
+				this->SetWindowText(instance->getCurPHM()->helicopterName);
 				break;
 			case IDCANCEL:
 				break;
 			default:
 				break;
 		}
+		delete hcd;
 	}
 }
 
@@ -807,9 +817,9 @@ void CMainFrame::OnServoActorDemarcate()
 	// Get the globally unique instance
 	CSingleton *instance = CSingleton::getInstance();
 	PHelicopterModel curPHM = instance->getCurPHM();
-	if (!curPHM)
+	if (!strlen(curPHM->helicopterName))
 	{
-		AfxMessageBox(_T("A helicopter model required.\nSo you must choose a helicopter model firstly "), MB_OK | MB_ICONSTOP);
+		AfxMessageBox(IDS_HELICOPTER_REQUIRED, MB_OK | MB_ICONSTOP);
 		return;
 	}
 	if (curPHM->isDemarcated == 0)
@@ -857,7 +867,6 @@ void CMainFrame::OnGyroTest()
  */
 void CMainFrame::OnFlightPathSet()
 {
-
 	const int gridViewIndex = 0;
 	const int fpsFormViewIndex = 2;
 	/********** Toggle on the left side, switch to GridView **********/
@@ -879,6 +888,8 @@ void CMainFrame::OnFlightPathSet()
 	if (getLowerRightPane()) {
 		getLowerRightPane()->setRenderMode(CGTView::FLIGHT_PATH_SET);
 	}
+	// Update the view
+	((CGTApp*)AfxGetApp())->getDoc()->gridView->updateAllViews();
 
     // Show the toolbar
 	m_wndFPToolBar.ShowPane(TRUE, FALSE, TRUE);
@@ -913,8 +924,10 @@ void CMainFrame::OnFlightExperiment()
 
 	m_pSplitterWnd1->SwitchToView(BOTTOM_SIDE, 0);
 	// Change the render mode
-	if (getLowerRightPane())
+	if (getLowerRightPane()) {
 		getLowerRightPane()->setRenderMode(CGTView::FLIGHT_EXPERIMENT);
+	} 
+
 
 	// Show the toolbar
 	m_wndFEToolBar.ShowPane(TRUE, FALSE, TRUE);
@@ -970,23 +983,22 @@ void CMainFrame::OnOptTest()
 void CMainFrame::OnReadConfiguration()
 {
 	/********** Open the configuration file **********/
-	char strFilter[] = { "UNHE configuration files (*.uhc)|*.uhc| All files (*.*) | *.*||" };
+	char strFilter[] = { "UNHE configuration files (*.uhc)|*.uhc|All files (*.*)|*.*||" };
 	CFileDialog fileDlg(TRUE, ".uhc", NULL, 0, strFilter);
 	
 	CString fileName;	
-	ConfigStruct conStr;
-	CSingleton *instance;
+	PConfigStruct m_pConStr;
+	CSingleton *instance = CSingleton::getInstance();
+	m_pConStr = instance->getCS();
 	std::ifstream ifs;
 	switch (fileDlg.DoModal()) {
 		case IDOK:
 			fileName = fileDlg.GetPathName();
 			ifs.open(fileName, std::ios::binary);
-			ifs.read((char *)&conStr, sizeof(conStr));
-			ifs.close();
-			// And set the flight path file name and control parameter file name
-			instance = CSingleton::getInstance();
-			instance->setRecentFPName(conStr.flightPathFileName);
-			instance->setRecentCPName(conStr.controlParameterFileName);
+			ifs.read((char *)m_pConStr, sizeof(ConfigStruct));
+			ifs.close();			
+			// Load the configuration files
+			loadConfigurationFiles();
 			break;
 		case IDCANCEL:
 			break;
@@ -997,7 +1009,8 @@ void CMainFrame::OnReadConfiguration()
 
 void CMainFrame::OnSaveConfiguration()
 {
-	
+	// Save the experiment configuration
+	controller->saveExperimentConfiguration();
 }
 
 /*
@@ -1011,33 +1024,29 @@ void CMainFrame::OnSaveAsConfiguration()
 		INT_PTR rest = fileDlg.DoModal();
 		if (rest != IDOK)
 			break;
-		// Construct a ConfigStruct object
-		ConfigStruct coSt;
-		// Initializing
-		memset(&coSt, 0, sizeof(coSt));
+
 		CSingleton* instance = CSingleton::getInstance();
-		coSt.version = 0;
-		memcpy(coSt.controlParameterFileName, instance->getRecnetCPName().GetBuffer(0), instance->getRecnetCPName().GetLength());
-		memcpy(coSt.flightPathFileName, instance->getRecnetFPName().GetBuffer(0), instance->getRecnetFPName().GetLength());
+		PConfigStruct m_pCS = instance->getCS();
 		// Check if the file already exists
 		CString fileName = fileDlg.GetPathName();
-		CFileFind finder;
-		BOOL isFound = finder.FindFile(fileName);
-		if (isFound) {
-			INT_PTR ret = AfxMessageBox(fileName + _T(" already exists.\nDo you want to replace it?"), MB_YESNO | MB_ICONWARNING);
-			if (ret == IDYES) {				
-				// Override an existing file
-				std::ofstream ofs(fileName, std::ios::binary | std::ios::trunc);
-				ofs.write((char *)&coSt, sizeof(coSt));
-				ofs.close();
-				break;
-			}
-		} else {
-			std::ofstream ofs(fileName, std::ios::binary | std::ios::trunc);
-			ofs.write((char *)&coSt, sizeof(coSt));
-			ofs.close();
-			break;
-		}
+		//CFileFind finder;
+		//BOOL isFound = finder.FindFile(fileName);
+		//if (isFound) {
+		//	INT_PTR ret = AfxMessageBox(fileName + _T(" already exists.\nDo you want to replace it?"), MB_YESNO | MB_ICONWARNING);
+		//	if (ret == IDYES) {				
+		//		// Override an existing file
+		//		std::ofstream ofs(fileName, std::ios::binary | std::ios::trunc);
+		//		ofs.write((char *)m_pCS, sizeof(ConfigStruct));
+		//		ofs.close();
+		//		break;
+		//	}
+		//} else {
+		//	std::ofstream ofs(fileName, std::ios::binary | std::ios::trunc);
+		//	ofs.write((char *)m_pCS, sizeof(ConfigStruct));
+		//	ofs.close();
+		//	break;
+		//}
+
 	}
 }
 
@@ -1159,6 +1168,67 @@ void CMainFrame::setCheckBoxStates(int state, CString buttonLabel)
 		}
 	}
 	m_wndFPToolBar.Invalidate();
-	
 }
 
+void CMainFrame::enableMenuItems(BOOL isEnable)
+{
+	CMenu* mainMenu = CMenu::FromHandle(m_wndMenuBar.GetDefaultMenu());
+	if (mainMenu != NULL) {
+		CMenu *subMenu = NULL;
+		// Iterate the main menu
+		int menuCount = mainMenu->GetMenuItemCount();
+		int i;
+		for (i = 0; i < menuCount; i++) {
+			CString menuName;
+			mainMenu->GetMenuString(i, menuName, MF_BYPOSITION);
+			int j;
+			if (menuName == "实验") {
+				j = 1;
+			} else {
+				j = 0;
+			}
+			subMenu = mainMenu->GetSubMenu(i);
+			int subMenuCount = subMenu->GetMenuItemCount();
+			for (; j < subMenuCount; j++) {
+				if (isEnable) {
+					subMenu->EnableMenuItem(j, MF_BYPOSITION | MF_ENABLED);
+				} else {
+					subMenu->EnableMenuItem(j, MF_BYPOSITION | MF_DISABLED | MF_GRAYED);
+				}
+			}
+		}
+		m_wndMenuBar.CreateFromMenu(mainMenu->GetSafeHmenu(), TRUE, TRUE);
+	}	
+}
+
+void CMainFrame::loadConfigurationFiles(void)
+{
+	CSingleton* instance = CSingleton::getInstance();
+	PConfigStruct m_pCS = instance->getCS();
+
+	/*if (m_pCS->isControlSet == 1) {
+		std::vector<ControlPara>* CPV = instance->getCPV();
+		ControlPara cp;
+		std::ifstream ifs(m_pCS->controlParameterFileName, std::ios::binary);
+		while (true) {
+			ifs.read((char *)&cp, sizeof(cp));
+			if (ifs.gcount() != sizeof(cp))
+				break;
+			CPV->push_back(cp);
+		}
+		ifs.close();
+	}
+
+	if (m_pCS->isPathSet != 1) {
+		std::vector<pPathPointData>* tPath = instance->getPath();
+		std::ifstream ifs1(m_pCS->flightPathFileName, std::ios::binary);
+		while (true) {
+			pPathPointData pP = new PathPointData;
+			ifs1.read((char *)pP, sizeof(PathPointData));
+			if (ifs1.gcount() != sizeof(PathPointData))
+				break;
+			tPath->push_back(pP);
+		}
+		ifs1.close();
+	}*/
+}

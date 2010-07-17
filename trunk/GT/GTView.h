@@ -44,6 +44,7 @@ public:
 	int m_nDatabits;     //Data bits
 	int m_nStopbits;     //Stop bits
 	
+	
 	// Socket to receive the flight state statistics
 	//CNetSvrUdp* pSvrSock;
 
@@ -76,7 +77,13 @@ private:
 // Operations
 public:
 	// Setters and getters
-	inline void setRenderMode(RENDER_MODE m) {this->renderMode = m; Invalidate(FALSE);}
+	inline void setRenderMode(RENDER_MODE m) 
+	{
+		this->renderMode = m; 
+		// Reset the camera 
+		m_Renderer->resetCamera(m);
+		Invalidate(FALSE);
+	}
 	inline void setPath(std::vector<PathPointData*> *pPath) {m_Renderer->setPPath(pPath); this->Invalidate(FALSE);}
 	void addPathPoint(pPathPointData p);
 	void updatePathPoint(pPathPointData p);
@@ -148,6 +155,8 @@ private:
 // Operations
 	// 1 for x-axis, 2 for y-axis, 3 for z-axis, -1 for none
 	int selectNavigator(CPoint *pP);
+	// ADD a point by mouse left button clicks
+	void addPointByMouse(LPPOINT lpPoint);
 
 };
 

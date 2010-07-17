@@ -1,67 +1,57 @@
 #pragma once
+
 #include "VRMLLoader.h"
-#include "Tools.h"
 
 class Terrain;
+
 class Aircraft
 {
 public:
 	Aircraft(void);
-	~Aircraft(void);
-
-	// 
-	inline void setMeshes(std::vector<Mesh> meshes) {this->meshes = meshes;}
-	inline std::vector<Mesh> getMeshes(void) {return meshes;}
+	virtual ~Aircraft(void);
 
 	// Load aircraft
-	void loadAircraft(void);
-	void loadAircraft(char* filePath);
+	void loadAircraft(const char* filePath);
 
 	// Draw function.
-	void draw(LPRECT lpRect, BOOL isTerrain = TRUE, BOOL isInstr = FALSE);
+	void draw(const RECT &rect, BOOL isTerrain = TRUE, BOOL isInstr = FALSE);
 
 	// Setters and getters
-	inline void setXrot(double xrot) {this->xrot = xrot;}
-	inline double getXrot(void) {return xrot;}
-	inline void setYrot(double yrot) {this->yrot = yrot;}
-	inline double getYrot(void) {return yrot;}
-	inline void setZrot(double zrot) {this->zrot = zrot;}
-	inline double getZrot(void) {return zrot;}
+	inline void setXrot(double xrot) {xrot_ = xrot;}
+	inline double getXrot(void) {return xrot_;}
+	inline void setYrot(double yrot) {yrot_ = yrot;}
+	inline double getYrot(void) {return yrot_;}
+	inline void setZrot(double zrot) {zrot_ = zrot;}
+	inline double getZrot(void) {return zrot_;}
 
-	inline void setX(double x) {this->x = x;}
-	inline double getX(void) {return x;}
-
-	inline void setY(double y) {this->y = y;}
-	inline double getY(void) {return y;}
-
-	inline void setZ(double z) {this->z = z;}
-	inline double getZ(void) {return z;}
+	inline void setX(float x) {x_ = x;}
+	inline float getX(void) {return x_;}
+	inline void setY(float y) {y_ = y;}
+	inline float getY(void) {return y_;}
+	inline void setZ(float z) {z_ = z;}
+	inline float getZ(void) {return z_;}
+	
 	// Update data
-	void update(double *stat);
-	void update(FlyState* fs);
-	void update(IMUTestData* itd);
-	void update(pOPTTRACETestData otd);
+	void update(const double *stat);
+	void update(const FlyState& fs);
+	void update(const IMUTestData& itd);
+	void update(const OPTTRACETestData& otd);
 
 private:
-	std::vector<Mesh> meshes;
-
-	double xrot, yrot, zrot;
-	// Terrain
-	Terrain *terrain;
-
+// Attributes
+	std::vector<Mesh> meshes_;
+	double xrot_, yrot_, zrot_;
 	// Position
-	double x, y, z;
+	float x_, y_, z_;
+	// Terrain
+	Terrain *terrain_;
 
-// Operations
-	/*
-	 * When the client area's size changes, then the aircraft must update acoordingly.
-	 */
-	void drawWithAutoSize(LPRECT lpRect);
+// Operations	
+	// When the client area's size changes, then the aircraft update acoordingly.
+	void drawWithAutoSize(const RECT &rect);
+	
+	// When the instruments are drawn, so the aircraft adjust its position
+	void drawWithInstruments(const RECT &rect);
 
-	/*
-	 * When the instruments are drawn, so the aircraft must adjust its position
-	 */
-	void drawWithInstruments(LPRECT lpRect);
-
-
+	void drawModel(void);
 };

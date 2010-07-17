@@ -4,11 +4,13 @@
 
 
 /*
- * This struct is an aggregated struct, which contains
+ * This struct is an aggregated struct, a record type, which contains
  * (1)helicopterName,
  * (2)HelicopterPara(parameters about the helicopter itself),
- * (3)ServoActorData(demarcated servo actor data).
- * (4)TiltDiscData(demarcated tilt disc data).
+ * (3)Flag variable indicates if the servo actor is demarcated or not,
+ * (4)ServoActorData(demarcated servo actor data),
+ * (5)Flag variable indicates if the tilt disc is demarcated or not,
+ * (6)TiltDiscData(demarcated tilt disc data).
  * And changes as time goes by.
  */
 
@@ -23,19 +25,19 @@ typedef struct _HelicopterModel
 }HelicopterModel, *PHelicopterModel;
 
 /*
- * The configuration file's structure
- * (1)Version
- * (2)The file name of the flight path
- * (3)The file name of control parameter
+ * The experiment configuration
+ * (1)The file name of the helicopter model
+ * (2)The file name of control parameters
+ * (3)The file name of the flight path
+ * (4)The file name of the fly data
  */
 
 typedef struct _ConfigStruct
 {
-	int version;
-	char isPathSet;
-	char flightPathFileName[100];
-	char isControlSet;
-	char controlParameterFileName[100];
+	char helicopterModelFileName[101];
+	char controlParameterFileName[101];
+	char flightPathFileName[101];
+	char flyDataFileName[101];
 }ConfigStruct, *PConfigStruct;
 
 /*
@@ -50,4 +52,16 @@ typedef struct _ExperimentData
 	char startTime[100];
 	long tof;
 	char subExperimentData[100];
-}ExperimentData, PExperimentData;
+}ExperimentData, *PExperimentData;
+
+
+/*
+ * The control parameters' files:
+ * version
+ * ControlPara struct
+ */
+typedef struct _ControlParameter
+{
+	int version;
+	ControlPara cp;
+} ControlParameter, PControlParameter;

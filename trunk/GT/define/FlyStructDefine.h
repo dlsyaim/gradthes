@@ -236,13 +236,15 @@ typedef struct HelicopterPara
 }*pHelicopterPara;
 
 
-typedef struct ControlPara
+typedef struct _ControlPara
 {
 	char	paraname[20];
 	char	type;
 	bool	vb;
 	long	vl;
 	float	vf;
-}*pControlPara;
+}ControlPara, *pControlPara;
+
+bool operator== (const ControlPara &cp1, const ControlPara &cp2);
 
 #endif

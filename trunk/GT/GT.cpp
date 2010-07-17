@@ -47,7 +47,8 @@ CGTApp::CGTApp()
 	// Place all significant initialization in InitInstance
 
 	//_CrtSetBreakAlloc(1099); 
-}
+	
+} 
 
 // The one and only CGTApp object
 

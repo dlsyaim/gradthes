@@ -7,6 +7,7 @@
 #include "ServoActorDemarcateDialog.h"
 #include "Singleton.h"
 #include "GSDefinition.h"
+#include "HelicopterChoosingController.h"
 
 #ifndef PI
 #define PI 3.14159265358
@@ -27,10 +28,14 @@ CServoActorDemarcateDialog::CServoActorDemarcateDialog(pServoActorData pSAD, CWn
 	:CDialog(CServoActorDemarcateDialog::IDD, pParent)
 {
 	this->pSAD = pSAD;
+
+	controller = new CHelicopterChoosingController();
 }
 
 CServoActorDemarcateDialog::~CServoActorDemarcateDialog()
 {
+	if (controller)
+		delete controller;
 }
 
 void CServoActorDemarcateDialog::DoDataExchange(CDataExchange* pDX)
@@ -96,7 +101,8 @@ void CServoActorDemarcateDialog::OnBnClickedServoActorTestPass(void)
 	// First get the current helicopter model 
 	CSingleton *instance = CSingleton::getInstance();
 	PHelicopterModel curPHM = instance->getCurPHM();
-
+	HelicopterModel hm;
+	memcpy(&hm, curPHM, sizeof(HelicopterModel));
 	// Sencod fill the data
 	m_tabCollective.UpdateData(TRUE);
 	curPHM->sad.a1PWMValue[0] = (float)m_tabCollective.collectivePWM1;
@@ -163,8 +169,16 @@ void CServoActorDemarcateDialog::OnBnClickedServoActorTestPass(void)
 	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
 	cln->SendSvr(command, sizeof(command));
 
-	/********** Save the demarcated result into the file **********/
-	instance->updateHelicopterModelFile();
+	// Save the demarcated result into the file
+	//instance->updateHelicopterModelFile();
+	if (memcmp(&hm, curPHM, sizeof(HelicopterModel))) {
+		if (controller->checkModel(instance->getCurHelicopterModelFileName())) {
+			controller->saveModelFile(curPHM);
+		} else {
+			controller->updateModelFile(curPHM);
+		}
+	}
+
 	
 	/********** Set the global state variable **********/
 	instance->setIsServoActorDemarcated(TRUE);
@@ -175,8 +189,8 @@ void CServoActorDemarcateDialog::OnBnClickedServoActorTestPass(void)
 void CServoActorDemarcateDialog::OnBnClickedServoActorTestFailure(void)
 {
 	/***** Set the global state variable *****/
-	CSingleton *instance = CSingleton::getInstance();
-	instance->setIsServoActorDemarcated(FALSE);
+	//CSingleton *instance = CSingleton::getInstance();
+	//instance->setIsServoActorDemarcated(FALSE);
 
 	OnCancel();
 }
@@ -184,7 +198,7 @@ void CServoActorDemarcateDialog::OnBnClickedServoActorTestFailure(void)
 void CServoActorDemarcateDialog::OnClickedCancel()
 {
 	CSingleton *instance = CSingleton::getInstance();
-	int result = AfxMessageBox(_T("Are you sure to exit?\nIf exit, all newly demarcated data will be LOST"), MB_YESNO | MB_ICONWARNING);
+	int result = AfxMessageBox(IDS_EXIT_SERVO_DEMARCATE, MB_YESNO | MB_ICONWARNING);
 	switch (result) {
 		case IDYES:
 			/***** Set the global state variable *****/

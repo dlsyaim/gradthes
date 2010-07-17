@@ -3,6 +3,7 @@
 #include "GridCtrl_src/GridCtrl.h"
 
 // CPIDCPDialog 对话框
+class CPIDCPDialogController;
 
 class CPIDCPDialog : public CDialog
 {
@@ -13,6 +14,7 @@ public:
 	virtual ~CPIDCPDialog();
 
 	CGridCtrl m_Grid;
+	CPIDCPDialogController *controller;
 // 对话框数据
 	enum { IDD = IDD_PID_CP_DIALOG };
 
@@ -27,4 +29,29 @@ public:
 	afx_msg void OnBnClickedOpenCPBtn();
 private:
 	void updateGrid(void);
+};
+
+#pragma once
+
+
+// CPIDNamePrefixDialog dialog
+
+class CPIDNamePrefixDialog : public CDialog
+{
+	DECLARE_DYNAMIC(CPIDNamePrefixDialog)
+
+public:
+	CPIDNamePrefixDialog(CWnd* pParent = NULL);   // standard constructor
+	virtual ~CPIDNamePrefixDialog();
+
+// Dialog Data
+	enum { IDD = IDD_CP_NAME_PREFIX_DIALOG };
+
+protected:
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+
+	DECLARE_MESSAGE_MAP()
+public:
+	CString namePrefix;
+	afx_msg void OnBnClickedOk();
 };

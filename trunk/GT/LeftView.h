@@ -4,6 +4,7 @@
 // CLeftView ¥∞ÃÂ ”Õº
 class CGTDoc;
 class CCurveCtrl;
+class CFlightExperimentController;
 
 typedef std::pair<float, float> float_pair;
 
@@ -22,6 +23,7 @@ public:
 		STARTED
 	};
 	CGTDoc* GetDocument() const;
+	CFlightExperimentController *controller;
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 #ifndef _WIN32_WCE

@@ -10,6 +10,7 @@
 // CGridView ´°ÌåÊÓÍ¼
 class CGTDoc;
 class Texture;
+class CFlightPathSetController;
 
 class CGridView : public CFormView
 {
@@ -23,6 +24,7 @@ public:
 	enum { IDD = IDD_FORMVIEW };
 	CGTDoc* GetDocument() const;
 	CGridCtrl *m_pGridCtrl;
+	CFlightPathSetController* controller;
 
 #ifdef _DEBUG
 	virtual void AssertValid() const;
@@ -53,14 +55,18 @@ public:
 	inline void setReceived(__int32 *received) {this->received = received;}
 	inline void setState(__int32 *state) {this->state = state;}
 
-	void updateFormView(pPathPointData selectedPoint);
+	void updateFormView(pPathPointData pP);
 private:
 // Operations
+	// Plan the path 
 	void schedulePath(void);
+	// Find the path point by serial
 	pPathPointData findBySerial(std::vector<pPathPointData> *path, int serial);
 	// Resize the columns
 	void ResizeColumns(BOOL isFixedResize);
+	// Set the states of the check boxes
 	void setCheckBoxStates(CString label);
+
 // Attributes
 	// The state variable
 	BOOL isPathCompleted;
@@ -71,12 +77,21 @@ private:
 	// Map texture
 	Texture *mapTex;
 
+	bool isChange;
+
 public:
 	afx_msg void OnBnClickedAddPoint();
 	afx_msg void OnBnClickedSelectPoint();
 	afx_msg void OnBnClickedLoadImageButton();
-
+	afx_msg void OnBnClickedLoadFileButton();
 	void setCheckBoxStates(int state, CString label);
+	
+	afx_msg void OnBnClickedSaveFpButton();
+
+	// Update the form view and the GTView
+	void updateAllViews(void);
+	// Add a row
+	void addRow(double wx, double wz);
 };
 
 #ifndef _DEBUG  // debug version in GridView.cpp
@@ -85,3 +100,26 @@ inline CGTDoc* CGridView::GetDocument() const
 #endif
 
 
+#pragma once
+
+
+// CFPNamePrefixDialog dialog
+
+class CFPNamePrefixDialog : public CDialog
+{
+	DECLARE_DYNAMIC(CFPNamePrefixDialog)
+
+public:
+	CFPNamePrefixDialog(CWnd* pParent = NULL);   // standard constructor
+	virtual ~CFPNamePrefixDialog();
+
+// Dialog Data
+	enum { IDD = IDD_FP_NAME_PREFIX_DIALOG };
+
+protected:
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+
+	DECLARE_MESSAGE_MAP()
+public:
+	CString namePrefix;
+};

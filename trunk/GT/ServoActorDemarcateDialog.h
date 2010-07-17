@@ -8,6 +8,8 @@
 #include "RollTab.h"
 #include "TailTab.h"
 
+class CHelicopterChoosingController;
+
 // CServoActorDemarcateDialog 对话框
 
 class CServoActorDemarcateDialog : public CDialog
@@ -27,6 +29,8 @@ public:
 	CPitchTab m_tabPitch;
 	CRollTab m_tabRoll;
 	CTailTab m_tabTail;
+
+	CHelicopterChoosingController *controller;
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持

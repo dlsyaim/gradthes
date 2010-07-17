@@ -7,6 +7,7 @@
 #define MAX_NUM_HELICOPTER_NAME 5
 class ST_SplitterWnd;
 class CGTView;
+class CMainFrmController;
 
 class CMainFrame : public CFrameWndEx
 {
@@ -55,6 +56,7 @@ protected:  // control bar embedded members
 	CImageList  hotImageList;
 	CBitmap		bitmap;
 	
+	CMainFrmController* controller;
 // Generated message map functions
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
@@ -92,6 +94,8 @@ private:
 	CGTView* getLowerRightPane(void);
 	// Set the GTView's edit state
 	void setGTViewEditState(CString buttonLabel);
+	// Load the configuration parameters
+	void loadConfigurationFiles(void);
 //Attributes
 	CMenu* popUpMenu;
 	
@@ -118,6 +122,9 @@ public:
 	afx_msg LRESULT OnErrInst(WPARAM w, LPARAM l);
 
 	void setCheckBoxStates(int state, CString label);
+
+	// Enable / Disable menu items
+	void enableMenuItems(BOOL isEnable);
 };
 
 
