@@ -774,6 +774,12 @@ void CGTView::updateMapCoor(void)
 	}
 }
 
+void CGTView::restore(void)
+{
+	mapCoor.clear();
+	selectedPathPoint = NULL;
+}
+
 
 int CGTView::selectNavigator(CPoint* pP)
 {

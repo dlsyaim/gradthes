@@ -29,18 +29,15 @@ public:
 	inline void setIsPathSet(BOOL isPathSet){this->isPathSet = isPathSet;}
 	inline BOOL getIsPathSet(void) {return this->isPathSet;}
 
-	//inline void setRecentFPName(CString recentFPName) {this->recentFPName = recentFPName;}
-	//inline CString getRecnetFPName(void) {return recentFPName;}
-
-	//inline void setRecentCPName(CString recentCPName) {this->recentCPName = recentCPName;}
-	//inline CString getRecnetCPName(void) {return recentCPName;}
-
-	//inline void setCurFileName(CString curFileName) {this->curFileName = curFileName;}
-	//inline CString getCurFileName(void) {return curFileName;}
 	inline LPCTSTR getCurHelicopterModelFileName(void) {return tempCS.helicopterModelFileName;}
 	void setCurHelicopterModelFileName(LPCTSTR fileName);
+	
+	inline LPCTSTR getCurControlParameterFileName(void) {return tempCS.controlParameterFileName;}
 	void setCurControlParameterFileName(LPCTSTR fileName);
+	
+	inline LPCTSTR getCurFlightPathFileName(void) {return tempCS.flightPathFileName;}
 	void setCurFlightPathFileName(LPCTSTR fileName);
+	
 	void setCurFlyDataFileName(LPCTSTR fileName);
 
 	void updateCurConfiguration(void);
@@ -52,18 +49,14 @@ public:
 	inline BOOL getIsRotorDemarcated(void) {return isRotorDemarcated;}
 
 	inline PHelicopterModel getCurPHM(void) {return &curHM;}
-	//inline void setCurPHM(PHelicopterModel curPHM) {this->curPHM = curPHM;}
 
-	inline std::vector<ControlPara>* getTempCPV(void) {return &tempCPV;}
 	inline std::vector<ControlPara>* getCPV(void) {return &CPV;}
 	
 	inline PConfigStruct getCS(void) {return &cs;}
 
 	inline std::vector<pPathPointData> * getPath(void){return &path;}
-	//inline std::vector<pPathPointData> * getTempPath(void) {return &tempPath;}
 	inline std::vector<pPathPointData> * getScheduledPath(void){return &scheduledPath;}
 
-	//PHelicopterModel getTempPHM(void);
 	bool getTempPHM(LPCTSTR name, PHelicopterModel tempPHM);
 
 	void delCurPHM(void);
@@ -100,7 +93,7 @@ private:
 	// The name of the recent control parameter file
 	//CString recentCPName;
 	// Control paramters
-	std::vector<ControlPara> CPV, tempCPV;
+	std::vector<ControlPara> CPV;
 	// Path points
 	std::vector<pPathPointData> path, tempPath;
 	// Scheduled path points
