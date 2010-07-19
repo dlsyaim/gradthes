@@ -164,46 +164,27 @@ BOOL CPIDCPDialog::OnInitDialog()
 	}
 	m_Grid.ExpandRowsToFit(FALSE);
 
-	CSingleton* instance = CSingleton::getInstance();
-	if (instance->getCPV()->size()) {
-		updateGrid();
-	}
-
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
 
 void CPIDCPDialog::OnBnClickedOk()
 {
-	
-
-	this->UpdateData(TRUE);
-	/********** Get the socket cliet  **********/
+	UpdateData(TRUE);
+	// Get the socket cliet
 	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
 
-	/********** Construct the control parameters' data **********/
+	// Construct the control parameters' data
 	char command[sizeof(ControlPara) + 2];
 	__int16* c = (__int16*)command;
 	c[0] = TPT_LOADCONTROLPARA;
 
 	CSingleton *instance = CSingleton::getInstance();
-	PConfigStruct pCS = instance->getCS();
 
-	std::vector<ControlPara>* PCPV = instance->getTempCPV();
-	//PCPV->clear();
+	std::vector<ControlPara>* PCPV = instance->getCPV();
 	std::vector<ControlPara> copy;
 	bool isChange = false;
-	if (PCPV->empty()) {
-		isChange = true;
-	} else {
-		std::vector<ControlPara>::iterator iter;
-		for (iter = PCPV->begin(); iter != PCPV->end(); iter++) {
-			copy.push_back(*iter);
-		}
-		PCPV->clear();
-	}
 	
-
 	// Attention the index starts from 1
 	ControlPara cp;
 	// Initialize to zero
@@ -265,16 +246,11 @@ void CPIDCPDialog::OnBnClickedOk()
 			cp.vf = (float) atof((LPCTSTR)itemText);
 			memcpy(command + 2, (char *)&cp, sizeof(cp));
 			cln->SendSvr(command, sizeof(command));
-			PCPV->push_back(cp);
+			copy.push_back(cp);
 		}
 	}
-	/*if (copy == *PCPV) {
-		TRACE("Works\n");
-	} else {
-		TRACE("Also works\n");
-	}*/
 	if (!isChange) {
-		if (copy == *PCPV) {
+		if (copy == controlParameterVector) {
 			isChange = false;
 		} else {
 			isChange = true;
@@ -283,91 +259,62 @@ void CPIDCPDialog::OnBnClickedOk()
     // Set the global state variable
 	instance->setIsControlParameterSet(TRUE);
 
-	
-	
-	/********** Save the control paramters into files **********/	
-	//static int version = 0;
-	//CTime t = CTime::GetCurrentTime();  
-	//CString timeString = t.Format("%Y-%m-%d %H-%M-%S");
-	//CString verStr;	
-	//verStr.Format(_T("-%d.cp"), version++);
-	//timeString.Append(verStr);
-	//
-	//std::ofstream ofs(timeString, std::ios::binary);
-	//std::vector<ControlPara>::iterator iter;
-	//for (iter = PCPV->begin(); iter != PCPV->end(); iter++) {
-	//	ofs.write((char *)(&(*iter)), sizeof(*iter));
-	//}
-	//ofs.close();
-	if (isChange) {
-		CString namePrefix;
-		while (true) {
-			CPIDNamePrefixDialog pnp;
-			if (pnp.DoModal() == IDOK) {
-				if (pnp.namePrefix.GetLength() != 0) {
-					namePrefix = pnp.namePrefix;
-					break;
+	if (isChange) {		
+		PCPV->clear();
+		std::vector<ControlPara>::iterator iter;
+		for (iter = copy.begin(); iter != copy.end(); iter++) {
+			PCPV->push_back(*iter);
+		}
+		if (controller->checkControlParameter(instance->getCurControlParameterFileName())) {
+			CString namePrefix;
+			while (true) {
+				CPIDNamePrefixDialog pidNamePrefix;
+				if (pidNamePrefix.DoModal() == IDOK) {
+					if (pidNamePrefix.namePrefix.GetLength() != 0) {
+						namePrefix = pidNamePrefix.namePrefix;
+						break;
+					}
 				}
 			}
-		}
-		controller->saveControlParaFile(namePrefix, PCPV);
+			controller->saveControlParaFile(namePrefix, PCPV);
+		} else {
+			controller->updateControlParaFile(PCPV);
+		}		
 	}
-	
-	instance->updateCurCP();
 
-	//pCS->isControlSet = 1;
-	//memcpy(pCS->controlParameterFileName, (LPCTSTR)timeString, timeString.GetLength());
+	instance->updateCurConfiguration();
 	TRACE("Current CP: %s\n", instance->getCS()->controlParameterFileName);
-	OnOK();
+	CDialog::OnOK();
 }
 
 void CPIDCPDialog::OnBnClickedCancel()
 {
 	CSingleton* instance = CSingleton::getInstance();
-	//instance->setIsControlParameterSet(FALSE);
-
 	TRACE("Current CP: %s\n", instance->getCS()->controlParameterFileName);
 
-	OnCancel();
+	CDialog::OnCancel();
 }
 
 void CPIDCPDialog::OnBnClickedOpenCPBtn()
 {
 	char szFilter[] = {"All Files (*.*)|*.*||"};
-    std::vector<ControlPara>* PCMV = CSingleton::getInstance()->getTempCPV();
-
-	while (TRUE) {	
-		CFileDialog openDlg(TRUE, NULL, NULL, 0, szFilter);
-			if (openDlg.DoModal() == IDOK) {
-				CString fileName = openDlg.GetPathName();
-				// Open file
-				/*std::ifstream ifs(fileName, std::ios::binary);
-				ControlPara cp;
-				while (true) {
-					ifs.read((char *)&cp, sizeof(cp));
-					if (ifs.gcount() != sizeof(cp))
-						break;
-					PCMV->push_back(cp);
-				}
-				ifs.close();*/
-				controller->openControlParaFile(fileName, PCMV);
-				
-				// Update the grid
-				updateGrid();
-				break;
-			} else
-				break;
-	}	
+	controlParameterVector.clear();
+	CFileDialog openDlg(TRUE, NULL, NULL, 0, szFilter);
+	if (openDlg.DoModal() == IDOK) {
+		CString fileName = openDlg.GetFileName();
+		controller->openControlParaFile(fileName, &controlParameterVector);
+		// Update the grid
+		updateGrid(&controlParameterVector);
+	}
 }
 
 
-void CPIDCPDialog::updateGrid(void)
+void CPIDCPDialog::updateGrid(std::vector<ControlPara> *PCMV)
 {
-	std::vector<ControlPara> *PCMV = CSingleton::getInstance()->getTempCPV();
-
+	if (!PCMV)
+		return;
 	if (PCMV->size() == 0)
 		return;
-
 	int i, j, index = 0;
 	CString text;
 	for (i = 1; i < m_Grid.GetRowCount(); i++) {

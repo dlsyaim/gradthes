@@ -87,7 +87,9 @@ public:
 	inline void setPath(std::vector<PathPointData*> *pPath) {m_Renderer->setPPath(pPath); this->Invalidate(FALSE);}
 	void addPathPoint(pPathPointData p);
 	void updatePathPoint(pPathPointData p);
+	
 	void updateMapCoor(void);
+	void restore(void);
 
 	inline void setEditState(int ste) {this->addOrSelect = ste;}
 	inline void setMapTex(Texture *tex) {m_Renderer->setMapTex(tex);this->Invalidate(FALSE);}

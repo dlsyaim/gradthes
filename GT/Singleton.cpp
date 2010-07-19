@@ -159,12 +159,12 @@ void CSingleton::updateCurPHM(void)
 
 void CSingleton::updateCurCP(void)
 {
-	CPV.clear();
-	std::vector<ControlPara>::iterator iter;
-	for (iter = tempCPV.begin(); iter != tempCPV.end(); iter++) {
-		CPV.push_back(*iter);
-	}
-	tempCPV.clear();
+	//CPV.clear();
+	//std::vector<ControlPara>::iterator iter;
+	//for (iter = tempCPV.begin(); iter != tempCPV.end(); iter++) {
+	//	CPV.push_back(*iter);
+	//}
+	//tempCPV.clear();
 }
 
 void CSingleton::updateCurFP(void)

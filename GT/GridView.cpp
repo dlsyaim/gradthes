@@ -261,10 +261,9 @@ BOOL CGridView::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
 void CGridView::OnGridClick(NMHDR *pNotifyStruct, LRESULT* /*pResult*/)
 {
     NM_GRIDVIEW* pItem = (NM_GRIDVIEW*) pNotifyStruct;
-    //TRACE(_T("Clicked on row %d, col %d\n"), pItem->iRow, pItem->iColumn);
 	CSingleton *instance = CSingleton::getInstance();
 	std::vector<pPathPointData> *path = instance->getPath();
-	/********** When click the last cell, then should check if the text is 'Add' or 'Update' **********/
+	// When clicking the last cell, then should check if the text is 'Add' or 'Update'
 	if (pItem->iColumn == NUM_OF_COL) {
 		PathPointData *ppd = NULL, *editedPoint = NULL;
 		CString label = m_pGridCtrl->GetItemText(pItem->iRow, pItem->iColumn);
@@ -352,22 +351,22 @@ void CGridView::OnBnClickedAssurePath()
 {
 	CSingleton* instance = CSingleton::getInstance();
 	std::vector<pPathPointData>* path = instance->getPath();
-	/********** Here we must send all the path point data to the server **********/
+	// Here we must send all the path point data to the server
 	if (path->size() == 0) 
 		return;
 
-	/********** Sort the path **********/
+	// Sort the path
 	sort(path->begin(), path->end(), lowerSorter);
-	/********** Construct the content of the command to start send path points *********/
+	// Construct the content of the command to start send path points
 	char command[2];
 	__int16 *c = (__int16 *)command;
 	c[0] = TPT_LOADPATHPOINT_START;
 
-	/********** First send the LOAD START command **********/
+	// First send the LOAD START command
 	CNetCln* cln = ((CGTApp*)AfxGetApp())->getCln();
 	cln->SendSvr(command, sizeof(command));
 
-	/********** Then send the first path point **********/
+	// Then send the first path point
 	char pointCommand[sizeof(PathPointData) + 2];
 	c = (__int16 *)pointCommand;
 	c[0] = TPT_LOADPATHPOINTS;
@@ -473,7 +472,7 @@ void CGridView::OnBnClickedSelectPoint()
  */
 void CGridView::OnBnClickedLoadImageButton()
 {
-	/********** Open the image file **********/
+	// Open the image file
 	char strFilter[] = { 
 		"Joint Photographic Experts Group(*.jpg;*.jpeg)|*.jpg;*.jpeg|Graphic Interchange Format(*.gif)|*.gif|Bitmap(*.bmp)| *.bmp||" };
 	while (TRUE) {
@@ -489,7 +488,6 @@ void CGridView::OnBnClickedLoadImageButton()
 				mapTex = NULL;
 				continue;
 			} else {
-				// x1(0.0f), x2(1.0f), y1(0.0f), y2(1.0f)
 				mapTex->setX1(0.0f);
 				mapTex->setX2(1.0f);
 				mapTex->setY1(0.0f);
@@ -539,9 +537,9 @@ void CGridView::ResizeColumns(BOOL isFixedResize)
 		// The width of columns > 1
 		if (m_pGridCtrl->GetColumnWidth(col) >= 0) { 
 			if (nAdjustment > 1) {
-				m_pGridCtrl->SetColumnWidth(col, /*m_pGridCtrl->GetColumnWidth(col) + */nAdjustment - 1);
+				m_pGridCtrl->SetColumnWidth(col, nAdjustment - 1);
 			} else {
-				m_pGridCtrl->SetColumnWidth(col, /*m_pGridCtrl->GetColumnWidth(col) + */nAdjustment);
+				m_pGridCtrl->SetColumnWidth(col, nAdjustment);
 			}
 		}
 	}
@@ -593,6 +591,8 @@ void CGridView::updateFormView(pPathPointData pP)
 
 	m_pGridCtrl->Invalidate();
 
+	isChange = true;
+
 }
 
 void CGridView::setCheckBoxStates(int state, CString label)
@@ -641,27 +641,11 @@ void CGridView::OnBnClickedLoadFileButton()
 	CFileDialog fileDlg(TRUE, NULL, NULL, 0, szFilter);
 	UINT_PTR result = fileDlg.DoModal();
 	if (result == IDOK) {
-		CString fullPathName = fileDlg.GetPathName();
-	/*	std::ifstream ifs(fullPathName, std::ios::binary);
-		if (ifs.fail())
-		{
-			AfxMessageBox(_T("Can't find file\n") + fullPathName, MB_OK | MB_ICONWARNING);
-			return;
-		}*/
+		CString fileName = fileDlg.GetFileName();
 		CSingleton* instance = CSingleton::getInstance();
-		//PConfigStruct m_pCS = instance->getCS();
-		//memcpy(m_pCS->flightPathFileName, fullPathName.GetBuffer(), fullPathName.GetLength());
-
-	/*	std::vector<pPathPointData>* tPath = instance->getPath();
-		while (true) {
-			pPathPointData pP = new PathPointData;
-			ifs.read((char *)pP, sizeof(PathPointData));
-			if (ifs.gcount() != sizeof(PathPointData))
-				break;
-			tPath->push_back(pP);
-		}
-		ifs.close();*/
-		controller->openPathFile(fullPathName, instance->getPath());
+		instance->getPath()->clear();
+		GetDocument()->lowerRightView->restore();
+		controller->openPathFile(fileName, instance->getPath());
 		updateAllViews();
 	}
 }
@@ -691,43 +675,29 @@ void CGridView::OnBnClickedSaveFpButton()
 	CSingleton *instance = CSingleton::getInstance();
 	std::vector<pPathPointData> *path = instance->getPath();
 
-	//PConfigStruct pCS = instance->getCS();
-	/*static int version = 0;
-	CTime t = CTime::GetCurrentTime();  
-	CString timeString = t.Format("%Y-%m-%d %H-%M-%S");
-	CString verStr;*/	
-
 	// Set the global state variable
 	instance->setIsPathSet(TRUE);
-	// And save the data into the files
-	//verStr.Format(_T("-%d.fp"), version++);
-	//timeString.Appendflyconfig/path_index(verStr);
-
-	//pCS->isPathSet = 1;
-	//memcpy(pCS->flightPathFileName, (LPCTSTR)timeString, timeString.GetLength());
-	
-	//std::ofstream ofs(timeString, std::ios::binary);
-	//std::vector<PathPointData*>::iterator iter;
-	//for (iter = path->begin(); iter != path->end(); iter++) {
-	//	ofs.write((char*)(*iter), sizeof(**iter));
-	//}
-	//ofs.close();
-	if (isChange) {
-		CString namePrefix;
-		while (true) {
-			CFPNamePrefixDialog npd;
-			if (npd.DoModal() == IDOK) {
-				if (npd.namePrefix.GetLength() != 0)
-				{
-					namePrefix = npd.namePrefix;
-					break;
+	if (isChange) {		
+		if (controller->checkPath(instance->getCurFlightPathFileName())) {
+			CString namePrefix;
+			while (true) {
+				CFPNamePrefixDialog npd;
+				if (npd.DoModal() == IDOK) {
+					if (npd.namePrefix.GetLength() != 0)
+					{
+						namePrefix = npd.namePrefix;
+						break;
+					}
 				}
 			}
-		}
-		controller->savePathFile(namePrefix, path);
+			controller->savePathFile(namePrefix, path);
+		} else {
+			controller->updatePathFile(path);
+		}		
 	}
 	instance->updateCurConfiguration();
-	//instance->updateCurFP();
+
+	TRACE("Current Path: %s\n", instance->getCS()->flightPathFileName);
 }
 
 void CGridView::addRow(double wx, double wz)
@@ -775,6 +745,8 @@ void CGridView::addRow(double wx, double wz)
 	GetDocument()->lowerRightView->addPathPoint(pP);
 
 	m_pGridCtrl->Invalidate();
+
+	isChange = true;
 
 }
 // E:\Workspace\Visual Studio 2008\GraduationThesis\GT\GridView.cpp : implementation file

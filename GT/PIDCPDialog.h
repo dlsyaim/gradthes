@@ -15,6 +15,8 @@ public:
 
 	CGridCtrl m_Grid;
 	CPIDCPDialogController *controller;
+
+	std::vector<ControlPara> controlParameterVector;
 // 对话框数据
 	enum { IDD = IDD_PID_CP_DIALOG };
 
@@ -28,7 +30,7 @@ public:
 	afx_msg void OnBnClickedCancel();
 	afx_msg void OnBnClickedOpenCPBtn();
 private:
-	void updateGrid(void);
+	void updateGrid(std::vector<ControlPara> *controlParameterVector);
 };
 
 #pragma once
